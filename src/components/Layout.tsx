@@ -2,7 +2,7 @@
 import { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import Navbar from "./Navbar";
+import Sidebar from "./Sidebar";
 import { Toaster } from "@/components/ui/sonner";
 
 interface LayoutProps {
@@ -37,9 +37,11 @@ const Layout = ({ children, requireAuth = false }: LayoutProps) => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      {user && <Navbar />}
-      <main className="flex-1 container mx-auto py-6 px-4 sm:px-6 lg:px-8">
-        {children}
+      {user && <Sidebar />}
+      <main className={`flex-1 ${user ? 'sm:ml-[60px]' : ''} transition-all duration-300`}>
+        <div className="container mx-auto py-6 px-4 sm:px-6 lg:px-8">
+          {children}
+        </div>
       </main>
       <Toaster />
     </div>

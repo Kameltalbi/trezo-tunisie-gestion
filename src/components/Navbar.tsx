@@ -16,7 +16,7 @@ const Navbar = () => {
   };
 
   return (
-    <header className="bg-white shadow-sm border-b">
+    <header className="bg-white shadow-sm border-b sm:hidden">
       <div className="container mx-auto py-4 px-6 flex items-center justify-between">
         <div className="flex items-center space-x-2">
           <Link to="/recettes" className="flex items-center">
@@ -27,38 +27,7 @@ const Navbar = () => {
           </Link>
         </div>
         
-        <nav className="hidden md:flex items-center space-x-4">
-          <Link
-            to="/recettes"
-            className={`px-4 py-2 rounded-lg transition-colors ${
-              isActive("/recettes")
-                ? "bg-emerald-50 text-emerald-600 font-medium"
-                : "text-gray-600 hover:text-emerald-600"
-            }`}
-          >
-            {t('nav.recettes')}
-          </Link>
-          <Link
-            to="/parametres"
-            className={`px-4 py-2 rounded-lg transition-colors ${
-              isActive("/parametres")
-                ? "bg-emerald-50 text-emerald-600 font-medium"
-                : "text-gray-600 hover:text-emerald-600"
-            }`}
-          >
-            {t('nav.parametres')}
-          </Link>
-        </nav>
-
-        <div className="hidden md:flex items-center space-x-4">
-          <div className="text-sm text-gray-600">
-            {user?.nom || user?.email}
-          </div>
-          <LanguageSwitcher />
-        </div>
-
-        {/* Version mobile */}
-        <div className="md:hidden flex space-x-2">
+        <div className="flex space-x-2">
           <Link
             to="/recettes"
             className={`p-2 rounded-md ${
