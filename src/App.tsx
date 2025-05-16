@@ -10,6 +10,28 @@ import Recettes from "./pages/Recettes";
 import Parametres from "./pages/Parametres";
 import NotFound from "./pages/NotFound";
 
+// Placeholder pages qui seront implémentées plus tard
+const Dashboard = () => (
+  <div className="p-4">
+    <h1 className="text-2xl font-bold">Dashboard</h1>
+    <p className="text-muted-foreground">Cette fonctionnalité sera bientôt disponible.</p>
+  </div>
+);
+
+const Depenses = () => (
+  <div className="p-4">
+    <h1 className="text-2xl font-bold">Dépenses</h1>
+    <p className="text-muted-foreground">Cette fonctionnalité sera bientôt disponible.</p>
+  </div>
+);
+
+const Categories = () => (
+  <div className="p-4">
+    <h1 className="text-2xl font-bold">Catégories</h1>
+    <p className="text-muted-foreground">Cette fonctionnalité sera bientôt disponible.</p>
+  </div>
+);
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -23,6 +45,9 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/recettes" element={<Recettes />} />
             <Route path="/parametres" element={<Parametres />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/depenses" element={<Depenses />} />
+            <Route path="/categories" element={<Categories />} />
             <Route path="/" element={<Login />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
