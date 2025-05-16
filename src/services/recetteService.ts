@@ -125,8 +125,10 @@ export const RECURRENCE_OPTIONS = [
   { value: "aucune", label: "Aucune" },
   { value: "quotidienne", label: "Quotidienne" },
   { value: "hebdomadaire", label: "Hebdomadaire" },
+  { value: "bimensuelle", label: "Bimensuelle" },
   { value: "mensuelle", label: "Mensuelle" },
   { value: "trimestrielle", label: "Trimestrielle" },
+  { value: "simestrielle", label: "Simestrielle" },
   { value: "annuelle", label: "Annuelle" }
 ];
 

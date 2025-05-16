@@ -1,4 +1,5 @@
 
+
 export interface User {
   id: string;
   email: string;
@@ -13,7 +14,7 @@ export interface Recette {
   date: string;
   categorie: string;
   sousCategorie?: string;
-  recurrence?: "aucune" | "quotidienne" | "hebdomadaire" | "mensuelle" | "trimestrielle" | "annuelle";
+  recurrence?: "aucune" | "quotidienne" | "hebdomadaire" | "bimensuelle" | "mensuelle" | "trimestrielle" | "simestrielle" | "annuelle";
   userId: string;
 }
 
@@ -22,3 +23,4 @@ export interface AuthState {
   isLoading: boolean;
   error: string | null;
 }
+
