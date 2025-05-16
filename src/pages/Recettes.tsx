@@ -52,6 +52,8 @@ import {
   Loader2,
   Info,
   Search,
+  Repeat,
+  List,
 } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
@@ -96,7 +98,8 @@ const Recettes = () => {
       const filtered = recettes.filter(
         (recette) =>
           recette.titre.toLowerCase().includes(lowercaseSearch) ||
-          recette.categorie.toLowerCase().includes(lowercaseSearch)
+          recette.categorie.toLowerCase().includes(lowercaseSearch) ||
+          (recette.sousCategorie && recette.sousCategorie.toLowerCase().includes(lowercaseSearch))
       );
       setFilteredRecettes(filtered);
     }
@@ -178,6 +181,25 @@ const Recettes = () => {
     return new Intl.DateTimeFormat('fr-FR').format(date);
   };
   
+  // Rendre une icône pour la récurrence
+  const renderRecurrenceIcon = (recurrence?: string) => {
+    if (!recurrence || recurrence === "aucune") return null;
+    
+    const tooltips = {
+      "quotidienne": "Récurrence quotidienne",
+      "hebdomadaire": "Récurrence hebdomadaire",
+      "mensuelle": "Récurrence mensuelle",
+      "trimestrielle": "Récurrence trimestrielle",
+      "annuelle": "Récurrence annuelle"
+    };
+    
+    return (
+      <span title={tooltips[recurrence as keyof typeof tooltips]}>
+        <Repeat size={14} className="inline text-blue-500 ml-1" />
+      </span>
+    );
+  };
+  
   return (
     <Layout requireAuth>
       <div className="space-y-6">
@@ -252,7 +274,8 @@ const Recettes = () => {
                     <TableHead>Titre</TableHead>
                     <TableHead>Montant (TND)</TableHead>
                     <TableHead>Date</TableHead>
-                    <TableHead>Catégorie</TableHead>
+                    <TableHead>Catégorie / Sous-catégorie</TableHead>
+                    <TableHead>Récurrence</TableHead>
                     <TableHead className="text-right">Actions</TableHead>
                   </TableRow>
                 </TableHeader>
@@ -263,9 +286,26 @@ const Recettes = () => {
                       <TableCell>{formatMontant(recette.montant)}</TableCell>
                       <TableCell>{formatDate(recette.date)}</TableCell>
                       <TableCell>
-                        <Badge variant="outline" className="capitalize">
-                          {recette.categorie}
-                        </Badge>
+                        <div className="flex flex-col space-y-1">
+                          <Badge variant="outline" className="capitalize w-fit">
+                            {recette.categorie}
+                          </Badge>
+                          {recette.sousCategorie && (
+                            <Badge variant="secondary" className="capitalize text-xs w-fit">
+                              {recette.sousCategorie}
+                            </Badge>
+                          )}
+                        </div>
+                      </TableCell>
+                      <TableCell>
+                        {recette.recurrence && recette.recurrence !== "aucune" ? (
+                          <Badge variant="outline" className="flex items-center gap-1">
+                            <Repeat className="h-3 w-3" />
+                            {recette.recurrence.charAt(0).toUpperCase() + recette.recurrence.slice(1)}
+                          </Badge>
+                        ) : (
+                          <span className="text-gray-400 text-sm">-</span>
+                        )}
                       </TableCell>
                       <TableCell className="text-right">
                         <div className="flex justify-end gap-2">

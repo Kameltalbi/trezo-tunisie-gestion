@@ -12,6 +12,8 @@ export interface Recette {
   montant: number;
   date: string;
   categorie: string;
+  sousCategorie?: string;
+  recurrence?: "aucune" | "quotidienne" | "hebdomadaire" | "mensuelle" | "trimestrielle" | "annuelle";
   userId: string;
 }
 

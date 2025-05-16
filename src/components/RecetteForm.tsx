@@ -6,8 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Recette } from "../types";
-import { CATEGORIES } from "../services/recetteService";
-import { Loader2 } from "lucide-react";
+import { CATEGORIES, SOUS_CATEGORIES, RECURRENCE_OPTIONS } from "../services/recetteService";
+import { Loader2, Repeat, List } from "lucide-react";
 
 interface RecetteFormProps {
   recette?: Recette;
@@ -21,33 +21,58 @@ interface FormValues {
   montant: string;
   date: string;
   categorie: string;
+  sousCategorie: string;
+  recurrence: string;
 }
 
 const RecetteForm = ({ recette, onSubmit, isSubmitting, onCancel }: RecetteFormProps) => {
   const [selectedCategorie, setSelectedCategorie] = useState<string>(recette?.categorie || CATEGORIES[0]);
+  const [selectedSousCategorie, setSelectedSousCategorie] = useState<string>(
+    recette?.sousCategorie || (SOUS_CATEGORIES[recette?.categorie || CATEGORIES[0]]?.[0] || "")
+  );
+  const [selectedRecurrence, setSelectedRecurrence] = useState<string>(
+    recette?.recurrence || "aucune"
+  );
 
   const { register, handleSubmit, formState: { errors }, setValue, watch } = useForm<FormValues>({
     defaultValues: {
       titre: recette?.titre || '',
       montant: recette ? String(recette.montant) : '',
       date: recette?.date || new Date().toISOString().split('T')[0],
-      categorie: recette?.categorie || CATEGORIES[0]
+      categorie: recette?.categorie || CATEGORIES[0],
+      sousCategorie: recette?.sousCategorie || (SOUS_CATEGORIES[recette?.categorie || CATEGORIES[0]]?.[0] || ""),
+      recurrence: recette?.recurrence || "aucune"
     }
   });
 
-  // Assurer que la catégorie dans le formulaire est synchronisée avec l'état local
+  // Assurer que les valeurs dans le formulaire sont synchronisées avec les états locaux
   useEffect(() => {
     setValue('categorie', selectedCategorie);
+    
+    // Réinitialiser la sous-catégorie lorsque la catégorie change
+    if (SOUS_CATEGORIES[selectedCategorie]) {
+      const defaultSousCategorie = SOUS_CATEGORIES[selectedCategorie][0];
+      setSelectedSousCategorie(defaultSousCategorie);
+      setValue('sousCategorie', defaultSousCategorie);
+    }
   }, [selectedCategorie, setValue]);
   
-  const watchCategorie = watch('categorie');
+  useEffect(() => {
+    setValue('sousCategorie', selectedSousCategorie);
+  }, [selectedSousCategorie, setValue]);
+  
+  useEffect(() => {
+    setValue('recurrence', selectedRecurrence);
+  }, [selectedRecurrence, setValue]);
 
   const processSubmit = async (data: FormValues) => {
     const formattedData = {
       titre: data.titre,
       montant: parseFloat(data.montant.replace(',', '.')),
       date: data.date,
-      categorie: data.categorie
+      categorie: data.categorie,
+      sousCategorie: data.sousCategorie,
+      recurrence: data.recurrence as Recette["recurrence"]
     };
     
     await onSubmit(formattedData);
@@ -102,7 +127,10 @@ const RecetteForm = ({ recette, onSubmit, isSubmitting, onCancel }: RecetteFormP
         </div>
 
         <div className="grid gap-2">
-          <Label htmlFor="categorie">Catégorie</Label>
+          <Label htmlFor="categorie" className="flex items-center gap-2">
+            <List size={16} />
+            Catégorie
+          </Label>
           <Select 
             value={selectedCategorie}
             onValueChange={(value) => {
@@ -117,6 +145,56 @@ const RecetteForm = ({ recette, onSubmit, isSubmitting, onCancel }: RecetteFormP
               {CATEGORIES.map((categorie) => (
                 <SelectItem key={categorie} value={categorie}>
                   {categorie}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="grid gap-2">
+          <Label htmlFor="sousCategorie" className="flex items-center gap-2">
+            <List size={16} />
+            Sous-catégorie
+          </Label>
+          <Select 
+            value={selectedSousCategorie}
+            onValueChange={(value) => {
+              setSelectedSousCategorie(value);
+              setValue('sousCategorie', value);
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Sélectionner une sous-catégorie" />
+            </SelectTrigger>
+            <SelectContent>
+              {SOUS_CATEGORIES[selectedCategorie]?.map((sousCategorie) => (
+                <SelectItem key={sousCategorie} value={sousCategorie}>
+                  {sousCategorie}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <div className="grid gap-2">
+          <Label htmlFor="recurrence" className="flex items-center gap-2">
+            <Repeat size={16} />
+            Récurrence
+          </Label>
+          <Select 
+            value={selectedRecurrence}
+            onValueChange={(value) => {
+              setSelectedRecurrence(value);
+              setValue('recurrence', value);
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Sélectionner une récurrence" />
+            </SelectTrigger>
+            <SelectContent>
+              {RECURRENCE_OPTIONS.map((option) => (
+                <SelectItem key={option.value} value={option.value}>
+                  {option.label}
                 </SelectItem>
               ))}
             </SelectContent>

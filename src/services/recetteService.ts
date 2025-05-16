@@ -9,6 +9,8 @@ const MOCK_RECETTES: Recette[] = [
     montant: 1250.500,
     date: "2024-05-15",
     categorie: "Services",
+    sousCategorie: "Conseil",
+    recurrence: "mensuelle",
     userId: "user-1"
   },
   {
@@ -17,6 +19,8 @@ const MOCK_RECETTES: Recette[] = [
     montant: 730.250,
     date: "2024-05-12",
     categorie: "Ventes",
+    sousCategorie: "Produits digitaux",
+    recurrence: "aucune",
     userId: "user-1"
   },
   {
@@ -25,6 +29,8 @@ const MOCK_RECETTES: Recette[] = [
     montant: 450.000,
     date: "2024-05-08",
     categorie: "Divers",
+    sousCategorie: "Remboursement fiscale",
+    recurrence: "annuelle",
     userId: "user-1"
   },
   {
@@ -33,6 +39,8 @@ const MOCK_RECETTES: Recette[] = [
     montant: 2000.000,
     date: "2024-05-01",
     categorie: "Abonnements",
+    sousCategorie: "Entreprises",
+    recurrence: "mensuelle",
     userId: "user-1"
   }
 ];
@@ -101,6 +109,25 @@ export const CATEGORIES = [
   "Abonnements",
   "Remboursement",
   "Divers"
+];
+
+// Sous-catégories disponibles par catégorie
+export const SOUS_CATEGORIES: Record<string, string[]> = {
+  "Services": ["Conseil", "Prestation", "Formation", "Support technique"],
+  "Ventes": ["Produits physiques", "Produits digitaux", "Licences", "Abonnements"],
+  "Abonnements": ["Particuliers", "Entreprises", "Startups", "Grands comptes"],
+  "Remboursement": ["Remboursement fiscale", "Remboursement client", "Autres remboursements"],
+  "Divers": ["Don", "Intérêt", "Autre"]
+};
+
+// Options de récurrence
+export const RECURRENCE_OPTIONS = [
+  { value: "aucune", label: "Aucune" },
+  { value: "quotidienne", label: "Quotidienne" },
+  { value: "hebdomadaire", label: "Hebdomadaire" },
+  { value: "mensuelle", label: "Mensuelle" },
+  { value: "trimestrielle", label: "Trimestrielle" },
+  { value: "annuelle", label: "Annuelle" }
 ];
 
 // Formater le montant avec 3 décimales et le symbole TND
