@@ -2,9 +2,8 @@
 import { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import Navbar from "./Navbar";
 import { Toaster } from "@/components/ui/sonner";
-import { SidebarProvider } from "@/components/ui/sidebar";
-import { AppSidebar } from "./AppSidebar";
 
 interface LayoutProps {
   children: ReactNode;
@@ -38,22 +37,10 @@ const Layout = ({ children, requireAuth = false }: LayoutProps) => {
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      {user && (
-        <SidebarProvider defaultOpen={true}>
-          <div className="flex min-h-screen w-full">
-            <AppSidebar />
-            <main className="flex-1 overflow-x-hidden p-4 md:p-6">
-              {children}
-            </main>
-          </div>
-        </SidebarProvider>
-      )}
-      
-      {!user && (
-        <main className="flex-1 container mx-auto py-6 px-4 sm:px-6 lg:px-8">
-          {children}
-        </main>
-      )}
+      {user && <Navbar />}
+      <main className="flex-1 container mx-auto py-6 px-4 sm:px-6 lg:px-8">
+        {children}
+      </main>
       <Toaster />
     </div>
   );
