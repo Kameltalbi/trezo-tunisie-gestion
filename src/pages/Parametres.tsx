@@ -19,13 +19,15 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { LogOut, Loader2, User } from "lucide-react";
+import { LogOut, Loader2, User, Globe } from "lucide-react";
 import { toast } from "sonner";
-import { User as UserType } from "../types";
+import { useTranslation } from "react-i18next";
 
 const Parametres = () => {
   const { user, updateUser, logout, isLoading } = useAuth();
   const [isUpdating, setIsUpdating] = useState(false);
+  const { t, i18n } = useTranslation();
+  
   const [formData, setFormData] = useState<{
     nom: string;
     email: string;
@@ -44,9 +46,9 @@ const Parametres = () => {
       await updateUser({
         ...formData,
       });
-      toast.success("Profil mis à jour avec succès");
+      toast.success(t("parametres.update_success"));
     } catch (error) {
-      toast.error("Erreur lors de la mise à jour du profil");
+      toast.error(t("parametres.update_error"));
     } finally {
       setIsUpdating(false);
     }
@@ -55,10 +57,15 @@ const Parametres = () => {
   const handleLogout = async () => {
     try {
       await logout();
-      toast.success("Déconnexion réussie");
+      toast.success(t("auth.logout_success"));
     } catch (error) {
-      toast.error("Erreur lors de la déconnexion");
+      toast.error(t("auth.logout_error"));
     }
+  };
+  
+  const changeLanguage = (lang: string) => {
+    i18n.changeLanguage(lang);
+    localStorage.setItem("i18nextLng", lang);
   };
 
   if (!user) return null;
@@ -67,18 +74,18 @@ const Parametres = () => {
     <Layout requireAuth>
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Paramètres</h1>
+          <h1 className="text-2xl font-bold text-gray-900">{t("parametres.title")}</h1>
           <p className="text-gray-500">
-            Gérez vos informations personnelles et préférences
+            {t("parametres.description")}
           </p>
         </div>
 
         <div className="grid gap-6">
           <Card className="rounded-2xl">
             <CardHeader>
-              <CardTitle className="text-lg">Profil utilisateur</CardTitle>
+              <CardTitle className="text-lg">{t("parametres.profile")}</CardTitle>
               <CardDescription>
-                Gérez vos informations personnelles
+                {t("parametres.profile_desc")}
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-6">
@@ -90,19 +97,19 @@ const Parametres = () => {
 
               <div className="space-y-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="nom">Nom</Label>
+                  <Label htmlFor="nom">{t("parametres.name")}</Label>
                   <Input
                     id="nom"
                     value={formData.nom}
                     onChange={(e) =>
                       setFormData({ ...formData, nom: e.target.value })
                     }
-                    placeholder="Votre nom"
+                    placeholder={t("parametres.name")}
                   />
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="email">Email</Label>
+                  <Label htmlFor="email">{t("parametres.email")}</Label>
                   <Input
                     id="email"
                     value={formData.email}
@@ -112,7 +119,7 @@ const Parametres = () => {
                 </div>
 
                 <div className="grid gap-2">
-                  <Label htmlFor="role">Rôle</Label>
+                  <Label htmlFor="role">{t("parametres.role")}</Label>
                   <Select
                     value={formData.role}
                     onValueChange={(value: "admin" | "utilisateur") =>
@@ -120,11 +127,11 @@ const Parametres = () => {
                     }
                   >
                     <SelectTrigger>
-                      <SelectValue placeholder="Sélectionner un rôle" />
+                      <SelectValue placeholder={t("parametres.select_role")} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="admin">Administrateur</SelectItem>
-                      <SelectItem value="utilisateur">Utilisateur</SelectItem>
+                      <SelectItem value="admin">{t("parametres.admin")}</SelectItem>
+                      <SelectItem value="utilisateur">{t("parametres.user")}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
@@ -138,10 +145,10 @@ const Parametres = () => {
                 {isUpdating ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Mise à jour...
+                    {t("parametres.updating")}
                   </>
                 ) : (
-                  "Enregistrer les modifications"
+                  t("parametres.save")
                 )}
               </Button>
             </CardContent>
@@ -149,9 +156,38 @@ const Parametres = () => {
 
           <Card className="rounded-2xl">
             <CardHeader>
-              <CardTitle className="text-lg">Session</CardTitle>
+              <CardTitle className="text-lg">{t("parametres.language")}</CardTitle>
               <CardDescription>
-                Gérez votre session actuelle
+                {t("parametres.language_desc")}
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="flex items-center space-x-4">
+                <Button 
+                  variant={i18n.language === "fr" ? "default" : "outline"}
+                  className="flex-1"
+                  onClick={() => changeLanguage("fr")}
+                >
+                  <Globe className="mr-2 h-4 w-4" />
+                  Français
+                </Button>
+                <Button 
+                  variant={i18n.language === "en" ? "default" : "outline"}
+                  className="flex-1"
+                  onClick={() => changeLanguage("en")}
+                >
+                  <Globe className="mr-2 h-4 w-4" />
+                  English
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+
+          <Card className="rounded-2xl">
+            <CardHeader>
+              <CardTitle className="text-lg">{t("parametres.session")}</CardTitle>
+              <CardDescription>
+                {t("parametres.session_desc")}
               </CardDescription>
             </CardHeader>
             <CardContent>
@@ -162,7 +198,7 @@ const Parametres = () => {
                 disabled={isLoading}
               >
                 <LogOut className="mr-2 h-4 w-4" />
-                Se déconnecter
+                {t("auth.logout")}
               </Button>
             </CardContent>
           </Card>

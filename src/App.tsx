@@ -10,6 +10,9 @@ import Recettes from "./pages/Recettes";
 import Parametres from "./pages/Parametres";
 import NotFound from "./pages/NotFound";
 
+// Import i18n configuration
+import "./i18n";
+
 const queryClient = new QueryClient();
 
 const App = () => (

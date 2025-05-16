@@ -58,8 +58,10 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Input } from "@/components/ui/input";
 import { toast } from "sonner";
+import { useTranslation } from "react-i18next";
 
 const Recettes = () => {
+  const { t } = useTranslation();
   const { user } = useAuth();
   const [recettes, setRecettes] = useState<Recette[]>([]);
   const [filteredRecettes, setFilteredRecettes] = useState<Recette[]>([]);
@@ -79,7 +81,7 @@ const Recettes = () => {
           setRecettes(data);
           setFilteredRecettes(data);
         } catch (error) {
-          toast.error("Erreur de chargement des recettes");
+          toast.error(t("recettes.error_loading"));
         } finally {
           setIsLoading(false);
         }
@@ -87,7 +89,7 @@ const Recettes = () => {
     };
     
     loadRecettes();
-  }, [user]);
+  }, [user, t]);
   
   // Filtrage des recettes en fonction du terme de recherche
   useEffect(() => {
@@ -120,10 +122,10 @@ const Recettes = () => {
       });
       
       setRecettes([newRecette, ...recettes]);
-      toast.success("Recette ajoutée avec succès");
+      toast.success(t("recettes.add_success"));
       setIsDialogOpen(false);
     } catch (error) {
-      toast.error("Erreur lors de l'ajout de la recette");
+      toast.error(t("recettes.error_adding"));
     } finally {
       setIsSubmitting(false);
     }
@@ -138,11 +140,11 @@ const Recettes = () => {
       const updatedRecette = await updateRecette(editingRecette.id, data);
       
       setRecettes(recettes.map(r => r.id === updatedRecette.id ? updatedRecette : r));
-      toast.success("Recette mise à jour avec succès");
+      toast.success(t("recettes.modify_success"));
       setIsDialogOpen(false);
       setEditingRecette(null);
     } catch (error) {
-      toast.error("Erreur lors de la mise à jour de la recette");
+      toast.error(t("recettes.error_updating"));
     } finally {
       setIsSubmitting(false);
     }
@@ -155,9 +157,9 @@ const Recettes = () => {
     try {
       await deleteRecette(deleteId);
       setRecettes(recettes.filter(r => r.id !== deleteId));
-      toast.success("Recette supprimée avec succès");
+      toast.success(t("recettes.delete_success"));
     } catch (error) {
-      toast.error("Erreur lors de la suppression de la recette");
+      toast.error(t("recettes.error_deleting"));
     } finally {
       setDeleteId(null);
     }
@@ -178,41 +180,37 @@ const Recettes = () => {
   // Formater la date pour l'affichage
   const formatDate = (dateStr: string) => {
     const date = new Date(dateStr);
-    return new Intl.DateTimeFormat('fr-FR').format(date);
+    return new Intl.DateTimeFormat(
+      i18n.language === 'en' ? 'en-US' : 'fr-FR'
+    ).format(date);
   };
   
   // Rendre une icône pour la récurrence
   const renderRecurrenceIcon = (recurrence?: string) => {
     if (!recurrence || recurrence === "aucune") return null;
     
-    const tooltips = {
-      "quotidienne": "Récurrence quotidienne",
-      "hebdomadaire": "Récurrence hebdomadaire",
-      "mensuelle": "Récurrence mensuelle",
-      "trimestrielle": "Récurrence trimestrielle",
-      "annuelle": "Récurrence annuelle"
-    };
-    
     return (
-      <span title={tooltips[recurrence as keyof typeof tooltips]}>
+      <span title={t(`recurrence.${recurrence}`)}>
         <Repeat size={14} className="inline text-blue-500 ml-1" />
       </span>
     );
   };
+  
+  const { i18n } = useTranslation();
   
   return (
     <Layout requireAuth>
       <div className="space-y-6">
         <div className="flex flex-wrap justify-between items-center gap-4">
           <div>
-            <h1 className="text-2xl font-bold text-gray-900">Recettes</h1>
+            <h1 className="text-2xl font-bold text-gray-900">{t("recettes.title")}</h1>
             <p className="text-gray-500">
-              Gérez vos recettes et suivez vos revenus
+              {t("recettes.description")}
             </p>
           </div>
           <Button onClick={openAddForm} className="flex items-center gap-2">
             <PlusCircle size={18} />
-            <span>Nouvelle recette</span>
+            <span>{t("recettes.new")}</span>
           </Button>
         </div>
 
@@ -220,7 +218,7 @@ const Recettes = () => {
           <Card>
             <CardHeader className="pb-2">
               <CardTitle className="text-sm font-medium text-muted-foreground">
-                Total des recettes
+                {t("recettes.total")}
               </CardTitle>
             </CardHeader>
             <CardContent>
@@ -234,12 +232,12 @@ const Recettes = () => {
 
         <div className="bg-white rounded-2xl border shadow-sm">
           <div className="p-6 flex flex-wrap justify-between items-center gap-4 border-b">
-            <h2 className="text-lg font-medium">Liste des recettes</h2>
+            <h2 className="text-lg font-medium">{t("recettes.list_title")}</h2>
             <div className="relative">
               <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
               <Input
                 type="search"
-                placeholder="Rechercher..."
+                placeholder={t("recettes.search")}
                 className="pl-8 w-[250px]"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
@@ -255,14 +253,14 @@ const Recettes = () => {
               <div className="bg-slate-100 p-3 rounded-full mb-4">
                 <Info className="h-6 w-6 text-slate-400" />
               </div>
-              <h3 className="text-lg font-medium mb-1">Aucune recette trouvée</h3>
+              <h3 className="text-lg font-medium mb-1">{t("recettes.empty")}</h3>
               <p className="text-slate-500 mb-4 max-w-md">
-                {searchTerm ? "Aucun résultat ne correspond à votre recherche." : "Commencez par ajouter votre première recette."}
+                {searchTerm ? t("recettes.empty_search") : t("recettes.start_add")}
               </p>
               {!searchTerm && (
                 <Button onClick={openAddForm} size="sm">
                   <PlusCircle className="h-4 w-4 mr-2" />
-                  Ajouter une recette
+                  {t("recettes.add")}
                 </Button>
               )}
             </div>
@@ -271,12 +269,12 @@ const Recettes = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Titre</TableHead>
-                    <TableHead>Montant (TND)</TableHead>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Catégorie / Sous-catégorie</TableHead>
-                    <TableHead>Récurrence</TableHead>
-                    <TableHead className="text-right">Actions</TableHead>
+                    <TableHead>{t("recette_form.title")}</TableHead>
+                    <TableHead>{t("recette_form.amount")}</TableHead>
+                    <TableHead>{t("recette_form.date")}</TableHead>
+                    <TableHead>{t("recette_form.category")} / {t("recette_form.subcategory")}</TableHead>
+                    <TableHead>{t("recette_form.recurrence")}</TableHead>
+                    <TableHead className="text-right">{t("common.actions")}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -288,11 +286,11 @@ const Recettes = () => {
                       <TableCell>
                         <div className="flex flex-col space-y-1">
                           <Badge variant="outline" className="capitalize w-fit">
-                            {recette.categorie}
+                            {t(`categories.${recette.categorie}`)}
                           </Badge>
                           {recette.sousCategorie && (
                             <Badge variant="secondary" className="capitalize text-xs w-fit">
-                              {recette.sousCategorie}
+                              {t(`subcategories.${recette.sousCategorie}`)}
                             </Badge>
                           )}
                         </div>
@@ -301,7 +299,7 @@ const Recettes = () => {
                         {recette.recurrence && recette.recurrence !== "aucune" ? (
                           <Badge variant="outline" className="flex items-center gap-1">
                             <Repeat className="h-3 w-3" />
-                            {recette.recurrence.charAt(0).toUpperCase() + recette.recurrence.slice(1)}
+                            {t(`recurrence.${recette.recurrence}`)}
                           </Badge>
                         ) : (
                           <span className="text-gray-400 text-sm">-</span>
@@ -315,7 +313,7 @@ const Recettes = () => {
                             onClick={() => openEditForm(recette)}
                           >
                             <Pencil className="h-4 w-4" />
-                            <span className="sr-only">Modifier</span>
+                            <span className="sr-only">{t("recettes.edit")}</span>
                           </Button>
                           <Button
                             variant="ghost"
@@ -324,7 +322,7 @@ const Recettes = () => {
                             onClick={() => setDeleteId(recette.id)}
                           >
                             <Trash2 className="h-4 w-4" />
-                            <span className="sr-only">Supprimer</span>
+                            <span className="sr-only">{t("delete_confirmation.confirm")}</span>
                           </Button>
                         </div>
                       </TableCell>
@@ -342,12 +340,12 @@ const Recettes = () => {
         <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>
-              {editingRecette ? "Modifier la recette" : "Ajouter une recette"}
+              {editingRecette ? t("recettes.edit") : t("recettes.add")}
             </DialogTitle>
             <DialogDescription>
               {editingRecette
-                ? "Modifiez les détails de votre recette ci-dessous."
-                : "Ajoutez les détails de votre nouvelle recette."}
+                ? t("recettes.modify_details")
+                : t("recettes.add_details")}
             </DialogDescription>
           </DialogHeader>
           <RecetteForm
@@ -363,19 +361,18 @@ const Recettes = () => {
       <AlertDialog open={!!deleteId} onOpenChange={() => setDeleteId(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Êtes-vous sûr ?</AlertDialogTitle>
+            <AlertDialogTitle>{t("delete_confirmation.title")}</AlertDialogTitle>
             <AlertDialogDescription>
-              Cette action ne peut pas être annulée. Cette recette sera
-              définitivement supprimée.
+              {t("delete_confirmation.description")}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
-            <AlertDialogCancel>Annuler</AlertDialogCancel>
+            <AlertDialogCancel>{t("delete_confirmation.cancel")}</AlertDialogCancel>
             <AlertDialogAction
               onClick={handleDeleteRecette}
               className="bg-red-500 hover:bg-red-600"
             >
-              Supprimer
+              {t("delete_confirmation.confirm")}
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>

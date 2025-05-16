@@ -1,0 +1,129 @@
+
+{
+  "app": {
+    "name": "Trezo",
+    "loading": "Loading..."
+  },
+  "nav": {
+    "recettes": "Income",
+    "parametres": "Settings"
+  },
+  "auth": {
+    "login": "Login",
+    "logout": "Log out",
+    "email": "Email",
+    "password": "Password",
+    "submit": "Submit",
+    "logging_in": "Logging in...",
+    "login_success": "Login successful",
+    "login_error": "Login error",
+    "logout_success": "Logout successful",
+    "logout_error": "Logout error"
+  },
+  "recettes": {
+    "title": "Income",
+    "description": "Manage your income and track your revenues",
+    "new": "New income",
+    "list_title": "Income list",
+    "search": "Search...",
+    "total": "Total income",
+    "empty": "No income found",
+    "empty_search": "No results match your search.",
+    "start_add": "Start by adding your first income entry.",
+    "add": "Add income",
+    "edit": "Edit income",
+    "modify_details": "Edit your income details below.",
+    "add_details": "Add your new income details.",
+    "modify_success": "Income updated successfully",
+    "add_success": "Income added successfully",
+    "delete_success": "Income deleted successfully",
+    "error_loading": "Error loading income entries",
+    "error_adding": "Error adding income",
+    "error_updating": "Error updating income",
+    "error_deleting": "Error deleting income"
+  },
+  "recette_form": {
+    "title": "Title",
+    "title_placeholder": "Income title",
+    "title_required": "Title is required",
+    "amount": "Amount (TND)",
+    "amount_placeholder": "0.000",
+    "amount_required": "Amount is required",
+    "amount_invalid": "Invalid format. Use format 0.000",
+    "date": "Date",
+    "date_required": "Date is required",
+    "category": "Category",
+    "subcategory": "Subcategory",
+    "recurrence": "Recurrence",
+    "cancel": "Cancel",
+    "processing": "Processing...",
+    "update": "Update",
+    "add": "Add"
+  },
+  "categories": {
+    "Services": "Services",
+    "Ventes": "Sales",
+    "Abonnements": "Subscriptions",
+    "Remboursement": "Reimbursement",
+    "Divers": "Miscellaneous"
+  },
+  "subcategories": {
+    "Conseil": "Consulting",
+    "Prestation": "Service",
+    "Formation": "Training",
+    "Support technique": "Technical support",
+    "Produits physiques": "Physical products",
+    "Produits digitaux": "Digital products",
+    "Licences": "Licenses",
+    "Abonnements": "Subscriptions",
+    "Particuliers": "Individuals",
+    "Entreprises": "Businesses",
+    "Startups": "Startups",
+    "Grands comptes": "Key accounts",
+    "Remboursement fiscale": "Tax refund",
+    "Remboursement client": "Customer refund",
+    "Autres remboursements": "Other refunds",
+    "Don": "Donation",
+    "Intérêt": "Interest",
+    "Autre": "Other"
+  },
+  "recurrence": {
+    "aucune": "None",
+    "quotidienne": "Daily",
+    "hebdomadaire": "Weekly",
+    "bimensuelle": "Bi-monthly",
+    "mensuelle": "Monthly",
+    "trimestrielle": "Quarterly",
+    "simestrielle": "Bi-annually",
+    "annuelle": "Annually"
+  },
+  "delete_confirmation": {
+    "title": "Are you sure?",
+    "description": "This action cannot be undone. This income will be permanently deleted.",
+    "cancel": "Cancel",
+    "confirm": "Delete"
+  },
+  "parametres": {
+    "title": "Settings",
+    "description": "Manage your personal information and preferences",
+    "profile": "User profile",
+    "profile_desc": "Manage your personal information",
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "select_role": "Select a role",
+    "admin": "Administrator",
+    "user": "User",
+    "save": "Save changes",
+    "updating": "Updating...",
+    "update_success": "Profile updated successfully",
+    "update_error": "Error updating profile",
+    "session": "Session",
+    "session_desc": "Manage your current session",
+    "language": "Language",
+    "language_desc": "Select your preferred language"
+  },
+  "common": {
+    "actions": "Actions"
+  }
+}

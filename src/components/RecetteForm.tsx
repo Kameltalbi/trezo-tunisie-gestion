@@ -8,6 +8,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Recette } from "../types";
 import { CATEGORIES, SOUS_CATEGORIES, RECURRENCE_OPTIONS } from "../services/recetteService";
 import { Loader2, Repeat, List } from "lucide-react";
+import { useTranslation } from "react-i18next";
 
 interface RecetteFormProps {
   recette?: Recette;
@@ -26,6 +27,8 @@ interface FormValues {
 }
 
 const RecetteForm = ({ recette, onSubmit, isSubmitting, onCancel }: RecetteFormProps) => {
+  const { t } = useTranslation();
+  
   const [selectedCategorie, setSelectedCategorie] = useState<string>(recette?.categorie || CATEGORIES[0]);
   const [selectedSousCategorie, setSelectedSousCategorie] = useState<string>(
     recette?.sousCategorie || (SOUS_CATEGORIES[recette?.categorie || CATEGORIES[0]]?.[0] || "")
@@ -82,11 +85,11 @@ const RecetteForm = ({ recette, onSubmit, isSubmitting, onCancel }: RecetteFormP
     <form onSubmit={handleSubmit(processSubmit)} className="space-y-6 py-2">
       <div className="space-y-4">
         <div className="grid gap-2">
-          <Label htmlFor="titre">Titre</Label>
+          <Label htmlFor="titre">{t('recette_form.title')}</Label>
           <Input
             id="titre"
-            placeholder="Titre de la recette"
-            {...register("titre", { required: "Le titre est requis" })}
+            placeholder={t('recette_form.title_placeholder')}
+            {...register("titre", { required: t('recette_form.title_required') })}
             className="w-full"
           />
           {errors.titre && (
@@ -95,15 +98,15 @@ const RecetteForm = ({ recette, onSubmit, isSubmitting, onCancel }: RecetteFormP
         </div>
 
         <div className="grid gap-2">
-          <Label htmlFor="montant">Montant (TND)</Label>
+          <Label htmlFor="montant">{t('recette_form.amount')}</Label>
           <Input
             id="montant"
-            placeholder="0.000"
+            placeholder={t('recette_form.amount_placeholder')}
             {...register("montant", { 
-              required: "Le montant est requis",
+              required: t('recette_form.amount_required'),
               pattern: {
                 value: /^[0-9]+([,.][0-9]{1,3})?$/,
-                message: "Format invalide. Utiliser le format 0.000"
+                message: t('recette_form.amount_invalid')
               }
             })}
             className="w-full"
@@ -114,11 +117,11 @@ const RecetteForm = ({ recette, onSubmit, isSubmitting, onCancel }: RecetteFormP
         </div>
 
         <div className="grid gap-2">
-          <Label htmlFor="date">Date</Label>
+          <Label htmlFor="date">{t('recette_form.date')}</Label>
           <Input
             id="date"
             type="date"
-            {...register("date", { required: "La date est requise" })}
+            {...register("date", { required: t('recette_form.date_required') })}
             className="w-full"
           />
           {errors.date && (
@@ -129,7 +132,7 @@ const RecetteForm = ({ recette, onSubmit, isSubmitting, onCancel }: RecetteFormP
         <div className="grid gap-2">
           <Label htmlFor="categorie" className="flex items-center gap-2">
             <List size={16} />
-            Catégorie
+            {t('recette_form.category')}
           </Label>
           <Select 
             value={selectedCategorie}
@@ -144,7 +147,7 @@ const RecetteForm = ({ recette, onSubmit, isSubmitting, onCancel }: RecetteFormP
             <SelectContent>
               {CATEGORIES.map((categorie) => (
                 <SelectItem key={categorie} value={categorie}>
-                  {categorie}
+                  {t(`categories.${categorie}`)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -154,7 +157,7 @@ const RecetteForm = ({ recette, onSubmit, isSubmitting, onCancel }: RecetteFormP
         <div className="grid gap-2">
           <Label htmlFor="sousCategorie" className="flex items-center gap-2">
             <List size={16} />
-            Sous-catégorie
+            {t('recette_form.subcategory')}
           </Label>
           <Select 
             value={selectedSousCategorie}
@@ -169,7 +172,7 @@ const RecetteForm = ({ recette, onSubmit, isSubmitting, onCancel }: RecetteFormP
             <SelectContent>
               {SOUS_CATEGORIES[selectedCategorie]?.map((sousCategorie) => (
                 <SelectItem key={sousCategorie} value={sousCategorie}>
-                  {sousCategorie}
+                  {t(`subcategories.${sousCategorie}`)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -179,7 +182,7 @@ const RecetteForm = ({ recette, onSubmit, isSubmitting, onCancel }: RecetteFormP
         <div className="grid gap-2">
           <Label htmlFor="recurrence" className="flex items-center gap-2">
             <Repeat size={16} />
-            Récurrence
+            {t('recette_form.recurrence')}
           </Label>
           <Select 
             value={selectedRecurrence}
@@ -194,7 +197,7 @@ const RecetteForm = ({ recette, onSubmit, isSubmitting, onCancel }: RecetteFormP
             <SelectContent>
               {RECURRENCE_OPTIONS.map((option) => (
                 <SelectItem key={option.value} value={option.value}>
-                  {option.label}
+                  {t(`recurrence.${option.value}`)}
                 </SelectItem>
               ))}
             </SelectContent>
@@ -209,18 +212,18 @@ const RecetteForm = ({ recette, onSubmit, isSubmitting, onCancel }: RecetteFormP
           onClick={onCancel}
           disabled={isSubmitting}
         >
-          Annuler
+          {t('recette_form.cancel')}
         </Button>
         <Button type="submit" disabled={isSubmitting}>
           {isSubmitting ? (
             <>
               <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-              Traitement...
+              {t('recette_form.processing')}
             </>
           ) : recette ? (
-            "Mettre à jour"
+            t('recette_form.update')
           ) : (
-            "Ajouter"
+            t('recette_form.add')
           )}
         </Button>
       </div>
