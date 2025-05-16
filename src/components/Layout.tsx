@@ -38,7 +38,7 @@ const Layout = ({ children, requireAuth = false }: LayoutProps) => {
   return (
     <div className="min-h-screen flex flex-col bg-background">
       {user && <Sidebar />}
-      <main className={`flex-1 ${user ? 'sm:ml-[60px]' : ''} transition-all duration-300`}>
+      <main className={`flex-1 transition-all duration-300 ${user ? 'sm:ml-[60px]' : ''}`}>
         <div className="container mx-auto py-6 px-4 sm:px-6 lg:px-8">
           {children}
         </div>

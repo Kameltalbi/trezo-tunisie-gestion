@@ -27,6 +27,20 @@ const Sidebar = () => {
     return location.pathname === path;
   };
 
+  // Apply styles to the main content when sidebar expands
+  useEffect(() => {
+    const main = document.querySelector('main');
+    if (main) {
+      if (isHovered) {
+        main.classList.remove('sm:ml-[60px]');
+        main.classList.add('sm:ml-[240px]');
+      } else {
+        main.classList.remove('sm:ml-[240px]');
+        main.classList.add('sm:ml-[60px]');
+      }
+    }
+  }, [isHovered]);
+
   return (
     <div
       className="hidden sm:flex fixed left-0 top-0 h-screen bg-gray-50 border-r shadow-sm z-10 transition-all duration-300 ease-in-out overflow-hidden"
