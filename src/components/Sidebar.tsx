@@ -12,9 +12,7 @@ import {
   SidebarMenuButton,
   SidebarGroup,
   SidebarGroupLabel,
-  SidebarMenuSub,
-  SidebarMenuSubItem,
-  SidebarMenuSubButton,
+  SidebarSeparator,
   SidebarProvider
 } from "@/components/ui/sidebar";
 
@@ -42,7 +40,7 @@ const Sidebar = () => {
                 </SidebarMenuButton>
               </SidebarMenuItem>
 
-              {/* Cash Management Section with Sub Menu */}
+              {/* Cash Management Title */}
               <SidebarMenuItem>
                 <SidebarMenuButton asChild>
                   <div>
@@ -50,44 +48,49 @@ const Sidebar = () => {
                     <span>{t('nav.cash_management')}</span>
                   </div>
                 </SidebarMenuButton>
+              </SidebarMenuItem>
 
-                <SidebarMenuSub>
-                  <SidebarMenuSubItem>
-                    <SidebarMenuSubButton asChild isActive={isActive('/recettes')}>
-                      <Link to="/recettes">
-                        <FileText size={18} />
-                        <span>{t('nav.receipts')}</span>
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                  
-                  <SidebarMenuSubItem>
-                    <SidebarMenuSubButton asChild isActive={isActive('/depenses')}>
-                      <Link to="/depenses">
-                        <DollarSign size={18} />
-                        <span>{t('nav.expenses')}</span>
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                  
-                  <SidebarMenuSubItem>
-                    <SidebarMenuSubButton asChild isActive={isActive('/cash-management')}>
-                      <Link to="/cash-management">
-                        <Banknote size={18} />
-                        <span>{t('nav.cash_flow')}</span>
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
+              {/* Separator under Cash Management */}
+              <SidebarSeparator />
 
-                  <SidebarMenuSubItem>
-                    <SidebarMenuSubButton asChild isActive={isActive('/debt-management')}>
-                      <Link to="/debt-management">
-                        <DollarSign size={18} />
-                        <span>{t('nav.debt')}</span>
-                      </Link>
-                    </SidebarMenuSubButton>
-                  </SidebarMenuSubItem>
-                </SidebarMenuSub>
+              {/* Income page at main level */}
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={isActive('/recettes')}>
+                  <Link to="/recettes">
+                    <FileText size={20} />
+                    <span>{t('nav.receipts')}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              
+              {/* Expenses page at main level */}
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={isActive('/depenses')}>
+                  <Link to="/depenses">
+                    <DollarSign size={20} />
+                    <span>{t('nav.expenses')}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+              
+              {/* Cash Flow page at main level */}
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={isActive('/cash-management')}>
+                  <Link to="/cash-management">
+                    <Banknote size={20} />
+                    <span>{t('nav.cash_flow')}</span>
+                  </Link>
+                </SidebarMenuButton>
+              </SidebarMenuItem>
+
+              {/* Debt Management page at main level */}
+              <SidebarMenuItem>
+                <SidebarMenuButton asChild isActive={isActive('/debt-management')}>
+                  <Link to="/debt-management">
+                    <DollarSign size={20} />
+                    <span>{t('nav.debt')}</span>
+                  </Link>
+                </SidebarMenuButton>
               </SidebarMenuItem>
 
               <SidebarMenuItem>
