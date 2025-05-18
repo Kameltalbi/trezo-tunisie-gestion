@@ -35,6 +35,16 @@ const Layout = ({ children, requireAuth = false }: LayoutProps) => {
     return <Navigate to="/cash-flow" replace />;
   }
 
+  // Pour la page de login, ne pas montrer la sidebar
+  if (!requireAuth && !user) {
+    return (
+      <div className="min-h-screen bg-background">
+        {children}
+        <Toaster />
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen flex flex-col bg-background">
       <Sidebar />
