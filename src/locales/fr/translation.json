@@ -85,7 +85,20 @@
   },
   "cash_management": {
     "title": "Gestion de trésorerie",
-    "description": "Gérez vos flux de trésorerie"
+    "description": "Gérez vos flux de trésorerie",
+    "total_income": "Revenu total",
+    "total_expenses": "Dépenses totales",
+    "net_cash_flow": "Flux net de trésorerie",
+    "cash_flow_analysis": "Analyse des flux de trésorerie",
+    "income": "Revenus",
+    "expenses": "Dépenses",
+    "balance": "Solde",
+    "monthly": "Mensuel",
+    "quarterly": "Trimestriel",
+    "yearly": "Annuel",
+    "coming_soon": "Données à venir",
+    "future_projections": "Projections futures",
+    "projections_coming_soon": "Les projections de trésorerie seront disponibles prochainement"
   },
   "debt_management": {
     "title": "Gestion des dettes",

@@ -85,7 +85,20 @@
   },
   "cash_management": {
     "title": "Cash Management",
-    "description": "Manage your cash flows"
+    "description": "Manage your cash flows",
+    "total_income": "Total Income",
+    "total_expenses": "Total Expenses",
+    "net_cash_flow": "Net Cash Flow",
+    "cash_flow_analysis": "Cash Flow Analysis",
+    "income": "Income",
+    "expenses": "Expenses",
+    "balance": "Balance",
+    "monthly": "Monthly",
+    "quarterly": "Quarterly",
+    "yearly": "Yearly",
+    "coming_soon": "Data coming soon",
+    "future_projections": "Future Projections",
+    "projections_coming_soon": "Cash flow projections will be available soon"
   },
   "debt_management": {
     "title": "Debt Management",
