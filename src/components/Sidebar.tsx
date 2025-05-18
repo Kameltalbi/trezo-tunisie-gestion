@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Banknote, FileText, LayoutDashboard, Settings, DollarSign } from 'lucide-react';
+import { Banknote, FileText, LayoutDashboard, Settings, DollarSign, Cash } from 'lucide-react';
 
 import {
   Sidebar as SidebarUI,
@@ -40,20 +40,20 @@ const Sidebar = () => {
                 </SidebarMenuButton>
               </SidebarMenuItem>
 
-              {/* Cash Management Title */}
+              {/* Cash Management Section with more prominence */}
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <div>
-                    <Banknote size={20} />
+                <SidebarMenuButton asChild isActive={isActive('/cash-management')}>
+                  <Link to="/cash-management">
+                    <Cash size={20} />
                     <span>{t('nav.cash_management')}</span>
-                  </div>
+                  </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
-
-              {/* Separator under Cash Management */}
+              
+              {/* Separator after Cash Management */}
               <SidebarSeparator />
 
-              {/* Income page at main level */}
+              {/* Income page */}
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={isActive('/recettes')}>
                   <Link to="/recettes">
@@ -63,7 +63,7 @@ const Sidebar = () => {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               
-              {/* Expenses page at main level */}
+              {/* Expenses page */}
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={isActive('/depenses')}>
                   <Link to="/depenses">
@@ -73,7 +73,7 @@ const Sidebar = () => {
                 </SidebarMenuButton>
               </SidebarMenuItem>
               
-              {/* Cash Flow page at main level */}
+              {/* Cash Flow page */}
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={isActive('/cash-management')}>
                   <Link to="/cash-management">
@@ -83,7 +83,7 @@ const Sidebar = () => {
                 </SidebarMenuButton>
               </SidebarMenuItem>
 
-              {/* Debt Management page at main level */}
+              {/* Debt Management page */}
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={isActive('/debt-management')}>
                   <Link to="/debt-management">
