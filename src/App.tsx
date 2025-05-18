@@ -13,6 +13,7 @@ import CashManagement from "./pages/CashManagement";
 import CashFlow from "./pages/CashFlow";
 import DebtManagement from "./pages/DebtManagement";
 import NotFound from "./pages/NotFound";
+import Depenses from "./pages/Depenses";
 
 // Import i18n configuration
 import "./i18n";
@@ -34,8 +35,8 @@ const App = () => (
             <Route path="/cash-management" element={<CashManagement />} />
             <Route path="/cash-flow" element={<CashFlow />} />
             <Route path="/debt-management" element={<DebtManagement />} />
+            <Route path="/depenses" element={<Depenses />} />
             <Route path="/dashboard" element={<Recettes />} /> {/* Temporary route */}
-            <Route path="/depenses" element={<NotFound />} /> {/* Placeholder route */}
             <Route path="/" element={<Login />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
