@@ -24,7 +24,8 @@
     "admin": "Administration",
     "cash_management": "Gestion de trésorerie",
     "cash_flow": "Flux de trésorerie",
-    "debt": "Gestion des dettes"
+    "debt": "Gestion des dettes",
+    "encaissements": "Encaissements"
   },
   "parametres": {
     "title": "Paramètres",
@@ -103,5 +104,18 @@
   "debt_management": {
     "title": "Gestion des dettes",
     "description": "Gérez vos dettes et emprunts"
+  },
+  "encaissements": {
+    "title": "Encaissements",
+    "description": "Gérez tous vos encaissements en espèces",
+    "add": "Ajouter un encaissement",
+    "total_month": "Ce mois-ci",
+    "pending": "En attente",
+    "avg_transaction": "Moyenne par transaction",
+    "monthly_trend": "Tendance mensuelle",
+    "trend_description": "Tendances des encaissements sur les 6 derniers mois",
+    "recent": "Transactions récentes",
+    "recent_description": "Vos encaissements les plus récents",
+    "view_all": "Voir toutes les transactions"
   }
 }

@@ -24,7 +24,8 @@
     "admin": "Administration",
     "cash_management": "Cash Management",
     "cash_flow": "Cash Flow",
-    "debt": "Debt Management"
+    "debt": "Debt Management",
+    "encaissements": "Cash Receipts"
   },
   "parametres": {
     "title": "Settings",
@@ -103,5 +104,18 @@
   "debt_management": {
     "title": "Debt Management",
     "description": "Manage your debts and loans"
+  },
+  "encaissements": {
+    "title": "Cash Receipts",
+    "description": "Manage all your incoming cash payments",
+    "add": "Add receipt",
+    "total_month": "This Month",
+    "pending": "Pending",
+    "avg_transaction": "Avg. Transaction",
+    "monthly_trend": "Monthly Trend",
+    "trend_description": "Cash receipt trends over the past 6 months",
+    "recent": "Recent Transactions",
+    "recent_description": "Your most recent cash receipts",
+    "view_all": "View All Transactions"
   }
 }

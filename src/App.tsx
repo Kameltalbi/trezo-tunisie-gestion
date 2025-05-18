@@ -11,6 +11,7 @@ import Parametres from "./pages/Parametres";
 import Admin from "./pages/Admin";
 import CashManagement from "./pages/CashManagement";
 import DebtManagement from "./pages/DebtManagement";
+import Encaissements from "./pages/Encaissements";
 import NotFound from "./pages/NotFound";
 
 // Import i18n configuration
@@ -32,6 +33,7 @@ const App = () => (
             <Route path="/admin" element={<Admin />} />
             <Route path="/cash-management" element={<CashManagement />} />
             <Route path="/debt-management" element={<DebtManagement />} />
+            <Route path="/encaissements" element={<Encaissements />} />
             <Route path="/dashboard" element={<Recettes />} /> {/* Temporary route */}
             <Route path="/depenses" element={<NotFound />} /> {/* Placeholder route */}
             <Route path="/" element={<Login />} />
