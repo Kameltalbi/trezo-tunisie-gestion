@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Banknote, FileText, LayoutDashboard, Settings, DollarSign, Receipt } from 'lucide-react';
+import { Banknote, LayoutDashboard, Settings, DollarSign, Receipt } from 'lucide-react';
 
 import {
   Sidebar as SidebarUI,
@@ -59,16 +59,6 @@ const Sidebar = () => {
                   <Link to="/encaissements">
                     <Receipt size={20} />
                     <span>{t('nav.encaissements')}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-
-              {/* Income page */}
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={isActive('/recettes')}>
-                  <Link to="/recettes">
-                    <FileText size={20} />
-                    <span>{t('nav.receipts')}</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
