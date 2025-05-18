@@ -2,8 +2,8 @@
 import { ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
-import Sidebar from "./Sidebar";
 import { Toaster } from "@/components/ui/sonner";
+import Sidebar from "./Sidebar";
 
 interface LayoutProps {
   children: ReactNode;
@@ -30,15 +30,15 @@ const Layout = ({ children, requireAuth = false }: LayoutProps) => {
     return <Navigate to="/login" replace />;
   }
 
-  // Rediriger vers la page des recettes si l'utilisateur est déjà connecté et qu'il tente d'accéder à la page de login
+  // Rediriger vers la page de flux de trésorerie si l'utilisateur est déjà connecté et qu'il tente d'accéder à la page de login
   if (!requireAuth && user) {
-    return <Navigate to="/recettes" replace />;
+    return <Navigate to="/cash-flow" replace />;
   }
 
   return (
     <div className="min-h-screen flex flex-col bg-background">
-      {user && <Sidebar />}
-      <main className={`flex-1 transition-all duration-300 ${user ? 'sm:ml-[60px]' : ''}`}>
+      <Sidebar />
+      <main className="flex-1 transition-all duration-300 ml-[60px]">
         <div className="container mx-auto py-6 px-4 sm:px-6 lg:px-8">
           {children}
         </div>

@@ -6,7 +6,6 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import Login from "./pages/Login";
-import Recettes from "./pages/Recettes";
 import Parametres from "./pages/Parametres";
 import Admin from "./pages/Admin";
 import CashManagement from "./pages/CashManagement";
@@ -29,14 +28,13 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<Login />} />
-            <Route path="/recettes" element={<Recettes />} />
             <Route path="/parametres" element={<Parametres />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/cash-management" element={<CashManagement />} />
             <Route path="/cash-flow" element={<CashFlow />} />
             <Route path="/debt-management" element={<DebtManagement />} />
             <Route path="/depenses" element={<Depenses />} />
-            <Route path="/dashboard" element={<Recettes />} /> {/* Temporary route */}
+            <Route path="/dashboard" element={<CashFlow />} />
             <Route path="/" element={<Login />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
