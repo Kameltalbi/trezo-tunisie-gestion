@@ -97,7 +97,7 @@ const Sidebar = () => {
                 <SidebarMenuButton asChild isActive={isActive('/parametres')}>
                   <Link to="/parametres">
                     <Settings size={20} />
-                    <span>{t('nav.settings')}</span>
+                    <span>{t('nav.parametres')}</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>
