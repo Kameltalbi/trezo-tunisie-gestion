@@ -28,7 +28,7 @@ const Layout = ({ children, requireAuth = false }: LayoutProps) => {
 
   // Rediriger vers la page de login si l'utilisateur n'est pas connecté et que la page nécessite l'authentification
   if (requireAuth && !user) {
-    return <Navigate to="/login" replace />;
+    return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
   // Rediriger vers la page de flux de trésorerie si l'utilisateur est déjà connecté et qu'il tente d'accéder à la page de login
