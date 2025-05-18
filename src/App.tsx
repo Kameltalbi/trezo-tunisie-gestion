@@ -8,6 +8,7 @@ import { AuthProvider } from "./contexts/AuthContext";
 import Login from "./pages/Login";
 import Recettes from "./pages/Recettes";
 import Parametres from "./pages/Parametres";
+import Admin from "./pages/Admin";
 import NotFound from "./pages/NotFound";
 
 // Import i18n configuration
@@ -26,6 +27,7 @@ const App = () => (
             <Route path="/login" element={<Login />} />
             <Route path="/recettes" element={<Recettes />} />
             <Route path="/parametres" element={<Parametres />} />
+            <Route path="/admin" element={<Admin />} />
             <Route path="/dashboard" element={<Recettes />} /> {/* Temporary route */}
             <Route path="/depenses" element={<NotFound />} /> {/* Placeholder route */}
             <Route path="/" element={<Login />} />

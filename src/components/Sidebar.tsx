@@ -2,14 +2,14 @@
 import { useState, useEffect } from "react";
 import { NavLink, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { LayoutDashboard, Banknote, CreditCard, Settings, LogOut, Coins } from "lucide-react";
+import { LayoutDashboard, Banknote, CreditCard, Settings, LogOut, Coins, Shield } from "lucide-react";
 import { useAuth } from "../contexts/AuthContext";
 import { toast } from "sonner";
 
 const Sidebar = () => {
   const { t } = useTranslation();
   const location = useLocation();
-  const { logout } = useAuth();
+  const { logout, user } = useAuth();
   const [isHovered, setIsHovered] = useState(false);
 
   // Handle logout
@@ -88,6 +88,18 @@ const Sidebar = () => {
             isHovered={isHovered}
             label={t("nav.depenses")}
           />
+          
+          {/* Admin link - visible only to admin users */}
+          {user?.role === "admin" && (
+            <SidebarLink 
+              to="/admin" 
+              icon={<Shield size={20} />} 
+              isActive={isActive("/admin")}
+              isHovered={isHovered}
+              label={t("nav.admin")}
+            />
+          )}
+          
           <SidebarLink 
             to="/parametres" 
             icon={<Settings size={20} />} 

@@ -10,11 +10,19 @@ interface AuthContextType extends AuthState {
   updateUser: (data: Partial<User>) => Promise<void>;
 }
 
-const defaultUser: User = {
-  id: "user-1",
-  email: "demo@trezo.app",
-  nom: "Utilisateur Demo",
-  role: "utilisateur"
+const defaultUsers: { [key: string]: User } = {
+  "demo@trezo.app": {
+    id: "user-1",
+    email: "demo@trezo.app",
+    nom: "Utilisateur Demo",
+    role: "utilisateur"
+  },
+  "admin@trezo.app": {
+    id: "admin-1",
+    email: "admin@trezo.app",
+    nom: "Administrateur",
+    role: "admin"
+  }
 };
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -65,11 +73,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       // Simulation d'une requête API vers Supabase
       await new Promise(resolve => setTimeout(resolve, 1000));
       
-      // Accepter uniquement l'email de démo pour cette simulation
-      if (email === "demo@trezo.app" && password === "password") {
-        localStorage.setItem("trezo_user", JSON.stringify(defaultUser));
+      // Accepter l'email de démo ou admin
+      if (email in defaultUsers && password === "password") {
+        const userToLogin = defaultUsers[email];
+        localStorage.setItem("trezo_user", JSON.stringify(userToLogin));
         setAuthState({
-          user: defaultUser,
+          user: userToLogin,
           isLoading: false,
           error: null,
         });
