@@ -1,6 +1,7 @@
 
 import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -16,12 +17,14 @@ const Login = () => {
   const [email, setEmail] = useState<string>("demo@trezo.app");
   const [password, setPassword] = useState<string>("password");
   const { login, isLoading, error } = useAuth();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
       await login(email, password);
       toast.success(t("auth.login_success"));
+      navigate("/cash-flow");
     } catch (error) {
       console.error("Erreur de connexion:", error);
       // L'erreur sera gérée par le contexte d'authentification

@@ -1,6 +1,6 @@
 
 import { ReactNode } from "react";
-import { Navigate } from "react-router-dom";
+import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
 import { Toaster } from "@/components/ui/sonner";
 import Sidebar from "./Sidebar";
@@ -12,6 +12,7 @@ interface LayoutProps {
 
 const Layout = ({ children, requireAuth = false }: LayoutProps) => {
   const { user, isLoading } = useAuth();
+  const location = useLocation();
 
   // Afficher un écran de chargement si le statut d'authentification est en cours de vérification
   if (isLoading) {
@@ -31,7 +32,7 @@ const Layout = ({ children, requireAuth = false }: LayoutProps) => {
   }
 
   // Rediriger vers la page de flux de trésorerie si l'utilisateur est déjà connecté et qu'il tente d'accéder à la page de login
-  if (!requireAuth && user) {
+  if (!requireAuth && user && location.pathname === "/login") {
     return <Navigate to="/cash-flow" replace />;
   }
 

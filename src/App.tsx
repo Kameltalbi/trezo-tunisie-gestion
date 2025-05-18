@@ -3,8 +3,9 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
+import Layout from "./components/Layout";
 import Login from "./pages/Login";
 import Parametres from "./pages/Parametres";
 import Admin from "./pages/Admin";
@@ -28,14 +29,14 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<Login />} />
-            <Route path="/parametres" element={<Parametres />} />
-            <Route path="/admin" element={<Admin />} />
-            <Route path="/cash-management" element={<CashManagement />} />
-            <Route path="/cash-flow" element={<CashFlow />} />
-            <Route path="/debt-management" element={<DebtManagement />} />
-            <Route path="/depenses" element={<Depenses />} />
-            <Route path="/dashboard" element={<CashFlow />} />
-            <Route path="/" element={<Login />} />
+            <Route path="/parametres" element={<Layout requireAuth={true}><Parametres /></Layout>} />
+            <Route path="/admin" element={<Layout requireAuth={true}><Admin /></Layout>} />
+            <Route path="/cash-management" element={<Layout requireAuth={true}><CashManagement /></Layout>} />
+            <Route path="/cash-flow" element={<Layout requireAuth={true}><CashFlow /></Layout>} />
+            <Route path="/debt-management" element={<Layout requireAuth={true}><DebtManagement /></Layout>} />
+            <Route path="/depenses" element={<Layout requireAuth={true}><Depenses /></Layout>} />
+            <Route path="/dashboard" element={<Navigate to="/cash-flow" replace />} />
+            <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>
