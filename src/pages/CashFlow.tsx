@@ -5,7 +5,7 @@ import Layout from '../components/Layout';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { ArrowLeft, ArrowRight, ChartBar, Export } from 'lucide-react';
+import { ArrowLeft, ArrowRight, ChartBar, ExternalLink } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { ChartContainer } from '@/components/ui/chart';
 import { Area, AreaChart, Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
@@ -74,7 +74,7 @@ const CashFlow = () => {
               {t('cash_flow.all_bank_accounts')}
             </Button>
             <Button variant="outline" size="sm" className="flex items-center">
-              <Export size={16} className="mr-1" />
+              <ExternalLink size={16} className="mr-1" />
               {t('cash_flow.export')}
             </Button>
           </div>
