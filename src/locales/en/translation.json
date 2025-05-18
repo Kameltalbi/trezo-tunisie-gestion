@@ -18,11 +18,11 @@
   "nav": {
     "main_menu": "Main Menu",
     "dashboard": "Dashboard",
-    "receipts": "Incomes",
+    "receipts": "Income",
     "expenses": "Expenses",
     "parametres": "Settings",
     "admin": "Administration",
-    "cash_management": "Cash Management",
+    "cash_management": "Treasury Management",
     "cash_flow": "Cash Flow",
     "debt": "Debt Management"
   },
@@ -47,7 +47,7 @@
     "session_desc": "Manage your current session"
   },
   "recettes": {
-    "title": "Incomes",
+    "title": "Income",
     "description": "Manage your money inflows",
     "add": "Add income",
     "edit": "Edit income",
@@ -84,7 +84,7 @@
     "empty_desc": "Add your first income by clicking the button above."
   },
   "cash_management": {
-    "title": "Cash Management",
+    "title": "Treasury Management",
     "description": "Manage your cash flows"
   },
   "debt_management": {
