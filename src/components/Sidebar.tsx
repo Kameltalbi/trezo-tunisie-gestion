@@ -44,11 +44,11 @@ const Sidebar = () => {
 
               {/* Cash Management Section with Sub Menu */}
               <SidebarMenuItem>
-                <SidebarMenuButton asChild>
-                  <div>
+                <SidebarMenuButton asChild isActive={isActive('/cash-management')}>
+                  <Link to="/cash-management">
                     <Banknote size={20} />
                     <span>{t('nav.cash_management')}</span>
-                  </div>
+                  </Link>
                 </SidebarMenuButton>
 
                 <SidebarMenuSub>
