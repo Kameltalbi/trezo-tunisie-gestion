@@ -1,7 +1,7 @@
 
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { AreaChart } from '@/components/ui/chart';
+import { AreaChart } from '@/components/AreaChart';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import Layout from '@/components/Layout';
 import { Button } from '@/components/ui/button';
