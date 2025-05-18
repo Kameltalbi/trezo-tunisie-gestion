@@ -34,8 +34,8 @@ const Sidebar = () => {
             <SidebarGroupLabel>{t('nav.main_menu')}</SidebarGroupLabel>
             <SidebarMenu>
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={isActive('/recettes')}>
-                  <Link to="/recettes">
+                <SidebarMenuButton asChild isActive={isActive('/dashboard')}>
+                  <Link to="/dashboard">
                     <LayoutDashboard size={20} />
                     <span>{t('nav.dashboard')}</span>
                   </Link>

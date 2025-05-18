@@ -16,14 +16,15 @@
     "logout_error": "Erreur lors de la déconnexion"
   },
   "nav": {
+    "main_menu": "Menu Principal",
     "dashboard": "Tableau de bord",
-    "recettes": "Recettes",
-    "depenses": "Dépenses",
+    "receipts": "Recettes",
+    "expenses": "Dépenses",
     "parametres": "Paramètres",
     "admin": "Administration",
-    "treasury": "Gestion de trésorerie",
-    "cash_management": "Gestion de cash",
-    "debt_management": "Gestion des dettes"
+    "cash_management": "Gestion de trésorerie",
+    "cash_flow": "Flux de trésorerie",
+    "debt": "Gestion des dettes"
   },
   "parametres": {
     "title": "Paramètres",
@@ -83,7 +84,7 @@
     "empty_desc": "Ajoutez votre première recette en cliquant sur le bouton ci-dessus."
   },
   "cash_management": {
-    "title": "Gestion de cash",
+    "title": "Gestion de trésorerie",
     "description": "Gérez vos flux de trésorerie"
   },
   "debt_management": {

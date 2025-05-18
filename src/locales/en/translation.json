@@ -16,14 +16,15 @@
     "logout_error": "Error during logout"
   },
   "nav": {
+    "main_menu": "Main Menu",
     "dashboard": "Dashboard",
-    "recettes": "Incomes",
-    "depenses": "Expenses",
+    "receipts": "Incomes",
+    "expenses": "Expenses",
     "parametres": "Settings",
     "admin": "Administration",
-    "treasury": "Treasury Management",
     "cash_management": "Cash Management",
-    "debt_management": "Debt Management"
+    "cash_flow": "Cash Flow",
+    "debt": "Debt Management"
   },
   "parametres": {
     "title": "Settings",
