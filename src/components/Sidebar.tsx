@@ -54,6 +54,11 @@ const Sidebar = () => {
       hasSubMenu: true,
       subMenu: [
         {
+          icon: <FileText size={18} />,
+          label: t('nav.receipts') || 'Encaissements',
+          path: '/encaissements'
+        },
+        {
           icon: <DollarSign size={18} />,
           label: t('nav.expenses'),
           path: '/depenses'
