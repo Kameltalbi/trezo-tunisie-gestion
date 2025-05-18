@@ -20,7 +20,10 @@
     "recettes": "Recettes",
     "depenses": "Dépenses",
     "parametres": "Paramètres",
-    "admin": "Administration"
+    "admin": "Administration",
+    "treasury": "Gestion de trésorerie",
+    "cash_management": "Gestion de cash",
+    "debt_management": "Gestion des dettes"
   },
   "parametres": {
     "title": "Paramètres",
@@ -78,5 +81,13 @@
     "all": "Toutes les recettes",
     "empty": "Aucune recette pour le moment",
     "empty_desc": "Ajoutez votre première recette en cliquant sur le bouton ci-dessus."
+  },
+  "cash_management": {
+    "title": "Gestion de cash",
+    "description": "Gérez vos flux de trésorerie"
+  },
+  "debt_management": {
+    "title": "Gestion des dettes",
+    "description": "Gérez vos dettes et emprunts"
   }
 }

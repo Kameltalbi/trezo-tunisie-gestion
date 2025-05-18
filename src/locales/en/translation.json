@@ -20,7 +20,10 @@
     "recettes": "Incomes",
     "depenses": "Expenses",
     "parametres": "Settings",
-    "admin": "Administration"
+    "admin": "Administration",
+    "treasury": "Treasury Management",
+    "cash_management": "Cash Management",
+    "debt_management": "Debt Management"
   },
   "parametres": {
     "title": "Settings",
@@ -78,5 +81,13 @@
     "all": "All income",
     "empty": "No income at the moment",
     "empty_desc": "Add your first income by clicking the button above."
+  },
+  "cash_management": {
+    "title": "Cash Management",
+    "description": "Manage your cash flows"
+  },
+  "debt_management": {
+    "title": "Debt Management",
+    "description": "Manage your debts and loans"
   }
 }
