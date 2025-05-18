@@ -10,6 +10,7 @@ import Recettes from "./pages/Recettes";
 import Parametres from "./pages/Parametres";
 import Admin from "./pages/Admin";
 import CashManagement from "./pages/CashManagement";
+import CashFlow from "./pages/CashFlow";
 import DebtManagement from "./pages/DebtManagement";
 import NotFound from "./pages/NotFound";
 
@@ -31,6 +32,7 @@ const App = () => (
             <Route path="/parametres" element={<Parametres />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/cash-management" element={<CashManagement />} />
+            <Route path="/cash-flow" element={<CashFlow />} />
             <Route path="/debt-management" element={<DebtManagement />} />
             <Route path="/dashboard" element={<Recettes />} /> {/* Temporary route */}
             <Route path="/depenses" element={<NotFound />} /> {/* Placeholder route */}
