@@ -6,11 +6,11 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import Login from "./pages/Login";
+import Recettes from "./pages/Recettes";
 import Parametres from "./pages/Parametres";
 import Admin from "./pages/Admin";
 import CashManagement from "./pages/CashManagement";
 import DebtManagement from "./pages/DebtManagement";
-import Encaissements from "./pages/Encaissements";
 import NotFound from "./pages/NotFound";
 
 // Import i18n configuration
@@ -27,12 +27,12 @@ const App = () => (
         <BrowserRouter>
           <Routes>
             <Route path="/login" element={<Login />} />
+            <Route path="/recettes" element={<Recettes />} />
             <Route path="/parametres" element={<Parametres />} />
             <Route path="/admin" element={<Admin />} />
             <Route path="/cash-management" element={<CashManagement />} />
             <Route path="/debt-management" element={<DebtManagement />} />
-            <Route path="/encaissements" element={<Encaissements />} />
-            <Route path="/dashboard" element={<Encaissements />} /> {/* Changed redirect to Encaissements */}
+            <Route path="/dashboard" element={<Recettes />} /> {/* Temporary route */}
             <Route path="/depenses" element={<NotFound />} /> {/* Placeholder route */}
             <Route path="/" element={<Login />} />
             <Route path="*" element={<NotFound />} />

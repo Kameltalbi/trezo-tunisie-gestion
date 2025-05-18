@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Banknote, LayoutDashboard, Settings, DollarSign, Receipt } from 'lucide-react';
+import { Banknote, FileText, LayoutDashboard, Settings, DollarSign } from 'lucide-react';
 
 import {
   Sidebar as SidebarUI,
@@ -12,7 +12,9 @@ import {
   SidebarMenuButton,
   SidebarGroup,
   SidebarGroupLabel,
-  SidebarSeparator,
+  SidebarMenuSub,
+  SidebarMenuSubItem,
+  SidebarMenuSubButton,
   SidebarProvider
 } from "@/components/ui/sidebar";
 
@@ -40,64 +42,59 @@ const Sidebar = () => {
                 </SidebarMenuButton>
               </SidebarMenuItem>
 
-              {/* Cash Management Section with more prominence */}
+              {/* Cash Management Section with Sub Menu */}
               <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={isActive('/cash-management')}>
-                  <Link to="/cash-management">
+                <SidebarMenuButton asChild>
+                  <div>
                     <Banknote size={20} />
                     <span>{t('nav.cash_management')}</span>
-                  </Link>
+                  </div>
                 </SidebarMenuButton>
-              </SidebarMenuItem>
-              
-              {/* Separator after Cash Management */}
-              <SidebarSeparator />
 
-              {/* Encaissements page */}
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={isActive('/encaissements')}>
-                  <Link to="/encaissements">
-                    <Receipt size={20} />
-                    <span>{t('nav.encaissements')}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              
-              {/* Expenses page */}
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={isActive('/depenses')}>
-                  <Link to="/depenses">
-                    <DollarSign size={20} />
-                    <span>{t('nav.expenses')}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              
-              {/* Cash Flow page */}
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={isActive('/cash-management')}>
-                  <Link to="/cash-management">
-                    <Banknote size={20} />
-                    <span>{t('nav.cash_flow')}</span>
-                  </Link>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
+                <SidebarMenuSub>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton asChild isActive={isActive('/recettes')}>
+                      <Link to="/recettes">
+                        <FileText size={18} />
+                        <span>{t('nav.receipts')}</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                  
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton asChild isActive={isActive('/depenses')}>
+                      <Link to="/depenses">
+                        <DollarSign size={18} />
+                        <span>{t('nav.expenses')}</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                  
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton asChild isActive={isActive('/cash-management')}>
+                      <Link to="/cash-management">
+                        <Banknote size={18} />
+                        <span>{t('nav.cash_flow')}</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
 
-              {/* Debt Management page */}
-              <SidebarMenuItem>
-                <SidebarMenuButton asChild isActive={isActive('/debt-management')}>
-                  <Link to="/debt-management">
-                    <DollarSign size={20} />
-                    <span>{t('nav.debt')}</span>
-                  </Link>
-                </SidebarMenuButton>
+                  <SidebarMenuSubItem>
+                    <SidebarMenuSubButton asChild isActive={isActive('/debt-management')}>
+                      <Link to="/debt-management">
+                        <DollarSign size={18} />
+                        <span>{t('nav.debt')}</span>
+                      </Link>
+                    </SidebarMenuSubButton>
+                  </SidebarMenuSubItem>
+                </SidebarMenuSub>
               </SidebarMenuItem>
 
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={isActive('/parametres')}>
                   <Link to="/parametres">
                     <Settings size={20} />
-                    <span>{t('nav.parametres')}</span>
+                    <span>{t('nav.settings')}</span>
                   </Link>
                 </SidebarMenuButton>
               </SidebarMenuItem>

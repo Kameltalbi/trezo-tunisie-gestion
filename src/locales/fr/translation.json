@@ -24,8 +24,7 @@
     "admin": "Administration",
     "cash_management": "Gestion de trésorerie",
     "cash_flow": "Flux de trésorerie",
-    "debt": "Gestion des dettes",
-    "encaissements": "Encaissements"
+    "debt": "Gestion des dettes"
   },
   "parametres": {
     "title": "Paramètres",
@@ -86,36 +85,10 @@
   },
   "cash_management": {
     "title": "Gestion de trésorerie",
-    "description": "Gérez vos flux de trésorerie",
-    "total_income": "Revenu total",
-    "total_expenses": "Dépenses totales",
-    "net_cash_flow": "Flux net de trésorerie",
-    "cash_flow_analysis": "Analyse des flux de trésorerie",
-    "income": "Revenus",
-    "expenses": "Dépenses",
-    "balance": "Solde",
-    "monthly": "Mensuel",
-    "quarterly": "Trimestriel",
-    "yearly": "Annuel",
-    "coming_soon": "Données à venir",
-    "future_projections": "Projections futures",
-    "projections_coming_soon": "Les projections de trésorerie seront disponibles prochainement"
+    "description": "Gérez vos flux de trésorerie"
   },
   "debt_management": {
     "title": "Gestion des dettes",
     "description": "Gérez vos dettes et emprunts"
-  },
-  "encaissements": {
-    "title": "Encaissements",
-    "description": "Gérez tous vos encaissements en espèces",
-    "add": "Ajouter un encaissement",
-    "total_month": "Ce mois-ci",
-    "pending": "En attente",
-    "avg_transaction": "Moyenne par transaction",
-    "monthly_trend": "Tendance mensuelle",
-    "trend_description": "Tendances des encaissements sur les 6 derniers mois",
-    "recent": "Transactions récentes",
-    "recent_description": "Vos encaissements les plus récents",
-    "view_all": "Voir toutes les transactions"
   }
 }
