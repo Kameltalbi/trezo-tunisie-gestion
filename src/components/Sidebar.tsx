@@ -2,7 +2,7 @@
 import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { Banknote, FileText, LayoutDashboard, Settings, DollarSign, Cash } from 'lucide-react';
+import { Banknote, FileText, LayoutDashboard, Settings, DollarSign } from 'lucide-react';
 
 import {
   Sidebar as SidebarUI,
@@ -44,7 +44,7 @@ const Sidebar = () => {
               <SidebarMenuItem>
                 <SidebarMenuButton asChild isActive={isActive('/cash-management')}>
                   <Link to="/cash-management">
-                    <Cash size={20} />
+                    <Banknote size={20} />
                     <span>{t('nav.cash_management')}</span>
                   </Link>
                 </SidebarMenuButton>
