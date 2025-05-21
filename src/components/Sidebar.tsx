@@ -10,7 +10,8 @@ import {
   ChartLine, 
   Settings, 
   UserCog,
-  Wallet
+  Wallet,
+  FolderKanban
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Separator } from './ui/separator';
@@ -91,6 +92,12 @@ const Sidebar = () => {
       path: '/debt-management',
       isActive: isActive('/debt-management')
     },
+    {
+      icon: <FolderKanban size={20} />,
+      label: 'Projets',
+      path: '/projets',
+      isActive: isActive('/projets')
+    }
   ];
 
   const settingsItems: SidebarItemProps[] = [

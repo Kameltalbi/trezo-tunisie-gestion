@@ -1,4 +1,3 @@
-
 {
   "app": {
     "name": "Trezo"
@@ -28,7 +27,8 @@
     "cash_flow": "Flux de trésorerie",
     "debt": "Gestion des dettes",
     "accounts": "Comptes",
-    "accounts_section": "Comptes & caisses"
+    "accounts_section": "Comptes & caisses",
+    "projects": "Projets"
   },
   "parametres": {
     "title": "Paramètres",
@@ -134,5 +134,39 @@
     "account_total": "{{count}} compte au total",
     "account_total_plural": "{{count}} comptes au total",
     "add_first_account": "Ajoutez votre premier compte en cliquant sur le bouton ci-dessus"
+  },
+  "projets": {
+    "title": "Projets",
+    "description": "Suivi budgétaire par projet",
+    "new_project": "Nouveau projet",
+    "edit_project": "Modifier le projet",
+    "delete_project": "Supprimer le projet",
+    "name": "Nom du projet",
+    "description": "Description",
+    "budget_planned": "Budget prévu",
+    "budget_consumed": "Budget consommé",
+    "start_date": "Date de début",
+    "end_date": "Date de fin",
+    "status": "Statut",
+    "active": "Actif",
+    "pending": "En attente",
+    "completed": "Terminé",
+    "progress": "Progression",
+    "total_budget": "Budget total",
+    "active_projects": "Projets actifs",
+    "create": "Créer le projet",
+    "update": "Mettre à jour",
+    "cancel": "Annuler",
+    "all": "Tous",
+    "actifs": "Actifs",
+    "en_attente": "En attente",
+    "termines": "Terminés",
+    "no_projects": "Aucun projet trouvé",
+    "created_success": "Projet créé avec succès",
+    "updated_success": "Projet mis à jour avec succès",
+    "deleted_success": "Projet supprimé avec succès",
+    "fill_required": "Veuillez remplir tous les champs obligatoires",
+    "income_link": "Rattacher des encaissements",
+    "expense_link": "Rattacher des décaissements"
   }
 }

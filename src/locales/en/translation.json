@@ -1,4 +1,3 @@
-
 {
   "app": {
     "name": "Trezo"
@@ -28,7 +27,8 @@
     "cash_flow": "Cash Flow",
     "debt": "Debt Management",
     "accounts": "Accounts",
-    "accounts_section": "Accounts & Cash"
+    "accounts_section": "Accounts & Cash",
+    "projects": "Projects"
   },
   "parametres": {
     "title": "Settings",
@@ -165,5 +165,39 @@
     "account_total": "{{count}} account in total",
     "account_total_plural": "{{count}} accounts in total",
     "add_first_account": "Add your first account by clicking the button above"
+  },
+  "projets": {
+    "title": "Projects",
+    "description": "Budget tracking by project",
+    "new_project": "New project",
+    "edit_project": "Edit project",
+    "delete_project": "Delete project",
+    "name": "Project name",
+    "description": "Description",
+    "budget_planned": "Planned budget",
+    "budget_consumed": "Consumed budget",
+    "start_date": "Start date",
+    "end_date": "End date",
+    "status": "Status",
+    "active": "Active",
+    "pending": "Pending",
+    "completed": "Completed",
+    "progress": "Progress",
+    "total_budget": "Total budget",
+    "active_projects": "Active projects",
+    "create": "Create project",
+    "update": "Update",
+    "cancel": "Cancel",
+    "all": "All",
+    "actifs": "Active",
+    "en_attente": "Pending",
+    "termines": "Completed",
+    "no_projects": "No projects found",
+    "created_success": "Project created successfully",
+    "updated_success": "Project updated successfully",
+    "deleted_success": "Project deleted successfully",
+    "fill_required": "Please fill in all required fields",
+    "income_link": "Link income entries",
+    "expense_link": "Link expense entries"
   }
 }

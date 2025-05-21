@@ -16,6 +16,7 @@ import Depenses from "./pages/Depenses";
 import Encaissements from "./pages/Encaissements";
 import Dashboard from "./pages/Dashboard";
 import Comptes from "./pages/Comptes";
+import Projets from "./pages/Projets";
 
 // Import i18n configuration
 import "./i18n";
@@ -39,6 +40,7 @@ const App = () => (
             <Route path="/encaissements" element={<Layout requireAuth={true}><Encaissements /></Layout>} />
             <Route path="/dashboard" element={<Layout requireAuth={true}><Dashboard /></Layout>} />
             <Route path="/comptes" element={<Layout requireAuth={true}><Comptes /></Layout>} />
+            <Route path="/projets" element={<Layout requireAuth={true}><Projets /></Layout>} />
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
