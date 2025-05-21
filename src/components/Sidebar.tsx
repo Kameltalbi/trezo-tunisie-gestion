@@ -12,6 +12,7 @@ import {
   UserCog,
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
+import { Separator } from './ui/separator';
 
 interface SidebarItemProps {
   icon: React.ReactNode;
@@ -19,6 +20,18 @@ interface SidebarItemProps {
   path: string;
   isActive: boolean;
 }
+
+interface SidebarSectionProps {
+  label: string;
+}
+
+const SidebarSection = ({ label }: SidebarSectionProps) => {
+  return (
+    <div className="px-3 py-2">
+      <div className="text-xs font-semibold text-slate-400 uppercase">{label}</div>
+    </div>
+  );
+};
 
 const Sidebar = () => {
   const { t } = useTranslation();
@@ -34,14 +47,15 @@ const Sidebar = () => {
     navigate(path);
   };
 
-  // Supprimer la structure de sous-menu et mettre toutes les options au même niveau
-  const menuItems: SidebarItemProps[] = [
-    {
-      icon: <LayoutDashboard size={20} />,
-      label: t('nav.dashboard'),
-      path: '/dashboard',
-      isActive: isActive('/dashboard')
-    },
+  // Organize menu items with sections
+  const dashboardItem: SidebarItemProps = {
+    icon: <LayoutDashboard size={20} />,
+    label: t('nav.dashboard'),
+    path: '/dashboard',
+    isActive: isActive('/dashboard')
+  };
+
+  const treasuryMenuItems: SidebarItemProps[] = [
     {
       icon: <FileText size={20} />,
       label: t('nav.receipts_new') || 'Encaissements',
@@ -66,6 +80,9 @@ const Sidebar = () => {
       path: '/debt-management',
       isActive: isActive('/debt-management')
     },
+  ];
+
+  const settingsItems: SidebarItemProps[] = [
     {
       icon: <Settings size={20} />,
       label: t('nav.parametres'),
@@ -79,6 +96,25 @@ const Sidebar = () => {
       isActive: isActive('/admin')
     }
   ];
+
+  const renderSidebarItem = (item: SidebarItemProps) => (
+    <div 
+      key={item.path} 
+      className={cn(
+        "flex items-center px-3 py-2 cursor-pointer hover:bg-slate-700 transition-colors",
+        item.isActive && "bg-slate-700"
+      )}
+      onClick={() => handleNavigation(item.path)}
+    >
+      <div className="w-8 h-8 flex items-center justify-center">
+        {item.icon}
+      </div>
+      
+      {isExpanded && (
+        <span className="ml-3">{item.label}</span>
+      )}
+    </div>
+  );
 
   return (
     <div 
@@ -96,24 +132,20 @@ const Sidebar = () => {
       </div>
 
       <div className="flex-1 overflow-y-auto py-4">
-        {menuItems.map((item) => (
-          <div 
-            key={item.path} 
-            className={cn(
-              "flex items-center px-3 py-2 cursor-pointer hover:bg-slate-700 transition-colors",
-              item.isActive && "bg-slate-700"
-            )}
-            onClick={() => handleNavigation(item.path)}
-          >
-            <div className="w-8 h-8 flex items-center justify-center">
-              {item.icon}
-            </div>
-            
-            {isExpanded && (
-              <span className="ml-3">{item.label}</span>
-            )}
-          </div>
-        ))}
+        {/* Dashboard */}
+        {renderSidebarItem(dashboardItem)}
+        
+        {/* Gestion de trésorerie section */}
+        {isExpanded && (
+          <SidebarSection label={t('nav.cash_management')} />
+        )}
+        <Separator className="my-2 bg-slate-700" />
+        
+        {/* Treasury management menu items */}
+        {treasuryMenuItems.map(renderSidebarItem)}
+        
+        {/* Settings menu items */}
+        {settingsItems.map(renderSidebarItem)}
       </div>
     </div>
   );
