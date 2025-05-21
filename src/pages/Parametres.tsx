@@ -1,7 +1,7 @@
 
 import React, { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
-import { Devise, Langue, Utilisateur, Periode } from "@/types/parametres";
+import { Devise, Langue, Utilisateur, Periode, Permission } from "@/types/parametres";
 import { Trash2, X, Plus } from "lucide-react";
 import SectionBox from "@/components/SectionBox";
 
@@ -10,6 +10,7 @@ const ParametresPage = () => {
   const [langues, setLangues] = useState<Langue[]>([]);
   const [utilisateurs, setUtilisateurs] = useState<Utilisateur[]>([]);
   const [periodes, setPeriodes] = useState<Periode[]>([]);
+  const [permissions, setPermissions] = useState<Permission[]>([]);
 
   const [modalType, setModalType] = useState<null | string>(null);
   const [form, setForm] = useState<any>({});
@@ -50,6 +51,14 @@ const ParametresPage = () => {
       setPeriodes([...periodes, { id, debut: form.debut, fin: form.fin }]);
     }
 
+    if (modalType === "permission") {
+      setPermissions([...permissions, { 
+        id, 
+        page: form.page,
+        description: form.description
+      }]);
+    }
+
     closeModal();
   };
 
@@ -59,6 +68,7 @@ const ParametresPage = () => {
     if (type === "langue") setLangues(update(langues));
     if (type === "utilisateur") setUtilisateurs(update(utilisateurs));
     if (type === "periode") setPeriodes(update(periodes));
+    if (type === "permission") setPermissions(update(permissions));
   };
 
   return (
@@ -141,6 +151,29 @@ const ParametresPage = () => {
             ))}
           </ul>
         </SectionBox>
+
+        {/* Section Permissions */}
+        <SectionBox title="Permissions" onAdd={() => openModal("permission")}>
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left text-gray-600">
+                <th>Page</th><th>Description</th><th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {permissions.map((p) => (
+                <tr key={p.id} className="border-t">
+                  <td>{p.page}</td><td>{p.description}</td>
+                  <td>
+                    <button onClick={() => handleDelete(p.id, "permission")}>
+                      <Trash2 className="w-4 h-4 text-red-500" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </SectionBox>
       </div>
 
       {/* Modal */}
@@ -184,6 +217,13 @@ const ParametresPage = () => {
                 <>
                   <input type="date" placeholder="Début" value={form.debut || ""} onChange={(e) => setForm({ ...form, debut: e.target.value })} className="w-full border p-2 rounded" />
                   <input type="date" placeholder="Fin" value={form.fin || ""} onChange={(e) => setForm({ ...form, fin: e.target.value })} className="w-full border p-2 rounded" />
+                </>
+              )}
+              
+              {modalType === "permission" && (
+                <>
+                  <input placeholder="Nom de la page" value={form.page || ""} onChange={(e) => setForm({ ...form, page: e.target.value })} className="w-full border p-2 rounded" />
+                  <input placeholder="Description" value={form.description || ""} onChange={(e) => setForm({ ...form, description: e.target.value })} className="w-full border p-2 rounded" />
                 </>
               )}
               
