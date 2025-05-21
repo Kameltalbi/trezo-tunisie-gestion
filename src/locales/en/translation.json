@@ -27,7 +27,8 @@
     "cash_management": "Treasury Management",
     "cash_flow": "Cash Flow",
     "debt": "Debt Management",
-    "accounts": "Accounts"
+    "accounts": "Accounts",
+    "accounts_section": "Accounts & Cash"
   },
   "parametres": {
     "title": "Settings",

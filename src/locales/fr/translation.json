@@ -27,7 +27,8 @@
     "cash_management": "Gestion de trésorerie",
     "cash_flow": "Flux de trésorerie",
     "debt": "Gestion des dettes",
-    "accounts": "Comptes"
+    "accounts": "Comptes",
+    "accounts_section": "Comptes & caisses"
   },
   "parametres": {
     "title": "Paramètres",

@@ -56,13 +56,17 @@ const Sidebar = () => {
     isActive: isActive('/dashboard')
   };
 
-  const treasuryMenuItems: SidebarItemProps[] = [
+  // New accounts section
+  const accountsItems: SidebarItemProps[] = [
     {
       icon: <Wallet size={20} />,
       label: t('nav.accounts'),
       path: '/comptes',
       isActive: isActive('/comptes')
-    },
+    }
+  ];
+  
+  const treasuryMenuItems: SidebarItemProps[] = [
     {
       icon: <FileText size={20} />,
       label: t('nav.receipts_new') || 'Encaissements',
@@ -147,6 +151,14 @@ const Sidebar = () => {
           <SidebarSection label={t('nav.cash_management')} />
         )}
         <Separator className="my-2 bg-slate-700" />
+        
+        {/* Comptes & caisses section */}
+        {isExpanded && (
+          <SidebarSection label={t('nav.accounts_section')} />
+        )}
+        
+        {/* Accounts menu items */}
+        {accountsItems.map(renderSidebarItem)}
         
         {/* Treasury management menu items */}
         {treasuryMenuItems.map(renderSidebarItem)}
