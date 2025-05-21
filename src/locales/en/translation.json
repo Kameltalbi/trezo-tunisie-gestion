@@ -26,7 +26,8 @@
     "admin": "Administration",
     "cash_management": "Treasury Management",
     "cash_flow": "Cash Flow",
-    "debt": "Debt Management"
+    "debt": "Debt Management",
+    "accounts": "Accounts"
   },
   "parametres": {
     "title": "Settings",
@@ -123,5 +124,45 @@
   "debt_management": {
     "title": "Debt Management",
     "description": "Manage your debts and loans"
+  },
+  "comptes": {
+    "title": "Accounts",
+    "description": "Manage your bank accounts",
+    "add_account": "Add account",
+    "add_account_desc": "Create a new bank account",
+    "action_account_desc": "Perform an operation on account {account}",
+    "edit_account": "Edit account",
+    "name": "Name",
+    "type": "Type",
+    "amount": "Amount",
+    "initial_balance": "Initial balance",
+    "current_balance": "Current balance",
+    "actions": "Actions",
+    "deposit": "Deposit",
+    "withdraw": "Withdraw",
+    "fees": "Fees",
+    "create": "Create",
+    "confirm": "Confirm",
+    "cancel": "Cancel",
+    "accounts_list": "Accounts list",
+    "manage_accounts": "Manage your bank accounts",
+    "no_accounts": "No accounts at the moment",
+    "checking": "Checking",
+    "savings": "Savings",
+    "credit": "Credit",
+    "deposit_funds": "Deposit funds",
+    "withdraw_funds": "Withdraw funds",
+    "modify_fees": "Modify fees",
+    "success": "Success",
+    "error": "Error",
+    "account_added": "Account added successfully",
+    "deposit_success": "Deposit completed successfully",
+    "withdraw_success": "Withdrawal completed successfully",
+    "fees_success": "Fees modified successfully",
+    "fill_all_fields": "Please fill in all fields",
+    "enter_valid_amount": "Please enter a valid amount",
+    "account_total": "{{count}} account in total",
+    "account_total_plural": "{{count}} accounts in total",
+    "add_first_account": "Add your first account by clicking the button above"
   }
 }

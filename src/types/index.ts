@@ -1,5 +1,4 @@
 
-
 export interface User {
   id: string;
   email: string;
@@ -24,3 +23,13 @@ export interface AuthState {
   error: string | null;
 }
 
+export type AccountType = 'checking' | 'savings' | 'credit';
+
+export interface Account {
+  id: string;
+  name: string;
+  type: AccountType;
+  initialBalance: number;
+  currentBalance: number;
+  createdAt: string;
+}

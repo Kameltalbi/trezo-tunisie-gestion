@@ -10,6 +10,7 @@ import {
   ChartLine, 
   Settings, 
   UserCog,
+  Wallet
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Separator } from './ui/separator';
@@ -56,6 +57,12 @@ const Sidebar = () => {
   };
 
   const treasuryMenuItems: SidebarItemProps[] = [
+    {
+      icon: <Wallet size={20} />,
+      label: t('nav.accounts'),
+      path: '/comptes',
+      isActive: isActive('/comptes')
+    },
     {
       icon: <FileText size={20} />,
       label: t('nav.receipts_new') || 'Encaissements',

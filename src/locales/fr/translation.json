@@ -26,7 +26,8 @@
     "admin": "Administration",
     "cash_management": "Gestion de trésorerie",
     "cash_flow": "Flux de trésorerie",
-    "debt": "Gestion des dettes"
+    "debt": "Gestion des dettes",
+    "accounts": "Comptes"
   },
   "parametres": {
     "title": "Paramètres",
@@ -92,5 +93,45 @@
   "debt_management": {
     "title": "Gestion des dettes",
     "description": "Gérez vos dettes et emprunts"
+  },
+  "comptes": {
+    "title": "Comptes",
+    "description": "Gérez vos comptes bancaires",
+    "add_account": "Ajouter un compte",
+    "add_account_desc": "Créez un nouveau compte bancaire",
+    "action_account_desc": "Effectuez une opération sur le compte {account}",
+    "edit_account": "Modifier le compte",
+    "name": "Nom",
+    "type": "Type",
+    "amount": "Montant",
+    "initial_balance": "Solde initial",
+    "current_balance": "Solde actuel",
+    "actions": "Actions",
+    "deposit": "Alimenter",
+    "withdraw": "Retirer",
+    "fees": "Frais",
+    "create": "Créer",
+    "confirm": "Confirmer",
+    "cancel": "Annuler",
+    "accounts_list": "Liste des comptes",
+    "manage_accounts": "Gérez vos comptes bancaires",
+    "no_accounts": "Aucun compte pour le moment",
+    "checking": "Compte courant",
+    "savings": "Épargne",
+    "credit": "Crédit",
+    "deposit_funds": "Alimenter le compte",
+    "withdraw_funds": "Retirer des fonds",
+    "modify_fees": "Modifier les frais",
+    "success": "Succès",
+    "error": "Erreur",
+    "account_added": "Compte ajouté avec succès",
+    "deposit_success": "Dépôt effectué avec succès",
+    "withdraw_success": "Retrait effectué avec succès",
+    "fees_success": "Frais modifiés avec succès",
+    "fill_all_fields": "Veuillez remplir tous les champs",
+    "enter_valid_amount": "Veuillez entrer un montant valide",
+    "account_total": "{{count}} compte au total",
+    "account_total_plural": "{{count}} comptes au total",
+    "add_first_account": "Ajoutez votre premier compte en cliquant sur le bouton ci-dessus"
   }
 }
