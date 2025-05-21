@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -9,7 +10,6 @@ import {
   ChartLine, 
   Settings, 
   UserCog,
-  ChevronRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -18,8 +18,6 @@ interface SidebarItemProps {
   label: string;
   path: string;
   isActive: boolean;
-  hasSubMenu?: boolean;
-  subMenu?: { icon: React.ReactNode; label: string; path: string }[];
 }
 
 const Sidebar = () => {
@@ -27,18 +25,16 @@ const Sidebar = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
-  const [expandedSubMenu, setExpandedSubMenu] = useState<string | null>(null);
 
   const isActive = (path: string) => {
     return location.pathname === path;
   };
 
   const handleNavigation = (path: string) => {
-    // Ne pas naviguer si le chemin est #
-    if (path === '#') return;
     navigate(path);
   };
 
+  // Supprimer la structure de sous-menu et mettre toutes les options au même niveau
   const menuItems: SidebarItemProps[] = [
     {
       icon: <LayoutDashboard size={20} />,
@@ -47,33 +43,28 @@ const Sidebar = () => {
       isActive: isActive('/dashboard')
     },
     {
+      icon: <FileText size={20} />,
+      label: t('nav.receipts') || 'Encaissements',
+      path: '/encaissements',
+      isActive: isActive('/encaissements')
+    },
+    {
+      icon: <DollarSign size={20} />,
+      label: t('nav.expenses'),
+      path: '/depenses',
+      isActive: isActive('/depenses')
+    },
+    {
+      icon: <ChartLine size={20} />,
+      label: t('nav.cash_flow'),
+      path: '/cash-flow',
+      isActive: isActive('/cash-flow')
+    },
+    {
       icon: <Banknote size={20} />,
-      label: t('nav.cash_management'),
-      path: '#', // Utiliser # pour éviter la navigation
-      isActive: isActive('/cash-management') || isActive('/depenses') || isActive('/cash-flow') || isActive('/debt-management'),
-      hasSubMenu: true,
-      subMenu: [
-        {
-          icon: <FileText size={18} />,
-          label: t('nav.receipts') || 'Encaissements',
-          path: '/encaissements'
-        },
-        {
-          icon: <DollarSign size={18} />,
-          label: t('nav.expenses'),
-          path: '/depenses'
-        },
-        {
-          icon: <ChartLine size={18} />,
-          label: t('nav.cash_flow'),
-          path: '/cash-flow'
-        },
-        {
-          icon: <DollarSign size={18} />,
-          label: t('nav.debt'),
-          path: '/debt-management'
-        }
-      ]
+      label: t('nav.debt'),
+      path: '/debt-management',
+      isActive: isActive('/debt-management')
     },
     {
       icon: <Settings size={20} />,
@@ -94,10 +85,7 @@ const Sidebar = () => {
       className="fixed left-0 top-0 h-full bg-slate-800 text-white z-50 transition-all duration-300 flex flex-col"
       style={{ width: isExpanded ? '240px' : '60px' }}
       onMouseEnter={() => setIsExpanded(true)}
-      onMouseLeave={() => {
-        setIsExpanded(false);
-        setExpandedSubMenu(null);
-      }}
+      onMouseLeave={() => setIsExpanded(false)}
     >
       <div className="p-4 flex items-center justify-center h-16 border-b border-slate-700">
         {isExpanded ? (
@@ -109,65 +97,20 @@ const Sidebar = () => {
 
       <div className="flex-1 overflow-y-auto py-4">
         {menuItems.map((item) => (
-          <div key={item.path} className="mb-1">
-            <div 
-              className={cn(
-                "flex items-center px-3 py-2 cursor-pointer hover:bg-slate-700 transition-colors",
-                item.isActive && "bg-slate-700"
-              )}
-              onClick={() => {
-                if (item.hasSubMenu) {
-                  if (expandedSubMenu === item.path) {
-                    setExpandedSubMenu(null);
-                  } else {
-                    setExpandedSubMenu(item.path);
-                  }
-                  // Ne pas naviguer si c'est un élément avec sous-menu
-                  return;
-                } else {
-                  handleNavigation(item.path);
-                }
-              }}
-            >
-              <div className="w-8 h-8 flex items-center justify-center">
-                {item.icon}
-              </div>
-              
-              {isExpanded && (
-                <>
-                  <span className="ml-3 flex-1">{item.label}</span>
-                  {item.hasSubMenu && (
-                    <ChevronRight 
-                      size={16} 
-                      className={cn(
-                        "transition-transform",
-                        expandedSubMenu === item.path && "transform rotate-90"
-                      )} 
-                    />
-                  )}
-                </>
-              )}
+          <div 
+            key={item.path} 
+            className={cn(
+              "flex items-center px-3 py-2 cursor-pointer hover:bg-slate-700 transition-colors",
+              item.isActive && "bg-slate-700"
+            )}
+            onClick={() => handleNavigation(item.path)}
+          >
+            <div className="w-8 h-8 flex items-center justify-center">
+              {item.icon}
             </div>
-
-            {/* Sous-menu */}
-            {item.hasSubMenu && item.subMenu && isExpanded && expandedSubMenu === item.path && (
-              <div className="pl-4 bg-slate-900">
-                {item.subMenu.map((subItem) => (
-                  <div 
-                    key={subItem.path}
-                    className={cn(
-                      "flex items-center px-3 py-2 cursor-pointer hover:bg-slate-700 transition-colors",
-                      isActive(subItem.path) && "bg-slate-700"
-                    )}
-                    onClick={() => handleNavigation(subItem.path)}
-                  >
-                    <div className="w-6 h-6 flex items-center justify-center">
-                      {subItem.icon}
-                    </div>
-                    <span className="ml-3">{subItem.label}</span>
-                  </div>
-                ))}
-              </div>
+            
+            {isExpanded && (
+              <span className="ml-3">{item.label}</span>
             )}
           </div>
         ))}
