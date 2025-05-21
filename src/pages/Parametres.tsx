@@ -4,6 +4,7 @@ import { v4 as uuidv4 } from "uuid";
 import { Devise, Langue, Utilisateur, Periode, Permission } from "@/types/parametres";
 import { Trash2, X, Plus } from "lucide-react";
 import SectionBox from "@/components/SectionBox";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const ParametresPage = () => {
   const [devises, setDevises] = useState<Devise[]>([]);
@@ -55,7 +56,10 @@ const ParametresPage = () => {
       setPermissions([...permissions, { 
         id, 
         page: form.page,
-        description: form.description
+        description: form.description,
+        admin: form.admin || false,
+        editeur: form.editeur || false,
+        collaborateur: form.collaborateur || false
       }]);
     }
 
@@ -69,6 +73,17 @@ const ParametresPage = () => {
     if (type === "utilisateur") setUtilisateurs(update(utilisateurs));
     if (type === "periode") setPeriodes(update(periodes));
     if (type === "permission") setPermissions(update(permissions));
+  };
+
+  const togglePermission = (id: string, role: "admin" | "editeur" | "collaborateur") => {
+    setPermissions(
+      permissions.map((p) => {
+        if (p.id === id) {
+          return { ...p, [role]: !p[role] };
+        }
+        return p;
+      })
+    );
   };
 
   return (
@@ -154,25 +169,60 @@ const ParametresPage = () => {
 
         {/* Section Permissions */}
         <SectionBox title="Permissions" onAdd={() => openModal("permission")}>
-          <table className="w-full text-sm">
-            <thead>
-              <tr className="text-left text-gray-600">
-                <th>Page</th><th>Description</th><th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {permissions.map((p) => (
-                <tr key={p.id} className="border-t">
-                  <td>{p.page}</td><td>{p.description}</td>
-                  <td>
-                    <button onClick={() => handleDelete(p.id, "permission")}>
-                      <Trash2 className="w-4 h-4 text-red-500" />
-                    </button>
-                  </td>
+          <div className="overflow-x-auto">
+            <table className="w-full text-sm">
+              <thead>
+                <tr className="text-left text-gray-600 border-b">
+                  <th className="py-2">Page</th>
+                  <th className="py-2 text-center">Admin</th>
+                  <th className="py-2 text-center">Éditeur</th>
+                  <th className="py-2 text-center">Collaborateur</th>
+                  <th className="py-2"></th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody>
+                {permissions.map((p) => (
+                  <tr key={p.id} className="border-t">
+                    <td className="py-2">
+                      <div>
+                        <div>{p.page}</div>
+                        <div className="text-xs text-gray-500">{p.description}</div>
+                      </div>
+                    </td>
+                    <td className="py-2 text-center">
+                      <div className="flex justify-center">
+                        <Checkbox 
+                          checked={p.admin} 
+                          onCheckedChange={() => togglePermission(p.id, "admin")} 
+                        />
+                      </div>
+                    </td>
+                    <td className="py-2 text-center">
+                      <div className="flex justify-center">
+                        <Checkbox 
+                          checked={p.editeur} 
+                          onCheckedChange={() => togglePermission(p.id, "editeur")} 
+                        />
+                      </div>
+                    </td>
+                    <td className="py-2 text-center">
+                      <div className="flex justify-center">
+                        <Checkbox 
+                          checked={p.collaborateur} 
+                          onCheckedChange={() => togglePermission(p.id, "collaborateur")} 
+                        />
+                      </div>
+                    </td>
+                    <td className="py-2">
+                      <button onClick={() => handleDelete(p.id, "permission")}>
+                        <Trash2 className="w-4 h-4 text-red-500" />
+                      </button>
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
         </SectionBox>
       </div>
 
@@ -224,6 +274,32 @@ const ParametresPage = () => {
                 <>
                   <input placeholder="Nom de la page" value={form.page || ""} onChange={(e) => setForm({ ...form, page: e.target.value })} className="w-full border p-2 rounded" />
                   <input placeholder="Description" value={form.description || ""} onChange={(e) => setForm({ ...form, description: e.target.value })} className="w-full border p-2 rounded" />
+                  <div className="mt-4 space-y-3">
+                    <div className="flex items-center space-x-2">
+                      <Checkbox 
+                        id="admin" 
+                        checked={form.admin || false} 
+                        onCheckedChange={(checked) => setForm({ ...form, admin: !!checked })}
+                      />
+                      <label htmlFor="admin" className="text-sm">Admin</label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox 
+                        id="editeur" 
+                        checked={form.editeur || false} 
+                        onCheckedChange={(checked) => setForm({ ...form, editeur: !!checked })}
+                      />
+                      <label htmlFor="editeur" className="text-sm">Éditeur</label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <Checkbox 
+                        id="collaborateur" 
+                        checked={form.collaborateur || false} 
+                        onCheckedChange={(checked) => setForm({ ...form, collaborateur: !!checked })}
+                      />
+                      <label htmlFor="collaborateur" className="text-sm">Collaborateur</label>
+                    </div>
+                  </div>
                 </>
               )}
               

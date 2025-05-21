@@ -1,4 +1,5 @@
 
+
 export interface Devise {
   id: string;
   nom: string;
@@ -29,4 +30,8 @@ export interface Permission {
   id: string;
   page: string;
   description: string;
+  admin: boolean;
+  editeur: boolean;
+  collaborateur: boolean;
 }
+
