@@ -1,124 +1,185 @@
 import React, { useState } from "react";
-import { Langue, Monnaie, Utilisateur } from "@/types/parametres";
 import { v4 as uuidv4 } from "uuid";
+import { X } from "lucide-react";
+
+type Devise = { id: string; nom: string };
+type Langue = { id: string; nom: string };
+type Utilisateur = { id: string; nom: string; email: string; role: string };
+type Periode = { id: string; debut: string; fin: string };
 
 const ParametresPage = () => {
-  const [monnaie, setMonnaie] = useState<Monnaie>("TND");
-  const [langue, setLangue] = useState<Langue>("fr");
-  const [periodeDebut, setPeriodeDebut] = useState("2025-01-01");
-  const [periodeFin, setPeriodeFin] = useState("2025-12-31");
+  const [devises, setDevises] = useState<Devise[]>([]);
+  const [langues, setLangues] = useState<Langue[]>([]);
+  const [utilisateurs, setUtilisateurs] = useState<Utilisateur[]>([]);
+  const [periodes, setPeriodes] = useState<Periode[]>([]);
 
-  const [utilisateurs, setUtilisateurs] = useState<Utilisateur[]>([
-    { id: uuidv4(), nom: "Kamel Talbi", email: "kamel@ktconsulting.com", role: "Admin" },
-    { id: uuidv4(), nom: "Sami Jlassi", email: "sami@ktconsulting.com", role: "Collaborateur" },
-  ]);
+  const [modal, setModal] = useState<{
+    type: "devise" | "langue" | "utilisateur" | "periode" | null;
+    show: boolean;
+  }>({ type: null, show: false });
 
-  const handleImport = () => {
-    alert("Fonction d’import à intégrer");
+  const [form, setForm] = useState<any>({});
+
+  const handleAdd = () => {
+    if (!modal.type) return;
+    const id = uuidv4();
+    const entry = { ...form, id };
+
+    switch (modal.type) {
+      case "devise":
+        setDevises([...devises, entry]);
+        break;
+      case "langue":
+        setLangues([...langues, entry]);
+        break;
+      case "utilisateur":
+        setUtilisateurs([...utilisateurs, entry]);
+        break;
+      case "periode":
+        setPeriodes([...periodes, entry]);
+        break;
+    }
+
+    setForm({});
+    setModal({ type: null, show: false });
   };
 
-  const handleExport = () => {
-    alert("Export des paramètres effectué !");
+  const handleDelete = (id: string, type: string) => {
+    const update = (data: any[]) => data.filter((item) => item.id !== id);
+    if (type === "devise") setDevises(update);
+    if (type === "langue") setLangues(update);
+    if (type === "utilisateur") setUtilisateurs(update);
+    if (type === "periode") setPeriodes(update);
   };
 
   return (
-    <div className="max-w-5xl mx-auto p-6">
-      <h1 className="text-2xl font-bold mb-6">Paramètres</h1>
+    <div className="p-6 max-w-6xl mx-auto space-y-8">
+      <h1 className="text-2xl font-bold">Paramètres</h1>
 
-      {/* Section : Monnaie */}
-      <div className="mb-6 bg-white shadow p-4 rounded-lg">
-        <h2 className="text-lg font-semibold mb-2">Monnaie</h2>
-        <select
-          value={monnaie}
-          onChange={(e) => setMonnaie(e.target.value as Monnaie)}
-          className="border p-2 rounded w-full md:w-1/3"
-        >
-          <option value="TND">Dinar tunisien (TND)</option>
-          <option value="EUR">Euro (EUR)</option>
-          <option value="USD">Dollar américain (USD)</option>
-          <option value="XOF">Franc CFA (XOF)</option>
-        </select>
-      </div>
+      {/* Section - Devises */}
+      <SectionCard
+        title="Devises"
+        data={devises}
+        onAdd={() => setModal({ type: "devise", show: true })}
+        onDelete={(id) => handleDelete(id, "devise")}
+      />
 
-      {/* Section : Langue */}
-      <div className="mb-6 bg-white shadow p-4 rounded-lg">
-        <h2 className="text-lg font-semibold mb-2">Langue</h2>
-        <select
-          value={langue}
-          onChange={(e) => setLangue(e.target.value as Langue)}
-          className="border p-2 rounded w-full md:w-1/3"
-        >
-          <option value="fr">Français</option>
-          <option value="en">Anglais</option>
-        </select>
-      </div>
+      {/* Section - Langues */}
+      <SectionCard
+        title="Langues"
+        data={langues}
+        onAdd={() => setModal({ type: "langue", show: true })}
+        onDelete={(id) => handleDelete(id, "langue")}
+      />
 
-      {/* Section : Utilisateurs */}
-      <div className="mb-6 bg-white shadow p-4 rounded-lg">
-        <h2 className="text-lg font-semibold mb-2">Utilisateurs & rôles</h2>
-        <table className="w-full table-auto border text-sm">
-          <thead className="bg-gray-100">
-            <tr>
-              <th className="border px-2 py-1">Nom</th>
-              <th className="border px-2 py-1">Email</th>
-              <th className="border px-2 py-1">Rôle</th>
-            </tr>
-          </thead>
-          <tbody>
-            {utilisateurs.map((u) => (
-              <tr key={u.id}>
-                <td className="border px-2 py-1">{u.nom}</td>
-                <td className="border px-2 py-1">{u.email}</td>
-                <td className="border px-2 py-1">{u.role}</td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
-      </div>
+      {/* Section - Utilisateurs */}
+      <SectionCard
+        title="Utilisateurs"
+        data={utilisateurs.map((u) => ({ id: u.id, nom: `${u.nom} (${u.role})` }))}
+        onAdd={() => setModal({ type: "utilisateur", show: true })}
+        onDelete={(id) => handleDelete(id, "utilisateur")}
+      />
 
-      {/* Section : Période comptable */}
-      <div className="mb-6 bg-white shadow p-4 rounded-lg">
-        <h2 className="text-lg font-semibold mb-2">Période comptable</h2>
-        <div className="flex flex-col md:flex-row gap-4">
-          <div>
-            <label className="block mb-1 text-sm">Début</label>
-            <input
-              type="date"
-              value={periodeDebut}
-              onChange={(e) => setPeriodeDebut(e.target.value)}
-              className="border p-2 rounded"
-            />
-          </div>
-          <div>
-            <label className="block mb-1 text-sm">Fin</label>
-            <input
-              type="date"
-              value={periodeFin}
-              onChange={(e) => setPeriodeFin(e.target.value)}
-              className="border p-2 rounded"
-            />
+      {/* Section - Période comptable */}
+      <SectionCard
+        title="Périodes comptables"
+        data={periodes.map((p) => ({
+          id: p.id,
+          nom: `${p.debut} → ${p.fin}`,
+        }))}
+        onAdd={() => setModal({ type: "periode", show: true })}
+        onDelete={(id) => handleDelete(id, "periode")}
+      />
+
+      {/* Modal */}
+      {modal.show && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
+          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-bold capitalize">Ajouter {modal.type}</h2>
+              <button onClick={() => setModal({ type: null, show: false })}>
+                <X className="w-5 h-5" />
+              </button>
+            </div>
+
+            {modal.type === "devise" && (
+              <input
+                type="text"
+                placeholder="Nom de la devise (ex. : Dinar tunisien)"
+                value={form.nom || ""}
+                onChange={(e) => setForm({ nom: e.target.value })}
+                className="w-full border p-2 mb-4 rounded"
+              />
+            )}
+
+            {modal.type === "langue" && (
+              <input
+                type="text"
+                placeholder="Langue (ex. : Français)"
+                value={form.nom || ""}
+                onChange={(e) => setForm({ nom: e.target.value })}
+                className="w-full border p-2 mb-4 rounded"
+              />
+            )}
+
+            {modal.type === "utilisateur" && (
+              <>
+                <input
+                  type="text"
+                  placeholder="Nom"
+                  value={form.nom || ""}
+                  onChange={(e) => setForm({ ...form, nom: e.target.value })}
+                  className="w-full border p-2 mb-2 rounded"
+                />
+                <input
+                  type="email"
+                  placeholder="Email"
+                  value={form.email || ""}
+                  onChange={(e) => setForm({ ...form, email: e.target.value })}
+                  className="w-full border p-2 mb-2 rounded"
+                />
+                <select
+                  value={form.role || "Collaborateur"}
+                  onChange={(e) => setForm({ ...form, role: e.target.value })}
+                  className="w-full border p-2 mb-2 rounded"
+                >
+                  <option value="Admin">Admin</option>
+                  <option value="Collaborateur">Collaborateur</option>
+                  <option value="Consultant">Consultant</option>
+                </select>
+              </>
+            )}
+
+            {modal.type === "periode" && (
+              <div className="space-y-2">
+                <label className="block text-sm">Début</label>
+                <input
+                  type="date"
+                  value={form.debut || ""}
+                  onChange={(e) => setForm({ ...form, debut: e.target.value })}
+                  className="w-full border p-2 rounded"
+                />
+                <label className="block text-sm">Fin</label>
+                <input
+                  type="date"
+                  value={form.fin || ""}
+                  onChange={(e) => setForm({ ...form, fin: e.target.value })}
+                  className="w-full border p-2 rounded"
+                />
+              </div>
+            )}
+
+            <div className="mt-4 text-right">
+              <button
+                onClick={handleAdd}
+                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+              >
+                Ajouter
+              </button>
+            </div>
           </div>
         </div>
-      </div>
-
-      {/* Section : Import / Export */}
-      <div className="mb-6 bg-white shadow p-4 rounded-lg">
-        <h2 className="text-lg font-semibold mb-2">Import / Export des données</h2>
-        <div className="flex gap-4">
-          <button
-            onClick={handleImport}
-            className="bg-indigo-600 hover:bg-indigo-700 text-white px-4 py-2 rounded"
-          >
-            Importer
-          </button>
-          <button
-            onClick={handleExport}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded"
-          >
-            Exporter
-          </button>
-        </div>
-      </div>
+      )}
     </div>
   );
 };
