@@ -68,6 +68,12 @@ const Sidebar = () => {
   
   const treasuryMenuItems: SidebarItemProps[] = [
     {
+      icon: <ChartLine size={20} />,
+      label: t('nav.cash_flow'),
+      path: '/cash-flow',
+      isActive: isActive('/cash-flow')
+    },
+    {
       icon: <FileText size={20} />,
       label: t('nav.receipts_new') || 'Encaissements',
       path: '/encaissements',
@@ -78,12 +84,6 @@ const Sidebar = () => {
       label: t('nav.expenses_new'),
       path: '/decaissements',
       isActive: isActive('/decaissements')
-    },
-    {
-      icon: <ChartLine size={20} />,
-      label: t('nav.cash_flow'),
-      path: '/cash-flow',
-      isActive: isActive('/cash-flow')
     },
     {
       icon: <Banknote size={20} />,
