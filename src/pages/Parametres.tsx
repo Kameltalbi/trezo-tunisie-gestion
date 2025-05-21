@@ -1,7 +1,9 @@
+
 import React, { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { Devise, Langue, Utilisateur, Periode } from "@/types/parametres";
-import { Trash2, X } from "lucide-react";
+import { Trash2, X, Plus } from "lucide-react";
+import SectionBox from "@/components/SectionBox";
 
 const ParametresPage = () => {
   const [devises, setDevises] = useState<Devise[]>([]);
@@ -157,4 +159,43 @@ const ParametresPage = () => {
                   <input placeholder="Nom" value={form.nom || ""} onChange={(e) => setForm({ ...form, nom: e.target.value })} className="w-full border p-2 rounded" />
                   <input placeholder="Symbole" value={form.symbole || ""} onChange={(e) => setForm({ ...form, symbole: e.target.value })} className="w-full border p-2 rounded" />
                   <input type="number" placeholder="Décimales" value={form.decimales || ""} onChange={(e) => setForm({ ...form, decimales: e.target.value })} className="w-full border p-2 rounded" />
-                  <input placeholder="Sép
+                  <input placeholder="Séparateur" value={form.separateur || ""} onChange={(e) => setForm({ ...form, separateur: e.target.value })} className="w-full border p-2 rounded" />
+                </>
+              )}
+              
+              {modalType === "langue" && (
+                <input placeholder="Nom" value={form.nom || ""} onChange={(e) => setForm({ ...form, nom: e.target.value })} className="w-full border p-2 rounded" />
+              )}
+              
+              {modalType === "utilisateur" && (
+                <>
+                  <input placeholder="Nom" value={form.nom || ""} onChange={(e) => setForm({ ...form, nom: e.target.value })} className="w-full border p-2 rounded" />
+                  <input type="email" placeholder="Email" value={form.email || ""} onChange={(e) => setForm({ ...form, email: e.target.value })} className="w-full border p-2 rounded" />
+                  <select value={form.role || ""} onChange={(e) => setForm({ ...form, role: e.target.value })} className="w-full border p-2 rounded">
+                    <option value="">Sélectionner un rôle</option>
+                    <option value="Admin">Admin</option>
+                    <option value="Collaborateur">Collaborateur</option>
+                    <option value="Consultant">Consultant</option>
+                  </select>
+                </>
+              )}
+              
+              {modalType === "periode" && (
+                <>
+                  <input type="date" placeholder="Début" value={form.debut || ""} onChange={(e) => setForm({ ...form, debut: e.target.value })} className="w-full border p-2 rounded" />
+                  <input type="date" placeholder="Fin" value={form.fin || ""} onChange={(e) => setForm({ ...form, fin: e.target.value })} className="w-full border p-2 rounded" />
+                </>
+              )}
+              
+              <button onClick={handleAdd} className="bg-blue-600 text-white px-4 py-2 rounded w-full hover:bg-blue-700">
+                Ajouter
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default ParametresPage;
