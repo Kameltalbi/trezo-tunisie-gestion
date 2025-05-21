@@ -1,180 +1,139 @@
-
 import React, { useState } from "react";
+import { Devise } from "@/types/parametres";
 import { v4 as uuidv4 } from "uuid";
-import { X } from "lucide-react";
-import SectionCard from "@/components/SectionCard";
-
-type Devise = { id: string; nom: string };
-type Langue = { id: string; nom: string };
-type Utilisateur = { id: string; nom: string; email: string; role: string };
-type Periode = { id: string; debut: string; fin: string };
+import { Trash2, X } from "lucide-react";
 
 const ParametresPage = () => {
   const [devises, setDevises] = useState<Devise[]>([]);
-  const [langues, setLangues] = useState<Langue[]>([]);
-  const [utilisateurs, setUtilisateurs] = useState<Utilisateur[]>([]);
-  const [periodes, setPeriodes] = useState<Periode[]>([]);
+  const [showDeviseModal, setShowDeviseModal] = useState(false);
+  const [newDevise, setNewDevise] = useState<Partial<Devise>>({});
 
-  const [modal, setModal] = useState<{
-    type: "devise" | "langue" | "utilisateur" | "periode" | null;
-    show: boolean;
-  }>({ type: null, show: false });
-
-  const [form, setForm] = useState<any>({});
-
-  const handleAdd = () => {
-    if (!modal.type) return;
-    const id = uuidv4();
-    const entry = { ...form, id };
-
-    switch (modal.type) {
-      case "devise":
-        setDevises([...devises, entry]);
-        break;
-      case "langue":
-        setLangues([...langues, entry]);
-        break;
-      case "utilisateur":
-        setUtilisateurs([...utilisateurs, entry]);
-        break;
-      case "periode":
-        setPeriodes([...periodes, entry]);
-        break;
-    }
-
-    setForm({});
-    setModal({ type: null, show: false });
+  const addDevise = () => {
+    if (
+      !newDevise.nom ||
+      !newDevise.symbole ||
+      newDevise.decimales === undefined ||
+      !newDevise.separateur
+    )
+      return;
+    const devise: Devise = {
+      id: uuidv4(),
+      nom: newDevise.nom,
+      symbole: newDevise.symbole,
+      decimales: Number(newDevise.decimales),
+      separateur: newDevise.separateur,
+    };
+    setDevises([...devises, devise]);
+    setNewDevise({});
+    setShowDeviseModal(false);
   };
 
-  const handleDelete = (id: string, type: string) => {
-    const update = (data: any[]) => data.filter((item) => item.id !== id);
-    if (type === "devise") setDevises(update);
-    if (type === "langue") setLangues(update);
-    if (type === "utilisateur") setUtilisateurs(update);
-    if (type === "periode") setPeriodes(update);
+  const deleteDevise = (id: string) => {
+    setDevises((prev) => prev.filter((d) => d.id !== id));
   };
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-8">
-      <h1 className="text-2xl font-bold">Paramètres</h1>
+    <div className="p-6 max-w-6xl mx-auto space-y-6">
+      <h1 className="text-2xl font-bold mb-4">Paramètres</h1>
 
-      {/* Section - Devises */}
-      <SectionCard
-        title="Devises"
-        data={devises}
-        onAdd={() => setModal({ type: "devise", show: true })}
-        onDelete={(id) => handleDelete(id, "devise")}
-      />
+      {/* Grid de sections */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Section devises */}
+        <div className="bg-white shadow rounded-lg p-4">
+          <div className="flex justify-between items-center mb-3">
+            <h2 className="text-lg font-semibold">Devises</h2>
+            <button
+              onClick={() => setShowDeviseModal(true)}
+              className="bg-blue-600 text-white px-3 py-1 text-sm rounded hover:bg-blue-700"
+            >
+              Ajouter
+            </button>
+          </div>
+          <table className="w-full text-sm">
+            <thead className="text-left text-gray-600">
+              <tr>
+                <th className="py-1">Nom</th>
+                <th>Symbole</th>
+                <th>Décimales</th>
+                <th>Millier</th>
+                <th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {devises.map((devise) => (
+                <tr key={devise.id} className="border-t">
+                  <td className="py-1">{devise.nom}</td>
+                  <td>{devise.symbole}</td>
+                  <td>{devise.decimales}</td>
+                  <td>{devise.separateur}</td>
+                  <td>
+                    <button
+                      onClick={() => deleteDevise(devise.id)}
+                      className="text-red-500 hover:text-red-700"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
 
-      {/* Section - Langues */}
-      <SectionCard
-        title="Langues"
-        data={langues}
-        onAdd={() => setModal({ type: "langue", show: true })}
-        onDelete={(id) => handleDelete(id, "langue")}
-      />
+        {/* Tu peux ajouter d'autres sections ici */}
+        <div className="bg-white shadow rounded-lg p-4 text-center text-gray-500 italic">
+          <p>Section suivante à définir...</p>
+        </div>
+      </div>
 
-      {/* Section - Utilisateurs */}
-      <SectionCard
-        title="Utilisateurs"
-        data={utilisateurs.map((u) => ({ id: u.id, nom: `${u.nom} (${u.role})` }))}
-        onAdd={() => setModal({ type: "utilisateur", show: true })}
-        onDelete={(id) => handleDelete(id, "utilisateur")}
-      />
-
-      {/* Section - Période comptable */}
-      <SectionCard
-        title="Périodes comptables"
-        data={periodes.map((p) => ({
-          id: p.id,
-          nom: `${p.debut} → ${p.fin}`,
-        }))}
-        onAdd={() => setModal({ type: "periode", show: true })}
-        onDelete={(id) => handleDelete(id, "periode")}
-      />
-
-      {/* Modal */}
-      {modal.show && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white rounded-lg p-6 w-full max-w-md">
+      {/* Modal Ajouter Devise */}
+      {showDeviseModal && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white p-6 rounded-lg w-full max-w-md">
             <div className="flex justify-between items-center mb-4">
-              <h2 className="text-xl font-bold capitalize">Ajouter {modal.type}</h2>
-              <button onClick={() => setModal({ type: null, show: false })}>
+              <h3 className="text-xl font-semibold">Nouvelle devise</h3>
+              <button onClick={() => setShowDeviseModal(false)}>
                 <X className="w-5 h-5" />
               </button>
             </div>
 
-            {modal.type === "devise" && (
+            <div className="space-y-3">
               <input
                 type="text"
-                placeholder="Nom de la devise (ex. : Dinar tunisien)"
-                value={form.nom || ""}
-                onChange={(e) => setForm({ nom: e.target.value })}
-                className="w-full border p-2 mb-4 rounded"
+                placeholder="Nom (ex: Dinar tunisien)"
+                value={newDevise.nom || ""}
+                onChange={(e) => setNewDevise({ ...newDevise, nom: e.target.value })}
+                className="w-full border p-2 rounded"
               />
-            )}
-
-            {modal.type === "langue" && (
               <input
                 type="text"
-                placeholder="Langue (ex. : Français)"
-                value={form.nom || ""}
-                onChange={(e) => setForm({ nom: e.target.value })}
-                className="w-full border p-2 mb-4 rounded"
+                placeholder="Symbole (ex: DT, €)"
+                value={newDevise.symbole || ""}
+                onChange={(e) => setNewDevise({ ...newDevise, symbole: e.target.value })}
+                className="w-full border p-2 rounded"
               />
-            )}
-
-            {modal.type === "utilisateur" && (
-              <>
-                <input
-                  type="text"
-                  placeholder="Nom"
-                  value={form.nom || ""}
-                  onChange={(e) => setForm({ ...form, nom: e.target.value })}
-                  className="w-full border p-2 mb-2 rounded"
-                />
-                <input
-                  type="email"
-                  placeholder="Email"
-                  value={form.email || ""}
-                  onChange={(e) => setForm({ ...form, email: e.target.value })}
-                  className="w-full border p-2 mb-2 rounded"
-                />
-                <select
-                  value={form.role || "Collaborateur"}
-                  onChange={(e) => setForm({ ...form, role: e.target.value })}
-                  className="w-full border p-2 mb-2 rounded"
-                >
-                  <option value="Admin">Admin</option>
-                  <option value="Collaborateur">Collaborateur</option>
-                  <option value="Consultant">Consultant</option>
-                </select>
-              </>
-            )}
-
-            {modal.type === "periode" && (
-              <div className="space-y-2">
-                <label className="block text-sm">Début</label>
-                <input
-                  type="date"
-                  value={form.debut || ""}
-                  onChange={(e) => setForm({ ...form, debut: e.target.value })}
-                  className="w-full border p-2 rounded"
-                />
-                <label className="block text-sm">Fin</label>
-                <input
-                  type="date"
-                  value={form.fin || ""}
-                  onChange={(e) => setForm({ ...form, fin: e.target.value })}
-                  className="w-full border p-2 rounded"
-                />
-              </div>
-            )}
+              <input
+                type="number"
+                placeholder="Nombre de décimales"
+                value={newDevise.decimales || ""}
+                onChange={(e) => setNewDevise({ ...newDevise, decimales: parseInt(e.target.value) })}
+                className="w-full border p-2 rounded"
+                min={0}
+                max={4}
+              />
+              <input
+                type="text"
+                placeholder="Séparateur de milliers (ex: , ou .)"
+                value={newDevise.separateur || ""}
+                onChange={(e) => setNewDevise({ ...newDevise, separateur: e.target.value })}
+                className="w-full border p-2 rounded"
+              />
+            </div>
 
             <div className="mt-4 text-right">
               <button
-                onClick={handleAdd}
-                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+                onClick={addDevise}
+                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
               >
                 Ajouter
               </button>
