@@ -1,91 +1,72 @@
-import { PieChart, Pie, Cell, Tooltip, Legend, ResponsiveContainer } from 'recharts';
+import { PieChart, Pie, Cell, Tooltip, Legend } from "recharts";
 
-const data1 = [
-  { name: 'Revenus', value: 4000 },
-  { name: 'Dépenses', value: 2400 },
-];
-const data2 = [
-  { name: 'Banque', value: 3000 },
-  { name: 'Caisse', value: 1000 },
+const COLORS1 = ["#88D8D8", "#FFE49A", "#FFB6C1", "#C7A8F0"];
+const COLORS2 = ["#87CEFA", "#FFD59E", "#D3D3D3"];
+
+const depenses = [
+  { name: "Salaires", value: 4500 },
+  { name: "Fournisseurs", value: 3000 },
+  { name: "Charges fixes", value: 2000 },
+  { name: "Autres", value: 1500 },
 ];
 
-const COLORS = ['#34d399', '#f87171'];
+const revenus = [
+  { name: "Revenus locaux", value: 7000 },
+  { name: "Export", value: 4000 },
+  { name: "Autres revenus", value: 2000 },
+];
+
+const renderLabel = ({ percent }: any) => `${(percent * 100).toFixed(0)}%`;
 
 const Index = () => {
   return (
-    <div className="min-h-screen bg-gray-100 py-10 px-4">
-      <div className="max-w-7xl mx-auto">
-        {/* En-tête */}
-        <div className="mb-10 text-center">
-          <h1 className="text-4xl font-bold text-gray-800 mb-2">Tableau de Bord Trézo</h1>
-          <p className="text-lg text-gray-500">Suivez vos flux de trésorerie et vos soldes en un coup d'œil.</p>
+    <div className="min-h-screen bg-gray-50 py-10 px-4">
+      <h1 className="text-3xl font-bold text-center mb-10">Tableau de bord financier</h1>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-6xl mx-auto">
+        {/* Dépenses */}
+        <div className="bg-white rounded-2xl shadow p-4">
+          <h2 className="text-lg font-semibold mb-4">Répartition des dépenses</h2>
+          <PieChart width={250} height={250}>
+            <Pie
+              data={depenses}
+              cx="50%"
+              cy="50%"
+              outerRadius={90}
+              fill="#8884d8"
+              dataKey="value"
+              label={renderLabel}
+            >
+              {depenses.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS1[index % COLORS1.length]} />
+              ))}
+            </Pie>
+            <Tooltip />
+            <Legend layout="horizontal" verticalAlign="bottom" align="center" />
+          </PieChart>
         </div>
 
-        {/* Résumé */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
-          <div className="bg-white shadow rounded-xl p-6 text-center">
-            <p className="text-gray-500">Solde global</p>
-            <p className="text-2xl font-bold text-green-500">12 000 DT</p>
-          </div>
-          <div className="bg-white shadow rounded-xl p-6 text-center">
-            <p className="text-gray-500">Revenus</p>
-            <p className="text-2xl font-bold text-blue-500">25 000 DT</p>
-          </div>
-          <div className="bg-white shadow rounded-xl p-6 text-center">
-            <p className="text-gray-500">Dépenses</p>
-            <p className="text-2xl font-bold text-red-500">13 000 DT</p>
-          </div>
-          <div className="bg-white shadow rounded-xl p-6 text-center">
-            <p className="text-gray-500">Nombre d'opérations</p>
-            <p className="text-2xl font-bold text-purple-500">112</p>
-          </div>
-        </div>
-
-        {/* Graphiques */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {/* Graphique 1 */}
-          <div className="bg-white shadow rounded-xl p-6">
-            <h2 className="text-xl font-semibold text-gray-700 mb-4">Répartition Revenus vs Dépenses</h2>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={data1}
-                  dataKey="value"
-                  nameKey="name"
-                  outerRadius={100}
-                  label
-                >
-                  {data1.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
-
-          {/* Graphique 2 */}
-          <div className="bg-white shadow rounded-xl p-6">
-            <h2 className="text-xl font-semibold text-gray-700 mb-4">Répartition par type de compte</h2>
-            <ResponsiveContainer width="100%" height={300}>
-              <PieChart>
-                <Pie
-                  data={data2}
-                  dataKey="value"
-                  nameKey="name"
-                  outerRadius={100}
-                  label
-                >
-                  {data2.map((entry, index) => (
-                    <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                  ))}
-                </Pie>
-                <Tooltip />
-                <Legend />
-              </PieChart>
-            </ResponsiveContainer>
-          </div>
+        {/* Revenus */}
+        <div className="bg-white rounded-2xl shadow p-4">
+          <h2 className="text-lg font-semibold mb-4">Sources de revenus</h2>
+          <PieChart width={250} height={250}>
+            <Pie
+              data={revenus}
+              cx="50%"
+              cy="50%"
+              innerRadius={50}
+              outerRadius={90}
+              fill="#82ca9d"
+              dataKey="value"
+              label={renderLabel}
+            >
+              {revenus.map((entry, index) => (
+                <Cell key={`cell-${index}`} fill={COLORS2[index % COLORS2.length]} />
+              ))}
+            </Pie>
+            <Tooltip />
+            <Legend layout="horizontal" verticalAlign="bottom" align="center" />
+          </PieChart>
         </div>
       </div>
     </div>
