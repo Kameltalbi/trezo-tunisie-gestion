@@ -1,6 +1,8 @@
+
 import React, { useState } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { X } from "lucide-react";
+import SectionCard from "@/components/SectionCard";
 
 type Devise = { id: string; nom: string };
 type Langue = { id: string; nom: string };
