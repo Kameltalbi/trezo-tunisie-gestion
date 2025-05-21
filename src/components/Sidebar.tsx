@@ -44,15 +44,15 @@ const Sidebar = () => {
     },
     {
       icon: <FileText size={20} />,
-      label: t('nav.receipts') || 'Encaissements',
+      label: t('nav.receipts_new') || 'Encaissements',
       path: '/encaissements',
       isActive: isActive('/encaissements')
     },
     {
       icon: <DollarSign size={20} />,
-      label: t('nav.expenses'),
-      path: '/depenses',
-      isActive: isActive('/depenses')
+      label: t('nav.expenses_new'),
+      path: '/decaissements',
+      isActive: isActive('/decaissements')
     },
     {
       icon: <ChartLine size={20} />,

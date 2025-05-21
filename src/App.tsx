@@ -34,7 +34,7 @@ const App = () => (
             <Route path="/admin" element={<Layout requireAuth={true}><Admin /></Layout>} />
             <Route path="/cash-flow" element={<Layout requireAuth={true}><CashFlow /></Layout>} />
             <Route path="/debt-management" element={<Layout requireAuth={true}><DebtManagement /></Layout>} />
-            <Route path="/depenses" element={<Layout requireAuth={true}><Depenses /></Layout>} />
+            <Route path="/decaissements" element={<Layout requireAuth={true}><Depenses /></Layout>} />
             <Route path="/encaissements" element={<Layout requireAuth={true}><Encaissements /></Layout>} />
             <Route path="/dashboard" element={<Layout requireAuth={true}><Dashboard /></Layout>} />
             <Route path="/" element={<Navigate to="/login" replace />} />

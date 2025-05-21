@@ -18,8 +18,10 @@
   "nav": {
     "main_menu": "Menu Principal",
     "dashboard": "Tableau de bord",
-    "receipts": "Recettes",
-    "expenses": "Dépenses",
+    "receipts": "Encaissements",
+    "receipts_new": "Encaissements",
+    "expenses": "Décaissements",
+    "expenses_new": "Décaissements",
     "parametres": "Paramètres",
     "admin": "Administration",
     "cash_management": "Gestion de trésorerie",
@@ -47,7 +49,7 @@
     "session_desc": "Gérez votre session actuelle"
   },
   "recettes": {
-    "title": "Recettes",
+    "title": "Encaissements",
     "description": "Gérez vos entrées d'argent",
     "add": "Ajouter une recette",
     "edit": "Modifier la recette",

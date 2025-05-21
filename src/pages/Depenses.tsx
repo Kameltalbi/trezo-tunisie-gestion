@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -42,10 +43,10 @@ const DepensesPage: React.FC = () => {
   return (
     <div className="p-6 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Dépenses</h1>
+        <h1 className="text-3xl font-bold">Décaissements</h1>
         <Dialog open={open} onOpenChange={setOpen}>
           <DialogTrigger asChild>
-            <Button>+ Ajouter une dépense</Button>
+            <Button>+ Ajouter un décaissement</Button>
           </DialogTrigger>
           <DialogContent>
             <div className="grid gap-4">
@@ -67,7 +68,7 @@ const DepensesPage: React.FC = () => {
               <Label>Montant (DT)</Label>
               <Input type="number" value={nouvelleDepense.montant || ''} onChange={e => setNouvelleDepense({ ...nouvelleDepense, montant: parseFloat(e.target.value) })} />
 
-              <Label>Date d’échéance</Label>
+              <Label>Date d'échéance</Label>
               <Input type="date" value={nouvelleDepense.dateEcheance || ''} onChange={e => setNouvelleDepense({ ...nouvelleDepense, dateEcheance: e.target.value })} />
 
               <Label>Notes</Label>
