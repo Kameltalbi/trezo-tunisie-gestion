@@ -1,76 +1,85 @@
 import React, { useState } from "react";
-import { Devise } from "@/types/parametres";
 import { v4 as uuidv4 } from "uuid";
+import { Devise, Langue, Utilisateur, Periode } from "@/types/parametres";
 import { Trash2, X } from "lucide-react";
 
 const ParametresPage = () => {
   const [devises, setDevises] = useState<Devise[]>([]);
-  const [showDeviseModal, setShowDeviseModal] = useState(false);
-  const [newDevise, setNewDevise] = useState<Partial<Devise>>({});
+  const [langues, setLangues] = useState<Langue[]>([]);
+  const [utilisateurs, setUtilisateurs] = useState<Utilisateur[]>([]);
+  const [periodes, setPeriodes] = useState<Periode[]>([]);
 
-  const addDevise = () => {
-    if (
-      !newDevise.nom ||
-      !newDevise.symbole ||
-      newDevise.decimales === undefined ||
-      !newDevise.separateur
-    )
-      return;
-    const devise: Devise = {
-      id: uuidv4(),
-      nom: newDevise.nom,
-      symbole: newDevise.symbole,
-      decimales: Number(newDevise.decimales),
-      separateur: newDevise.separateur,
-    };
-    setDevises([...devises, devise]);
-    setNewDevise({});
-    setShowDeviseModal(false);
+  const [modalType, setModalType] = useState<null | string>(null);
+  const [form, setForm] = useState<any>({});
+
+  const openModal = (type: string) => {
+    setForm({});
+    setModalType(type);
   };
 
-  const deleteDevise = (id: string) => {
-    setDevises((prev) => prev.filter((d) => d.id !== id));
+  const closeModal = () => {
+    setForm({});
+    setModalType(null);
+  };
+
+  const handleAdd = () => {
+    const id = uuidv4();
+
+    if (modalType === "devise") {
+      const entry: Devise = {
+        id,
+        nom: form.nom,
+        symbole: form.symbole,
+        decimales: Number(form.decimales),
+        separateur: form.separateur,
+      };
+      setDevises([...devises, entry]);
+    }
+
+    if (modalType === "langue") {
+      setLangues([...langues, { id, nom: form.nom }]);
+    }
+
+    if (modalType === "utilisateur") {
+      setUtilisateurs([...utilisateurs, { id, ...form }]);
+    }
+
+    if (modalType === "periode") {
+      setPeriodes([...periodes, { id, debut: form.debut, fin: form.fin }]);
+    }
+
+    closeModal();
+  };
+
+  const handleDelete = (id: string, type: string) => {
+    const update = (data: any[]) => data.filter((d) => d.id !== id);
+    if (type === "devise") setDevises(update(devises));
+    if (type === "langue") setLangues(update(langues));
+    if (type === "utilisateur") setUtilisateurs(update(utilisateurs));
+    if (type === "periode") setPeriodes(update(periodes));
   };
 
   return (
-    <div className="p-6 max-w-6xl mx-auto space-y-6">
+    <div className="p-6 max-w-7xl mx-auto space-y-6">
       <h1 className="text-2xl font-bold mb-4">Paramètres</h1>
 
-      {/* Grid de sections */}
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Section devises */}
-        <div className="bg-white shadow rounded-lg p-4">
-          <div className="flex justify-between items-center mb-3">
-            <h2 className="text-lg font-semibold">Devises</h2>
-            <button
-              onClick={() => setShowDeviseModal(true)}
-              className="bg-blue-600 text-white px-3 py-1 text-sm rounded hover:bg-blue-700"
-            >
-              Ajouter
-            </button>
-          </div>
+      {/* Grid sections */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+
+        {/* Section Devises */}
+        <SectionBox title="Devises" onAdd={() => openModal("devise")}>
           <table className="w-full text-sm">
-            <thead className="text-left text-gray-600">
-              <tr>
-                <th className="py-1">Nom</th>
-                <th>Symbole</th>
-                <th>Décimales</th>
-                <th>Millier</th>
-                <th></th>
+            <thead>
+              <tr className="text-left text-gray-600">
+                <th>Nom</th><th>Symbole</th><th>Décimales</th><th>Millier</th><th></th>
               </tr>
             </thead>
             <tbody>
-              {devises.map((devise) => (
-                <tr key={devise.id} className="border-t">
-                  <td className="py-1">{devise.nom}</td>
-                  <td>{devise.symbole}</td>
-                  <td>{devise.decimales}</td>
-                  <td>{devise.separateur}</td>
+              {devises.map((d) => (
+                <tr key={d.id} className="border-t">
+                  <td>{d.nom}</td><td>{d.symbole}</td><td>{d.decimales}</td><td>{d.separateur}</td>
                   <td>
-                    <button
-                      onClick={() => deleteDevise(devise.id)}
-                      className="text-red-500 hover:text-red-700"
-                    >
+                    <button onClick={() => handleDelete(d.id, "devise")} className="text-red-500">
                       <Trash2 className="w-4 h-4" />
                     </button>
                   </td>
@@ -78,71 +87,74 @@ const ParametresPage = () => {
               ))}
             </tbody>
           </table>
-        </div>
+        </SectionBox>
 
-        {/* Tu peux ajouter d'autres sections ici */}
-        <div className="bg-white shadow rounded-lg p-4 text-center text-gray-500 italic">
-          <p>Section suivante à définir...</p>
-        </div>
+        {/* Section Langues */}
+        <SectionBox title="Langues" onAdd={() => openModal("langue")}>
+          <ul className="text-sm space-y-1">
+            {langues.map((l) => (
+              <li key={l.id} className="flex justify-between items-center border-b py-1">
+                <span>{l.nom}</span>
+                <button onClick={() => handleDelete(l.id, "langue")}>
+                  <Trash2 className="w-4 h-4 text-red-500" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        </SectionBox>
+
+        {/* Section Utilisateurs */}
+        <SectionBox title="Utilisateurs" onAdd={() => openModal("utilisateur")}>
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="text-left text-gray-600">
+                <th>Nom</th><th>Email</th><th>Rôle</th><th></th>
+              </tr>
+            </thead>
+            <tbody>
+              {utilisateurs.map((u) => (
+                <tr key={u.id} className="border-t">
+                  <td>{u.nom}</td><td>{u.email}</td><td>{u.role}</td>
+                  <td>
+                    <button onClick={() => handleDelete(u.id, "utilisateur")}>
+                      <Trash2 className="w-4 h-4 text-red-500" />
+                    </button>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </SectionBox>
+
+        {/* Section Périodes */}
+        <SectionBox title="Périodes comptables" onAdd={() => openModal("periode")}>
+          <ul className="text-sm space-y-1">
+            {periodes.map((p) => (
+              <li key={p.id} className="flex justify-between items-center border-b py-1">
+                <span>{p.debut} → {p.fin}</span>
+                <button onClick={() => handleDelete(p.id, "periode")}>
+                  <Trash2 className="w-4 h-4 text-red-500" />
+                </button>
+              </li>
+            ))}
+          </ul>
+        </SectionBox>
       </div>
 
-      {/* Modal Ajouter Devise */}
-      {showDeviseModal && (
+      {/* Modal */}
+      {modalType && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg w-full max-w-md">
             <div className="flex justify-between items-center mb-4">
-              <h3 className="text-xl font-semibold">Nouvelle devise</h3>
-              <button onClick={() => setShowDeviseModal(false)}>
-                <X className="w-5 h-5" />
-              </button>
+              <h3 className="text-xl font-semibold">Ajouter {modalType}</h3>
+              <button onClick={closeModal}><X className="w-5 h-5" /></button>
             </div>
 
+            {/* Formulaire dynamique */}
             <div className="space-y-3">
-              <input
-                type="text"
-                placeholder="Nom (ex: Dinar tunisien)"
-                value={newDevise.nom || ""}
-                onChange={(e) => setNewDevise({ ...newDevise, nom: e.target.value })}
-                className="w-full border p-2 rounded"
-              />
-              <input
-                type="text"
-                placeholder="Symbole (ex: DT, €)"
-                value={newDevise.symbole || ""}
-                onChange={(e) => setNewDevise({ ...newDevise, symbole: e.target.value })}
-                className="w-full border p-2 rounded"
-              />
-              <input
-                type="number"
-                placeholder="Nombre de décimales"
-                value={newDevise.decimales || ""}
-                onChange={(e) => setNewDevise({ ...newDevise, decimales: parseInt(e.target.value) })}
-                className="w-full border p-2 rounded"
-                min={0}
-                max={4}
-              />
-              <input
-                type="text"
-                placeholder="Séparateur de milliers (ex: , ou .)"
-                value={newDevise.separateur || ""}
-                onChange={(e) => setNewDevise({ ...newDevise, separateur: e.target.value })}
-                className="w-full border p-2 rounded"
-              />
-            </div>
-
-            <div className="mt-4 text-right">
-              <button
-                onClick={addDevise}
-                className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
-              >
-                Ajouter
-              </button>
-            </div>
-          </div>
-        </div>
-      )}
-    </div>
-  );
-};
-
-export default ParametresPage;
+              {modalType === "devise" && (
+                <>
+                  <input placeholder="Nom" value={form.nom || ""} onChange={(e) => setForm({ ...form, nom: e.target.value })} className="w-full border p-2 rounded" />
+                  <input placeholder="Symbole" value={form.symbole || ""} onChange={(e) => setForm({ ...form, symbole: e.target.value })} className="w-full border p-2 rounded" />
+                  <input type="number" placeholder="Décimales" value={form.decimales || ""} onChange={(e) => setForm({ ...form, decimales: e.target.value })} className="w-full border p-2 rounded" />
+                  <input placeholder="Sép

@@ -1,7 +1,3 @@
-
-export type Monnaie = "TND" | "EUR" | "USD" | "XOF";
-export type Langue = "fr" | "en";
-
 export interface Devise {
   id: string;
   nom: string;
@@ -10,9 +6,20 @@ export interface Devise {
   separateur: string;
 }
 
+export interface Langue {
+  id: string;
+  nom: string;
+}
+
 export interface Utilisateur {
   id: string;
   nom: string;
   email: string;
-  role: string;
+  role: "Admin" | "Collaborateur" | "Consultant";
+}
+
+export interface Periode {
+  id: string;
+  debut: string;
+  fin: string;
 }
