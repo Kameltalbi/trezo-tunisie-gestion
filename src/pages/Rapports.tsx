@@ -1,7 +1,6 @@
-
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
-import { FileSpreadsheet, FilePdf, Download, FileText } from "lucide-react";
+import { FileSpreadsheet, FileText, Download, File } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -64,7 +63,7 @@ const Rapports = () => {
   const [selectedCategory, setSelectedCategory] = useState("");
 
   const getReportIcon = (format: "pdf" | "excel", size = 40) => {
-    return format === "pdf" ? <FilePdf size={size} className="text-red-500" /> : <FileSpreadsheet size={size} className="text-green-600" />;
+    return format === "pdf" ? <FileText size={size} className="text-red-500" /> : <FileSpreadsheet size={size} className="text-green-600" />;
   };
 
   const getReportTypeLabel = (type: string) => {
@@ -158,7 +157,7 @@ const Rapports = () => {
                 <div className="flex items-center space-x-2">
                   <RadioGroupItem value="pdf" id="pdf" />
                   <Label htmlFor="pdf" className="flex items-center">
-                    <FilePdf className="mr-2 h-4 w-4 text-red-500" />
+                    <FileText className="mr-2 h-4 w-4 text-red-500" />
                     {t("rapports.pdf")}
                   </Label>
                 </div>
@@ -280,7 +279,7 @@ const Rapports = () => {
             ))
           ) : (
             <div className="text-center py-10 border rounded-lg">
-              <FileText className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
+              <File className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
               <h3 className="font-medium">{t("rapports.no_data")}</h3>
             </div>
           )}
