@@ -84,7 +84,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         });
         
         // Rediriger vers la page du tableau de bord après connexion
-        window.location.href = "/cash-flow";
+        window.location.href = "/dashboard";
       } else {
         throw new Error("Identifiants incorrects");
       }

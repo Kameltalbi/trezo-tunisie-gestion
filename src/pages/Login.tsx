@@ -24,7 +24,7 @@ const Login = () => {
     try {
       await login(email, password);
       toast.success(t("auth.login_success"));
-      navigate("/cash-flow");
+      navigate("/dashboard");
     } catch (error) {
       console.error("Erreur de connexion:", error);
       // L'erreur sera gérée par le contexte d'authentification
