@@ -1,3 +1,4 @@
+
 {
   "app": {
     "name": "Trezo"
@@ -28,7 +29,9 @@
     "debt": "Gestion des dettes",
     "accounts": "Comptes",
     "accounts_section": "Comptes & caisses",
-    "projects": "Projets"
+    "projects": "Projets",
+    "objectives": "Objectifs",
+    "reports": "Rapports & export"
   },
   "parametres": {
     "title": "Paramètres",
@@ -168,5 +171,58 @@
     "fill_required": "Veuillez remplir tous les champs obligatoires",
     "income_link": "Rattacher des encaissements",
     "expense_link": "Rattacher des décaissements"
+  },
+  "objectifs": {
+    "title": "Objectifs",
+    "description": "Définition d'objectifs financiers",
+    "new_objective": "Nouvel objectif",
+    "edit_objective": "Modifier l'objectif",
+    "delete_objective": "Supprimer l'objectif",
+    "name": "Nom de l'objectif",
+    "type": "Type d'objectif",
+    "income_target": "Objectif d'encaissement",
+    "expense_reduction": "Réduction de dépenses",
+    "current_value": "Valeur actuelle",
+    "target_value": "Valeur cible",
+    "start_date": "Date de début",
+    "end_date": "Date d'échéance",
+    "progress": "Progression",
+    "create": "Créer l'objectif",
+    "update": "Mettre à jour",
+    "cancel": "Annuler",
+    "created_success": "Objectif créé avec succès",
+    "updated_success": "Objectif mis à jour avec succès",
+    "deleted_success": "Objectif supprimé avec succès",
+    "fill_required": "Veuillez remplir tous les champs obligatoires",
+    "no_objectives": "Aucun objectif trouvé",
+    "add_first": "Ajoutez votre premier objectif en cliquant sur le bouton ci-dessus"
+  },
+  "rapports": {
+    "title": "Rapports & export",
+    "description": "Génération de rapports PDF/Excel",
+    "generate": "Générer un rapport",
+    "type": "Type de rapport",
+    "treasury": "Trésorerie",
+    "accounts": "Comptes",
+    "projects": "Projets",
+    "users": "Utilisateurs",
+    "format": "Format",
+    "pdf": "PDF",
+    "excel": "Excel",
+    "period": "Période",
+    "start_date": "Date de début",
+    "end_date": "Date de fin",
+    "filters": "Filtres avancés",
+    "entity": "Entité",
+    "select_entity": "Sélectionnez une entité",
+    "category": "Catégorie",
+    "select_category": "Sélectionnez une catégorie",
+    "generate_report": "Générer le rapport",
+    "generating": "Génération en cours...",
+    "success": "Rapport généré avec succès",
+    "error": "Erreur lors de la génération du rapport",
+    "no_data": "Aucune donnée disponible pour la période sélectionnée",
+    "download": "Télécharger",
+    "preview": "Aperçu"
   }
 }

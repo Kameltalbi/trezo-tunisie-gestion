@@ -11,7 +11,9 @@ import {
   Settings, 
   UserCog,
   Wallet,
-  FolderKanban
+  FolderKanban,
+  BarChart,
+  FileSpreadsheet
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Separator } from './ui/separator';
@@ -94,9 +96,21 @@ const Sidebar = () => {
     },
     {
       icon: <FolderKanban size={20} />,
-      label: 'Projets',
+      label: t('nav.projects'),
       path: '/projets',
       isActive: isActive('/projets')
+    },
+    {
+      icon: <BarChart size={20} />,
+      label: t('nav.objectives'),
+      path: '/objectifs',
+      isActive: isActive('/objectifs')
+    },
+    {
+      icon: <FileSpreadsheet size={20} />,
+      label: t('nav.reports'),
+      path: '/rapports',
+      isActive: isActive('/rapports')
     }
   ];
 

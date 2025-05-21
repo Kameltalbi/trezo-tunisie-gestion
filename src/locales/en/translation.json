@@ -1,3 +1,4 @@
+
 {
   "app": {
     "name": "Trezo"
@@ -28,7 +29,9 @@
     "debt": "Debt Management",
     "accounts": "Accounts",
     "accounts_section": "Accounts & Cash",
-    "projects": "Projects"
+    "projects": "Projects",
+    "objectives": "Objectives",
+    "reports": "Reports & Export"
   },
   "parametres": {
     "title": "Settings",
@@ -90,37 +93,6 @@
   "cash_management": {
     "title": "Treasury Management",
     "description": "Manage your cash flows"
-  },
-  "cash_flow": {
-    "title": "Cash Flow",
-    "description": "Monitor and forecast your treasury movements",
-    "dashboard": "Dashboard",
-    "planning": "Treasury Planning",
-    "activity_ratios": "Activity Ratios",
-    "show_forecast": "Show forecast",
-    "current_month": "Current month",
-    "all_bank_accounts": "All bank accounts",
-    "export": "Export",
-    "treasury_balance": "TREASURY BALANCE",
-    "inflows": "INFLOWS",
-    "outflows": "OUTFLOWS",
-    "treasury_variation": "TREASURY VARIATION",
-    "vat_credit": "VAT CREDIT ESTIMATION",
-    "per_month": "/ month",
-    "period": "Period",
-    "compared_with": "compared with",
-    "previous_days": "previous days",
-    "beginning_of_month": "BEGINNING OF MONTH BALANCE",
-    "december": "December",
-    "january": "January",
-    "february": "February",
-    "march": "March",
-    "april": "April",
-    "may": "May",
-    "june": "June",
-    "july": "July",
-    "demo": "DEMO",
-    "forecast": "FORECAST"
   },
   "debt_management": {
     "title": "Debt Management",
@@ -199,5 +171,58 @@
     "fill_required": "Please fill in all required fields",
     "income_link": "Link income entries",
     "expense_link": "Link expense entries"
+  },
+  "objectifs": {
+    "title": "Objectives",
+    "description": "Setting financial goals",
+    "new_objective": "New objective",
+    "edit_objective": "Edit objective",
+    "delete_objective": "Delete objective",
+    "name": "Objective name",
+    "type": "Objective type",
+    "income_target": "Income target",
+    "expense_reduction": "Expense reduction",
+    "current_value": "Current value",
+    "target_value": "Target value",
+    "start_date": "Start date",
+    "end_date": "End date",
+    "progress": "Progress",
+    "create": "Create objective",
+    "update": "Update",
+    "cancel": "Cancel",
+    "created_success": "Objective created successfully",
+    "updated_success": "Objective updated successfully",
+    "deleted_success": "Objective deleted successfully",
+    "fill_required": "Please fill in all required fields",
+    "no_objectives": "No objectives found",
+    "add_first": "Add your first objective by clicking the button above"
+  },
+  "rapports": {
+    "title": "Reports & Export",
+    "description": "Generate PDF/Excel reports",
+    "generate": "Generate a report",
+    "type": "Report type",
+    "treasury": "Treasury",
+    "accounts": "Accounts",
+    "projects": "Projects",
+    "users": "Users",
+    "format": "Format",
+    "pdf": "PDF",
+    "excel": "Excel",
+    "period": "Period",
+    "start_date": "Start date",
+    "end_date": "End date",
+    "filters": "Advanced filters",
+    "entity": "Entity",
+    "select_entity": "Select an entity",
+    "category": "Category",
+    "select_category": "Select a category",
+    "generate_report": "Generate report",
+    "generating": "Generating...",
+    "success": "Report generated successfully",
+    "error": "Error generating report",
+    "no_data": "No data available for the selected period",
+    "download": "Download",
+    "preview": "Preview"
   }
 }

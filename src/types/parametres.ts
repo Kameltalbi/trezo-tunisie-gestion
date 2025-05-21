@@ -1,3 +1,4 @@
+
 export interface Devise {
   id: string;
   nom: string;
@@ -44,4 +45,28 @@ export interface Projet {
   statut: 'actif' | 'termine' | 'en_attente';
   encaissements: string[]; // IDs of related income entries
   decaissements: string[]; // IDs of related expense entries
+}
+
+export interface Objectif {
+  id: string;
+  nom: string;
+  type: 'encaissement' | 'reduction_depense';
+  valeurActuelle: number;
+  valeurCible: number;
+  dateDebut: string;
+  dateFin: string;
+  progression: number;
+}
+
+export interface Rapport {
+  id: string;
+  type: 'tresorerie' | 'comptes' | 'projets' | 'utilisateurs';
+  format: 'pdf' | 'excel';
+  dateDebut: string;
+  dateFin: string;
+  filtre?: {
+    entite?: string;
+    categorie?: string;
+  };
+  url?: string;
 }

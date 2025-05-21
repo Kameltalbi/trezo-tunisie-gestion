@@ -17,6 +17,8 @@ import Encaissements from "./pages/Encaissements";
 import Dashboard from "./pages/Dashboard";
 import Comptes from "./pages/Comptes";
 import Projets from "./pages/Projets";
+import Objectifs from "./pages/Objectifs";
+import Rapports from "./pages/Rapports";
 
 // Import i18n configuration
 import "./i18n";
@@ -41,6 +43,8 @@ const App = () => (
             <Route path="/dashboard" element={<Layout requireAuth={true}><Dashboard /></Layout>} />
             <Route path="/comptes" element={<Layout requireAuth={true}><Comptes /></Layout>} />
             <Route path="/projets" element={<Layout requireAuth={true}><Projets /></Layout>} />
+            <Route path="/objectifs" element={<Layout requireAuth={true}><Objectifs /></Layout>} />
+            <Route path="/rapports" element={<Layout requireAuth={true}><Rapports /></Layout>} />
             <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
