@@ -15,17 +15,6 @@ import { toast } from "@/hooks/use-toast";
 import { validerPrevision, formatForecastStatus, type Prevision } from '@/utils/validationUtils';
 import { Transaction } from '@/types';
 
-interface Transaction {
-  id: string;
-  title: string;
-  amount: number;
-  date: string;
-  category: string;
-  type: 'income' | 'expense';
-  source: 'forecast' | 'direct';
-  accountId?: string;
-}
-
 interface Forecast extends Transaction {
   status: 'pending' | 'validated' | 'cancelled';
 }
