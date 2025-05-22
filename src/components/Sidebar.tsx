@@ -14,7 +14,9 @@ import {
   FolderKanban,
   BarChart,
   FileSpreadsheet,
-  CalendarArrowDown
+  ArrowDownCircle,
+  ArrowUpCircle,
+  Target
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Separator } from './ui/separator';
@@ -52,7 +54,7 @@ const Sidebar = () => {
     navigate(path);
   };
 
-  // Organize menu items with sections
+  // Dashboard item (no section)
   const dashboardItem: SidebarItemProps = {
     icon: <LayoutDashboard size={20} />,
     label: t('nav.dashboard'),
@@ -60,37 +62,42 @@ const Sidebar = () => {
     isActive: isActive('/dashboard')
   };
 
-  // New accounts section
-  const accountsItems: SidebarItemProps[] = [
+  // GESTION DE TRÉSORERIE section
+  const treasuryManagementItems: SidebarItemProps[] = [
     {
       icon: <Wallet size={20} />,
       label: t('nav.accounts'),
       path: '/comptes',
       isActive: isActive('/comptes')
-    }
-  ];
-  
-  const treasuryMenuItems: SidebarItemProps[] = [
+    },
     {
       icon: <ChartLine size={20} />,
       label: t('nav.cash_flow'),
       path: '/cash-flow',
       isActive: isActive('/cash-flow')
-    },
+    }
+  ];
+  
+  // PRÉVISIONS section
+  const forecastItems: SidebarItemProps[] = [
     {
-      icon: <FileText size={20} />,
+      icon: <ArrowUpCircle size={20} />,
       label: t('nav.receipts_new') || 'Encaissements',
       path: '/encaissements',
       isActive: isActive('/encaissements')
     },
     {
-      icon: <DollarSign size={20} />,
+      icon: <ArrowDownCircle size={20} />,
       label: t('nav.expenses_new'),
       path: '/decaissements',
       isActive: isActive('/decaissements')
-    },
+    }
+  ];
+
+  // TRANSACTIONS section
+  const transactionsItems: SidebarItemProps[] = [
     {
-      icon: <CalendarArrowDown size={20} />,
+      icon: <FileText size={20} />,
       label: t('nav.transactions') || 'Transactions',
       path: '/transactions',
       isActive: isActive('/transactions')
@@ -100,7 +107,11 @@ const Sidebar = () => {
       label: t('nav.debt'),
       path: '/debt-management',
       isActive: isActive('/debt-management')
-    },
+    }
+  ];
+
+  // SUIVI PAR PROJET section
+  const projectTrackingItems: SidebarItemProps[] = [
     {
       icon: <FolderKanban size={20} />,
       label: t('nav.projects'),
@@ -108,20 +119,21 @@ const Sidebar = () => {
       isActive: isActive('/projets')
     },
     {
-      icon: <BarChart size={20} />,
+      icon: <Target size={20} />,
       label: t('nav.objectives'),
       path: '/objectifs',
       isActive: isActive('/objectifs')
-    },
+    }
+  ];
+
+  // RAPPORTS & CONFIGURATION section
+  const reportsConfigItems: SidebarItemProps[] = [
     {
       icon: <FileSpreadsheet size={20} />,
       label: t('nav.reports'),
       path: '/rapports',
       isActive: isActive('/rapports')
-    }
-  ];
-
-  const settingsItems: SidebarItemProps[] = [
+    },
     {
       icon: <Settings size={20} />,
       label: t('nav.parametres'),
@@ -171,28 +183,43 @@ const Sidebar = () => {
       </div>
 
       <div className="flex-1 overflow-y-auto py-4">
-        {/* Dashboard */}
+        {/* Dashboard (no section) */}
         {renderSidebarItem(dashboardItem)}
-        
-        {/* Gestion de trésorerie section */}
-        {isExpanded && (
-          <SidebarSection label={t('nav.cash_management')} />
-        )}
         <Separator className="my-2 bg-slate-700" />
         
-        {/* Comptes & caisses section */}
+        {/* GESTION DE TRÉSORERIE section */}
         {isExpanded && (
-          <SidebarSection label={t('nav.accounts_section')} />
+          <SidebarSection label={t('nav.cash_management') || 'GESTION DE TRÉSORERIE'} />
         )}
+        {treasuryManagementItems.map(renderSidebarItem)}
+        <Separator className="my-2 bg-slate-700" />
         
-        {/* Accounts menu items */}
-        {accountsItems.map(renderSidebarItem)}
+        {/* PRÉVISIONS section */}
+        {isExpanded && (
+          <SidebarSection label={t('nav.forecasts') || 'PRÉVISIONS'} />
+        )}
+        {forecastItems.map(renderSidebarItem)}
+        <Separator className="my-2 bg-slate-700" />
         
-        {/* Treasury management menu items */}
-        {treasuryMenuItems.map(renderSidebarItem)}
+        {/* TRANSACTIONS section */}
+        {isExpanded && (
+          <SidebarSection label={t('nav.transactions_section') || 'TRANSACTIONS'} />
+        )}
+        {transactionsItems.map(renderSidebarItem)}
+        <Separator className="my-2 bg-slate-700" />
         
-        {/* Settings menu items */}
-        {settingsItems.map(renderSidebarItem)}
+        {/* SUIVI PAR PROJET section */}
+        {isExpanded && (
+          <SidebarSection label={t('nav.project_tracking') || 'SUIVI PAR PROJET'} />
+        )}
+        {projectTrackingItems.map(renderSidebarItem)}
+        <Separator className="my-2 bg-slate-700" />
+        
+        {/* RAPPORTS & CONFIGURATION section */}
+        {isExpanded && (
+          <SidebarSection label={t('nav.reports_config') || 'RAPPORTS & CONFIGURATION'} />
+        )}
+        {reportsConfigItems.map(renderSidebarItem)}
       </div>
     </div>
   );
