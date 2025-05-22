@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { PlusCircle, Edit, Trash2, CheckCircle, Clock, PauseCircle } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, CheckCircle, Clock, PauseCircle, List } from 'lucide-react';
 import { format } from 'date-fns';
 
 import { Projet } from '@/types/parametres';
@@ -57,6 +57,15 @@ const mockProjets: Projet[] = [
   }
 ];
 
+// Mocked linked transactions data
+const mockMouvements = [
+  { id: 'd1', date: '2023-02-10', description: 'Achat matériaux', montant: 120000, type: 'décaissement' },
+  { id: 'd2', date: '2023-04-15', description: 'Main d\'oeuvre', montant: 150000, type: 'décaissement' },
+  { id: 'd3', date: '2023-06-20', description: 'Finitions', montant: 50000, type: 'décaissement' },
+  { id: 'e1', date: '2023-03-01', description: 'Acompte client', montant: 200000, type: 'encaissement' },
+  { id: 'e2', date: '2023-07-15', description: 'Paiement intermédiaire', montant: 150000, type: 'encaissement' },
+];
+
 const ProjetStatusBadge: React.FC<{ status: string }> = ({ status }) => {
   switch (status) {
     case 'actif':
@@ -83,6 +92,102 @@ const ProjetStatusBadge: React.FC<{ status: string }> = ({ status }) => {
     default:
       return null;
   }
+};
+
+const ProjetDetailsDialog: React.FC<{ projet: Projet }> = ({ projet }) => {
+  const [isOpen, setIsOpen] = useState(false);
+  const resteAConsommer = projet.budgetPrevu - projet.budgetConsomme;
+  
+  // Filter movements linked to this project
+  const mouvementsLies = mockMouvements.filter(m => 
+    projet.encaissements.includes(m.id) || projet.decaissements.includes(m.id)
+  );
+
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <Button variant="ghost" size="sm">
+          <List className="h-4 w-4 mr-1" />
+          Détails
+        </Button>
+      </DialogTrigger>
+      <DialogContent className="sm:max-w-[700px]">
+        <DialogHeader>
+          <DialogTitle>Détails du projet: {projet.nom}</DialogTitle>
+        </DialogHeader>
+        <div className="space-y-6 py-4">
+          <div className="grid grid-cols-3 gap-4">
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Budget prévu</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{formatCurrency(projet.budgetPrevu)}</div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Consommé à date</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className="text-2xl font-bold">{formatCurrency(projet.budgetConsomme)}</div>
+                <div className="mt-2">
+                  <Progress 
+                    value={Math.round((projet.budgetConsomme / projet.budgetPrevu) * 100)} 
+                    className="h-2" 
+                  />
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardHeader className="pb-2">
+                <CardTitle className="text-sm font-medium text-muted-foreground">Reste à consommer</CardTitle>
+              </CardHeader>
+              <CardContent>
+                <div className={`text-2xl font-bold ${resteAConsommer < 0 ? 'text-red-500' : ''}`}>
+                  {formatCurrency(resteAConsommer)}
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+          
+          <div>
+            <h3 className="text-lg font-semibold mb-3">Liste des mouvements liés</h3>
+            {mouvementsLies.length === 0 ? (
+              <p className="text-muted-foreground">Aucun mouvement lié à ce projet</p>
+            ) : (
+              <Table>
+                <TableHeader>
+                  <TableRow>
+                    <TableHead>Date</TableHead>
+                    <TableHead>Description</TableHead>
+                    <TableHead>Type</TableHead>
+                    <TableHead className="text-right">Montant</TableHead>
+                  </TableRow>
+                </TableHeader>
+                <TableBody>
+                  {mouvementsLies.map((mouvement) => (
+                    <TableRow key={mouvement.id}>
+                      <TableCell>{format(new Date(mouvement.date), 'dd/MM/yyyy')}</TableCell>
+                      <TableCell>{mouvement.description}</TableCell>
+                      <TableCell>
+                        <span className={mouvement.type === 'encaissement' ? 'text-green-600' : 'text-red-600'}>
+                          {mouvement.type}
+                        </span>
+                      </TableCell>
+                      <TableCell className="text-right">{formatCurrency(mouvement.montant)}</TableCell>
+                    </TableRow>
+                  ))}
+                </TableBody>
+              </Table>
+            )}
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
 };
 
 const ProjetsPage: React.FC = () => {
@@ -145,6 +250,10 @@ const ProjetsPage: React.FC = () => {
 
   const getConsumedBudget = () => {
     return projects.reduce((acc, proj) => acc + proj.budgetConsomme, 0);
+  };
+
+  const getRemainingBudget = () => {
+    return getTotalBudget() - getConsumedBudget();
   };
 
   const getProgressPercentage = (consumed: number, total: number) => {
@@ -232,7 +341,7 @@ const ProjetsPage: React.FC = () => {
         </Dialog>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Budget Total</CardTitle>
@@ -244,7 +353,7 @@ const ProjetsPage: React.FC = () => {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Budget Consommé</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">Consommé à date</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="text-2xl font-bold">{formatCurrency(getConsumedBudget())}</div>
@@ -255,6 +364,19 @@ const ProjetsPage: React.FC = () => {
               </div>
               <Progress value={getProgressPercentage(getConsumedBudget(), getTotalBudget())} />
             </div>
+          </CardContent>
+        </Card>
+        <Card>
+          <CardHeader className="pb-2">
+            <CardTitle className="text-sm font-medium text-muted-foreground">Reste à consommer</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <div className={`text-2xl font-bold ${getRemainingBudget() < 0 ? 'text-red-500' : ''}`}>
+              {formatCurrency(getRemainingBudget())}
+            </div>
+            <p className="text-xs text-muted-foreground mt-1">
+              {getRemainingBudget() < 0 ? 'Dépassement budgétaire' : 'Budget restant'}
+            </p>
           </CardContent>
         </Card>
         <Card>
@@ -284,7 +406,8 @@ const ProjetsPage: React.FC = () => {
                   <TableRow>
                     <TableHead>Nom du projet</TableHead>
                     <TableHead>Budget prévu</TableHead>
-                    <TableHead>Budget consommé</TableHead>
+                    <TableHead>Consommé à date</TableHead>
+                    <TableHead>Reste à consommer</TableHead>
                     <TableHead>Progression</TableHead>
                     <TableHead>Date de début</TableHead>
                     <TableHead>Statut</TableHead>
@@ -292,52 +415,59 @@ const ProjetsPage: React.FC = () => {
                   </TableRow>
                 </TableHeader>
                 <TableBody>
-                  {filteredProjects.map((projet) => (
-                    <TableRow key={projet.id}>
-                      <TableCell className="font-medium">{projet.nom}</TableCell>
-                      <TableCell>{formatCurrency(projet.budgetPrevu)}</TableCell>
-                      <TableCell>{formatCurrency(projet.budgetConsomme)}</TableCell>
-                      <TableCell>
-                        <div className="w-full max-w-[100px] flex items-center gap-2">
-                          <Progress 
-                            value={getProgressPercentage(projet.budgetConsomme, projet.budgetPrevu)} 
-                            className="h-2"
-                          />
-                          <span className="text-xs font-medium">
-                            {getProgressPercentage(projet.budgetConsomme, projet.budgetPrevu)}%
-                          </span>
-                        </div>
-                      </TableCell>
-                      <TableCell>{format(new Date(projet.dateDebut), 'dd/MM/yyyy')}</TableCell>
-                      <TableCell>
-                        <ProjetStatusBadge status={projet.statut} />
-                      </TableCell>
-                      <TableCell>
-                        <div className="flex items-center gap-2">
-                          <Button 
-                            variant="ghost" 
-                            size="icon"
-                            onClick={() => {
-                              setCurrentProject(projet);
-                              setIsEditProjectDialogOpen(true);
-                            }}
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button 
-                            variant="ghost" 
-                            size="icon"
-                            onClick={() => handleDeleteProject(projet.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))}
+                  {filteredProjects.map((projet) => {
+                    const resteAConsommer = projet.budgetPrevu - projet.budgetConsomme;
+                    return (
+                      <TableRow key={projet.id}>
+                        <TableCell className="font-medium">{projet.nom}</TableCell>
+                        <TableCell>{formatCurrency(projet.budgetPrevu)}</TableCell>
+                        <TableCell>{formatCurrency(projet.budgetConsomme)}</TableCell>
+                        <TableCell className={resteAConsommer < 0 ? 'text-red-500' : ''}>
+                          {formatCurrency(resteAConsommer)}
+                        </TableCell>
+                        <TableCell>
+                          <div className="w-full max-w-[100px] flex items-center gap-2">
+                            <Progress 
+                              value={getProgressPercentage(projet.budgetConsomme, projet.budgetPrevu)} 
+                              className="h-2"
+                            />
+                            <span className="text-xs font-medium">
+                              {getProgressPercentage(projet.budgetConsomme, projet.budgetPrevu)}%
+                            </span>
+                          </div>
+                        </TableCell>
+                        <TableCell>{format(new Date(projet.dateDebut), 'dd/MM/yyyy')}</TableCell>
+                        <TableCell>
+                          <ProjetStatusBadge status={projet.statut} />
+                        </TableCell>
+                        <TableCell>
+                          <div className="flex items-center gap-2">
+                            <ProjetDetailsDialog projet={projet} />
+                            <Button 
+                              variant="ghost" 
+                              size="icon"
+                              onClick={() => {
+                                setCurrentProject(projet);
+                                setIsEditProjectDialogOpen(true);
+                              }}
+                            >
+                              <Edit className="h-4 w-4" />
+                            </Button>
+                            <Button 
+                              variant="ghost" 
+                              size="icon"
+                              onClick={() => handleDeleteProject(projet.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </TableCell>
+                      </TableRow>
+                    );
+                  })}
                   {filteredProjects.length === 0 && (
                     <TableRow>
-                      <TableCell colSpan={7} className="text-center py-8 text-muted-foreground">
+                      <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
                         Aucun projet trouvé
                       </TableCell>
                     </TableRow>
