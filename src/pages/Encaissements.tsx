@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,9 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogTrigger, DialogContent } from '@/components/ui/dialog';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
-
 import { format } from 'date-fns';
 import { formatCurrency } from '@/lib/utils';
+import { ClipboardCheck } from 'lucide-react';
+import { validerPrevision, type Prevision } from '@/utils/validationUtils';
 
 interface Encaissement {
   id: number;
@@ -18,6 +19,7 @@ interface Encaissement {
   statut: 'prévu' | 'réalisé';
   origine: string;
   categorie: string;
+  compteId?: string;
 }
 
 const EncaissementsPage: React.FC = () => {
@@ -35,16 +37,43 @@ const EncaissementsPage: React.FC = () => {
       statut: 'prévu',
       origine: nouvelEncaissement.origine || 'Vente',
       categorie: nouvelEncaissement.categorie,
+      compteId: nouvelEncaissement.compteId,
     };
     setEncaissements([...encaissements, nouveau]);
     setNouvelEncaissement({});
     setOpen(false);
   };
 
+  const validerEncaissement = async (encaissement: Encaissement) => {
+    // Map our encaissement to the prevision structure expected by validerPrevision
+    const prevision: Prevision = {
+      id: encaissement.id.toString(),
+      title: encaissement.intitule,
+      amount: encaissement.montant,
+      date: encaissement.datePrevue,
+      category: encaissement.categorie,
+      type: 'in', // For incomes
+      status: encaissement.statut === 'prévu' ? 'en_attente' : 'validée',
+      compte_id: encaissement.compteId?.toString()
+    };
+    
+    // Call our validation utility
+    const transaction = await validerPrevision(prevision);
+    
+    // Update local state if validation was successful
+    if (transaction) {
+      setEncaissements(encaissements.map(e =>
+        e.id === encaissement.id ? { ...e, statut: 'réalisé' } : e
+      ));
+    }
+  };
+
   const marquerCommeRealise = (id: number) => {
-    setEncaissements(encaissements.map(e =>
-      e.id === id ? { ...e, statut: 'réalisé' } : e
-    ));
+    // Replace this with the new validation flow
+    const encaissement = encaissements.find(e => e.id === id);
+    if (encaissement) {
+      validerEncaissement(encaissement);
+    }
   };
 
   return (
@@ -103,8 +132,14 @@ const EncaissementsPage: React.FC = () => {
                   <TableCell className={e.statut === 'réalisé' ? 'text-green-600' : 'text-orange-500'}>{e.statut}</TableCell>
                   <TableCell>
                     {e.statut === 'prévu' && (
-                      <Button variant="outline" size="sm" onClick={() => marquerCommeRealise(e.id)}>
-                        Marquer comme réalisé
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => marquerCommeRealise(e.id)}
+                        className="flex items-center gap-1"
+                      >
+                        <ClipboardCheck size={16} />
+                        Valider
                       </Button>
                     )}
                   </TableCell>

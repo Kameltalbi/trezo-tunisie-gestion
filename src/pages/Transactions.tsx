@@ -1,5 +1,4 @@
-
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,8 +8,12 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { format } from 'date-fns';
 import { formatCurrency } from '@/lib/utils';
-import { CalendarIcon, Filter, Plus } from 'lucide-react';
+import { CalendarIcon, Filter, Plus, ClipboardCheck, CheckCircle } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { toast } from "@/hooks/use-toast";
+import { validerPrevision, formatForecastStatus, type Prevision } from '@/utils/validationUtils';
+import { Transaction } from '@/types';
 
 interface Transaction {
   id: string;
@@ -182,28 +185,32 @@ const TransactionsPage: React.FC = () => {
     setForecastOpen(false);
   };
   
-  const validateForecast = (id: string) => {
-    const forecast = forecasts.find(f => f.id === id);
-    if (!forecast) return;
+  const validateForecast = async (forecast: Forecast) => {
+    // Create a prevision object from our forecast data
+    const prevision: Prevision = {
+      id: forecast.id,
+      title: forecast.title,
+      amount: forecast.amount,
+      date: forecast.date,
+      category: forecast.category,
+      type: forecast.type === 'income' ? 'in' : 'out',
+      status: 'en_attente',
+      compte_id: forecast.accountId
+    };
     
-    // Update forecast status
-    setForecasts(forecasts.map(f => 
-      f.id === id ? { ...f, status: 'validated' as const } : f
-    ));
+    // Call our validation utility
+    const transaction = await validerPrevision(prevision);
     
-    // Add to transactions
-    if (forecast.status !== 'validated') {
-      const transaction: Transaction = {
-        id: Math.random().toString(36).substring(2, 9),
-        title: forecast.title,
-        amount: forecast.amount,
-        date: forecast.date,
-        category: forecast.category,
-        type: forecast.type,
-        source: 'forecast'
-      };
+    if (transaction) {
+      // Update forecast status locally
+      setForecasts(forecasts.map(f => 
+        f.id === forecast.id ? { ...f, status: 'validated' as const } : f
+      ));
       
-      setTransactions([...transactions, transaction]);
+      // Add to transactions if successful
+      if (forecast.status !== 'validated') {
+        setTransactions([...transactions, transaction]);
+      }
     }
   };
   
@@ -491,8 +498,15 @@ const TransactionsPage: React.FC = () => {
                           {formatCurrency(transaction.amount)}
                         </TableCell>
                         <TableCell>{transaction.category}</TableCell>
-                        <TableCell>
-                          {transaction.source === 'forecast' ? 'Prévision validée' : 'Ajout direct'}
+                        <TableCell className="flex items-center gap-1">
+                          {transaction.source === 'forecast' ? (
+                            <>
+                              <CheckCircle size={16} className="text-green-500" />
+                              <span>Prévision validée</span>
+                            </>
+                          ) : (
+                            'Ajout direct'
+                          )}
                         </TableCell>
                       </TableRow>
                     ))
@@ -549,9 +563,10 @@ const TransactionsPage: React.FC = () => {
                               <Button 
                                 size="sm" 
                                 variant="outline" 
-                                onClick={() => validateForecast(forecast.id)}
+                                onClick={() => validateForecast(forecast)}
                                 className="text-green-600 border-green-600 hover:bg-green-50"
                               >
+                                <ClipboardCheck size={16} className="mr-1" />
                                 Valider
                               </Button>
                               <Button 
