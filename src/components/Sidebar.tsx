@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -13,7 +12,8 @@ import {
   Wallet,
   FolderKanban,
   BarChart,
-  FileSpreadsheet
+  FileSpreadsheet,
+  Folder
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Separator } from './ui/separator';
@@ -111,6 +111,12 @@ const Sidebar = () => {
       label: t('nav.reports'),
       path: '/rapports',
       isActive: isActive('/rapports')
+    },
+    {
+      icon: <Folder size={20} />,
+      label: t('nav.files') || 'Fichiers',
+      path: '/fichiers',
+      isActive: isActive('/fichiers')
     }
   ];
 
