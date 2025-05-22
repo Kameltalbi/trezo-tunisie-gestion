@@ -213,7 +213,7 @@ const TransactionsPage: React.FC = () => {
                   <SelectValue placeholder="Type de transaction" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Tous</SelectItem>
+                  <SelectItem value="all">Tous</SelectItem>
                   <SelectItem value="income">Encaissements</SelectItem>
                   <SelectItem value="expense">Décaissements</SelectItem>
                 </SelectContent>
@@ -226,7 +226,7 @@ const TransactionsPage: React.FC = () => {
                   <SelectValue placeholder="Catégorie" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Toutes</SelectItem>
+                  <SelectItem value="all">Toutes</SelectItem>
                   {categories.map(category => (
                     <SelectItem key={category} value={category}>{category}</SelectItem>
                   ))}
