@@ -1,4 +1,3 @@
-
 {
   "app": {
     "name": "Trezo"
@@ -29,9 +28,14 @@
     "debt": "Debt Management",
     "accounts": "Accounts",
     "accounts_section": "Accounts & Cash",
+    "forecasts": "Forecasts",
     "projects": "Projects",
     "objectives": "Objectives",
-    "reports": "Reports & Export"
+    "reports": "Reports & Export",
+    "transactions": "Transactions",
+    "transactions_section": "Transactions",
+    "project_tracking": "Project Tracking",
+    "reports_config": "Reports & Configuration"
   },
   "parametres": {
     "title": "Settings",

@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -82,7 +81,7 @@ const Sidebar = () => {
   const forecastItems: SidebarItemProps[] = [
     {
       icon: <ArrowUpCircle size={20} />,
-      label: t('nav.receipts_new') || 'Encaissements',
+      label: t('nav.receipts_new'),
       path: '/encaissements',
       isActive: isActive('/encaissements')
     },
@@ -98,7 +97,7 @@ const Sidebar = () => {
   const transactionsItems: SidebarItemProps[] = [
     {
       icon: <FileText size={20} />,
-      label: t('nav.transactions') || 'Transactions',
+      label: t('nav.transactions'),
       path: '/transactions',
       isActive: isActive('/transactions')
     },
@@ -189,35 +188,35 @@ const Sidebar = () => {
         
         {/* GESTION DE TRÉSORERIE section */}
         {isExpanded && (
-          <SidebarSection label={t('nav.cash_management') || 'GESTION DE TRÉSORERIE'} />
+          <SidebarSection label={t('nav.cash_management')} />
         )}
         {treasuryManagementItems.map(renderSidebarItem)}
         <Separator className="my-2 bg-slate-700" />
         
         {/* PRÉVISIONS section */}
         {isExpanded && (
-          <SidebarSection label={t('nav.forecasts') || 'PRÉVISIONS'} />
+          <SidebarSection label={t('nav.forecasts')} />
         )}
         {forecastItems.map(renderSidebarItem)}
         <Separator className="my-2 bg-slate-700" />
         
         {/* TRANSACTIONS section */}
         {isExpanded && (
-          <SidebarSection label={t('nav.transactions_section') || 'TRANSACTIONS'} />
+          <SidebarSection label={t('nav.transactions_section')} />
         )}
         {transactionsItems.map(renderSidebarItem)}
         <Separator className="my-2 bg-slate-700" />
         
         {/* SUIVI PAR PROJET section */}
         {isExpanded && (
-          <SidebarSection label={t('nav.project_tracking') || 'SUIVI PAR PROJET'} />
+          <SidebarSection label={t('nav.project_tracking')} />
         )}
         {projectTrackingItems.map(renderSidebarItem)}
         <Separator className="my-2 bg-slate-700" />
         
         {/* RAPPORTS & CONFIGURATION section */}
         {isExpanded && (
-          <SidebarSection label={t('nav.reports_config') || 'RAPPORTS & CONFIGURATION'} />
+          <SidebarSection label={t('nav.reports_config')} />
         )}
         {reportsConfigItems.map(renderSidebarItem)}
       </div>
