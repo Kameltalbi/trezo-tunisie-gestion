@@ -33,3 +33,14 @@ export interface Account {
   currentBalance: number;
   createdAt: string;
 }
+
+export interface Transaction {
+  id: string;
+  title: string;
+  amount: number;
+  date: string;
+  category: string;
+  type: 'income' | 'expense';
+  source: 'forecast' | 'direct';
+  accountId?: string;
+}

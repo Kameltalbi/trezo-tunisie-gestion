@@ -19,6 +19,7 @@ import Comptes from "./pages/Comptes";
 import Projets from "./pages/Projets";
 import Objectifs from "./pages/Objectifs";
 import Rapports from "./pages/Rapports";
+import Transactions from "./pages/Transactions";
 
 // Import i18n configuration
 import "./i18n";
@@ -40,6 +41,7 @@ const App = () => (
             <Route path="/debt-management" element={<Layout requireAuth={true}><DebtManagement /></Layout>} />
             <Route path="/decaissements" element={<Layout requireAuth={true}><Depenses /></Layout>} />
             <Route path="/encaissements" element={<Layout requireAuth={true}><Encaissements /></Layout>} />
+            <Route path="/transactions" element={<Layout requireAuth={true}><Transactions /></Layout>} />
             <Route path="/dashboard" element={<Layout requireAuth={true}><Dashboard /></Layout>} />
             <Route path="/comptes" element={<Layout requireAuth={true}><Comptes /></Layout>} />
             <Route path="/projets" element={<Layout requireAuth={true}><Projets /></Layout>} />

@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -12,7 +13,8 @@ import {
   Wallet,
   FolderKanban,
   BarChart,
-  FileSpreadsheet
+  FileSpreadsheet,
+  CalendarArrowDown
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Separator } from './ui/separator';
@@ -86,6 +88,12 @@ const Sidebar = () => {
       label: t('nav.expenses_new'),
       path: '/decaissements',
       isActive: isActive('/decaissements')
+    },
+    {
+      icon: <CalendarArrowDown size={20} />,
+      label: t('nav.transactions') || 'Transactions',
+      path: '/transactions',
+      isActive: isActive('/transactions')
     },
     {
       icon: <Banknote size={20} />,
