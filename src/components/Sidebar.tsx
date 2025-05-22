@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -16,7 +15,8 @@ import {
   FileSpreadsheet,
   ArrowDownCircle,
   ArrowUpCircle,
-  Target
+  Target,
+  LifeBuoy
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Separator } from './ui/separator';
@@ -145,6 +145,12 @@ const Sidebar = () => {
       label: t('nav.admin'),
       path: '/admin',
       isActive: isActive('/admin')
+    },
+    {
+      icon: <LifeBuoy size={24} />,
+      label: "Support",
+      path: '/support',
+      isActive: isActive('/support')
     }
   ];
 
