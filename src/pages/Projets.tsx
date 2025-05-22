@@ -1,6 +1,6 @@
-
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { PlusCircle, Edit, Trash2, CheckCircle, Clock, PauseCircle, List } from 'lucide-react';
 import { format } from 'date-fns';
 
@@ -192,6 +192,7 @@ const ProjetDetailsDialog: React.FC<{ projet: Projet }> = ({ projet }) => {
 
 const ProjetsPage: React.FC = () => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [projects, setProjects] = useState<Projet[]>(mockProjets);
   const [isNewProjectDialogOpen, setIsNewProjectDialogOpen] = useState(false);
   const [isEditProjectDialogOpen, setIsEditProjectDialogOpen] = useState(false);
@@ -238,6 +239,10 @@ const ProjetsPage: React.FC = () => {
   const handleDeleteProject = (id: string) => {
     setProjects(projects.filter(p => p.id !== id));
     toast.success('Projet supprimé avec succès');
+  };
+
+  const handleNavigateToDetail = (id: string) => {
+    navigate(`/projets/${id}`);
   };
 
   const filteredProjects = activeTab === 'tous' 
@@ -419,7 +424,15 @@ const ProjetsPage: React.FC = () => {
                     const resteAConsommer = projet.budgetPrevu - projet.budgetConsomme;
                     return (
                       <TableRow key={projet.id}>
-                        <TableCell className="font-medium">{projet.nom}</TableCell>
+                        <TableCell className="font-medium">
+                          <Button 
+                            variant="link" 
+                            className="p-0 h-auto font-medium text-left" 
+                            onClick={() => handleNavigateToDetail(projet.id)}
+                          >
+                            {projet.nom}
+                          </Button>
+                        </TableCell>
                         <TableCell>{formatCurrency(projet.budgetPrevu)}</TableCell>
                         <TableCell>{formatCurrency(projet.budgetConsomme)}</TableCell>
                         <TableCell className={resteAConsommer < 0 ? 'text-red-500' : ''}>
