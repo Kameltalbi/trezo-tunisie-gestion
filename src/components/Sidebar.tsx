@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -151,8 +152,8 @@ const Sidebar = () => {
     <div 
       key={item.path} 
       className={cn(
-        "flex items-center px-3 py-2 cursor-pointer hover:bg-slate-700 transition-colors",
-        item.isActive && "bg-slate-700"
+        "flex items-center px-3 py-2 cursor-pointer hover:bg-gray-700/50 transition-colors rounded-md mx-2 my-1",
+        item.isActive && "bg-blue-600 text-white hover:bg-blue-700"
       )}
       onClick={() => handleNavigation(item.path)}
     >
@@ -168,12 +169,12 @@ const Sidebar = () => {
 
   return (
     <div 
-      className="fixed left-0 top-0 h-full bg-slate-800 text-white z-50 transition-all duration-300 flex flex-col"
+      className="fixed left-0 top-0 h-full bg-gray-800 text-gray-50 z-50 transition-all duration-300 flex flex-col"
       style={{ width: isExpanded ? '240px' : '60px' }}
       onMouseEnter={() => setIsExpanded(true)}
       onMouseLeave={() => setIsExpanded(false)}
     >
-      <div className="p-4 flex items-center justify-center h-16 border-b border-slate-700">
+      <div className="p-4 flex items-center justify-center h-16 border-b border-gray-700">
         {isExpanded ? (
           <h1 className="text-lg font-bold">Trezo</h1>
         ) : (
@@ -184,35 +185,35 @@ const Sidebar = () => {
       <div className="flex-1 overflow-y-auto py-4">
         {/* Dashboard (no section) */}
         {renderSidebarItem(dashboardItem)}
-        <Separator className="my-2 bg-slate-700" />
+        <Separator className="my-2 bg-gray-700" />
         
         {/* GESTION DE TRÉSORERIE section */}
         {isExpanded && (
           <SidebarSection label={t('nav.cash_management')} />
         )}
         {treasuryManagementItems.map(renderSidebarItem)}
-        <Separator className="my-2 bg-slate-700" />
+        <Separator className="my-2 bg-gray-700" />
         
         {/* PRÉVISIONS section */}
         {isExpanded && (
           <SidebarSection label={t('nav.forecasts')} />
         )}
         {forecastItems.map(renderSidebarItem)}
-        <Separator className="my-2 bg-slate-700" />
+        <Separator className="my-2 bg-gray-700" />
         
         {/* TRANSACTIONS section */}
         {isExpanded && (
           <SidebarSection label={t('nav.transactions_section')} />
         )}
         {transactionsItems.map(renderSidebarItem)}
-        <Separator className="my-2 bg-slate-700" />
+        <Separator className="my-2 bg-gray-700" />
         
         {/* SUIVI PAR PROJET section */}
         {isExpanded && (
           <SidebarSection label={t('nav.project_tracking')} />
         )}
         {projectTrackingItems.map(renderSidebarItem)}
-        <Separator className="my-2 bg-slate-700" />
+        <Separator className="my-2 bg-gray-700" />
         
         {/* RAPPORTS & CONFIGURATION section */}
         {isExpanded && (

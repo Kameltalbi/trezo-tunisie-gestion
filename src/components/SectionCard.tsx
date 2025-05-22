@@ -36,7 +36,7 @@ const SectionCard = ({ title, data, onAdd, onDelete }: SectionCardProps) => {
             {data.map((item) => (
               <li
                 key={item.id}
-                className="flex justify-between items-center p-2 bg-gray-50 rounded border"
+                className="flex justify-between items-center p-2 bg-gray-50 dark:bg-gray-800 rounded border"
               >
                 <span>{item.nom}</span>
                 <button
