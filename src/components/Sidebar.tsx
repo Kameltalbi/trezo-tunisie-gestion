@@ -56,7 +56,7 @@ const Sidebar = () => {
 
   // Dashboard item (no section)
   const dashboardItem: SidebarItemProps = {
-    icon: <LayoutDashboard size={20} />,
+    icon: <LayoutDashboard size={24} />,
     label: t('nav.dashboard'),
     path: '/dashboard',
     isActive: isActive('/dashboard')
@@ -65,13 +65,13 @@ const Sidebar = () => {
   // GESTION DE TRÉSORERIE section
   const treasuryManagementItems: SidebarItemProps[] = [
     {
-      icon: <Wallet size={20} />,
+      icon: <Wallet size={24} />,
       label: t('nav.accounts'),
       path: '/comptes',
       isActive: isActive('/comptes')
     },
     {
-      icon: <ChartLine size={20} />,
+      icon: <ChartLine size={24} />,
       label: t('nav.cash_flow'),
       path: '/cash-flow',
       isActive: isActive('/cash-flow')
@@ -81,13 +81,13 @@ const Sidebar = () => {
   // PRÉVISIONS section
   const forecastItems: SidebarItemProps[] = [
     {
-      icon: <ArrowUpCircle size={20} />,
+      icon: <ArrowUpCircle size={24} />,
       label: t('nav.receipts_new'),
       path: '/encaissements',
       isActive: isActive('/encaissements')
     },
     {
-      icon: <ArrowDownCircle size={20} />,
+      icon: <ArrowDownCircle size={24} />,
       label: t('nav.expenses_new'),
       path: '/decaissements',
       isActive: isActive('/decaissements')
@@ -97,13 +97,13 @@ const Sidebar = () => {
   // TRANSACTIONS section
   const transactionsItems: SidebarItemProps[] = [
     {
-      icon: <FileText size={20} />,
+      icon: <FileText size={24} />,
       label: t('nav.transactions'),
       path: '/transactions',
       isActive: isActive('/transactions')
     },
     {
-      icon: <Banknote size={20} />,
+      icon: <Banknote size={24} />,
       label: t('nav.debt'),
       path: '/debt-management',
       isActive: isActive('/debt-management')
@@ -113,13 +113,13 @@ const Sidebar = () => {
   // SUIVI PAR PROJET section
   const projectTrackingItems: SidebarItemProps[] = [
     {
-      icon: <FolderKanban size={20} />,
+      icon: <FolderKanban size={24} />,
       label: t('nav.projects'),
       path: '/projets',
       isActive: isActive('/projets')
     },
     {
-      icon: <Target size={20} />,
+      icon: <Target size={24} />,
       label: t('nav.objectives'),
       path: '/objectifs',
       isActive: isActive('/objectifs')
@@ -129,19 +129,19 @@ const Sidebar = () => {
   // RAPPORTS & CONFIGURATION section
   const reportsConfigItems: SidebarItemProps[] = [
     {
-      icon: <FileSpreadsheet size={20} />,
+      icon: <FileSpreadsheet size={24} />,
       label: t('nav.reports'),
       path: '/rapports',
       isActive: isActive('/rapports')
     },
     {
-      icon: <Settings size={20} />,
+      icon: <Settings size={24} />,
       label: t('nav.parametres'),
       path: '/parametres',
       isActive: isActive('/parametres')
     },
     {
-      icon: <UserCog size={20} />,
+      icon: <UserCog size={24} />,
       label: t('nav.admin'),
       path: '/admin',
       isActive: isActive('/admin')
@@ -157,7 +157,7 @@ const Sidebar = () => {
       )}
       onClick={() => handleNavigation(item.path)}
     >
-      <div className="w-8 h-8 flex items-center justify-center">
+      <div className="w-10 h-10 flex items-center justify-center">
         {item.icon}
       </div>
       
