@@ -34,7 +34,7 @@ interface SidebarSectionProps {
 
 const SidebarSection = ({ label }: SidebarSectionProps) => {
   return (
-    <div className="px-4 py-2">
+    <div className="px-4 py-1">
       <div className="text-xs font-semibold uppercase opacity-80">{label}</div>
     </div>
   );
@@ -152,7 +152,7 @@ const Sidebar = () => {
     <div 
       key={item.path} 
       className={cn(
-        "flex items-center px-3 py-3 cursor-pointer hover:bg-sidebar-accent/50 transition-colors rounded-md mx-2 my-1",
+        "flex items-center px-3 py-1 cursor-pointer hover:bg-sidebar-accent/50 transition-colors rounded-md mx-2 my-0.5",
         item.isActive && "bg-blue-600 text-white hover:bg-blue-700"
       )}
       onClick={() => handleNavigation(item.path)}
@@ -174,7 +174,7 @@ const Sidebar = () => {
       onMouseEnter={() => setIsExpanded(true)}
       onMouseLeave={() => setIsExpanded(false)}
     >
-      <div className="p-4 flex items-center justify-center h-16 border-b border-sidebar-accent/20">
+      <div className="p-3 flex items-center justify-center h-14 border-b border-sidebar-accent/20">
         {isExpanded ? (
           <h1 className="text-xl font-bold">Trezo</h1>
         ) : (
@@ -182,38 +182,38 @@ const Sidebar = () => {
         )}
       </div>
 
-      <div className="flex-1 overflow-y-auto py-4">
+      <div className="flex-1 overflow-y-auto py-2">
         {/* Dashboard (no section) */}
         {renderSidebarItem(dashboardItem)}
-        <Separator className="my-2 bg-sidebar-accent/20" />
+        <Separator className="my-1 bg-sidebar-accent/20" />
         
         {/* GESTION DE TRÉSORERIE section */}
         {isExpanded && (
           <SidebarSection label={t('nav.cash_management')} />
         )}
         {treasuryManagementItems.map(renderSidebarItem)}
-        <Separator className="my-2 bg-sidebar-accent/20" />
+        <Separator className="my-1 bg-sidebar-accent/20" />
         
         {/* PRÉVISIONS section */}
         {isExpanded && (
           <SidebarSection label={t('nav.forecasts')} />
         )}
         {forecastItems.map(renderSidebarItem)}
-        <Separator className="my-2 bg-sidebar-accent/20" />
+        <Separator className="my-1 bg-sidebar-accent/20" />
         
         {/* TRANSACTIONS section */}
         {isExpanded && (
           <SidebarSection label={t('nav.transactions_section')} />
         )}
         {transactionsItems.map(renderSidebarItem)}
-        <Separator className="my-2 bg-sidebar-accent/20" />
+        <Separator className="my-1 bg-sidebar-accent/20" />
         
         {/* SUIVI PAR PROJET section */}
         {isExpanded && (
           <SidebarSection label={t('nav.project_tracking')} />
         )}
         {projectTrackingItems.map(renderSidebarItem)}
-        <Separator className="my-2 bg-sidebar-accent/20" />
+        <Separator className="my-1 bg-sidebar-accent/20" />
         
         {/* RAPPORTS & CONFIGURATION section */}
         {isExpanded && (
