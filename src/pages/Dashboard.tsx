@@ -23,35 +23,35 @@ const DashboardPage: React.FC = () => {
     { month: 'May', solde: 7000 },
   ];
 
-  // Data for investment pie chart
-  const investmentData = [
-    { name: 'Immobilier', value: 35, amount: 2047.53, color: '#FF8C42' },
-    { name: 'Actions', value: 24, amount: 1404.01, color: '#22C55E' },
-    { name: 'Crypto', value: 15, amount: 877.51, color: '#3B82F6' },
-    { name: 'Autres', value: 26, amount: 1520.95, color: '#E5E7EB' }
+  // Data for expenses by category pie chart
+  const expensesData = [
+    { name: 'Loyer', value: 35, amount: 2500, color: '#FF8C42' },
+    { name: 'Salaires', value: 30, amount: 2143, color: '#22C55E' },
+    { name: 'Services', value: 20, amount: 1428, color: '#3B82F6' },
+    { name: 'Autres', value: 15, amount: 1071, color: '#E5E7EB' }
   ];
 
   // Data for revenue sources doughnut chart
-  const doughnutData = [
+  const revenueData = [
     { name: 'Ventes', value: 45, color: '#3B82F6' },
     { name: 'Services', value: 30, color: '#22C55E' },
     { name: 'Consulting', value: 15, color: '#FF8C42' },
     { name: 'Autres', value: 10, color: '#E5E7EB' }
   ];
 
-  const totalInvestment = investmentData.reduce((sum, item) => sum + item.amount, 0);
+  const totalExpenses = expensesData.reduce((sum, item) => sum + item.amount, 0);
 
   const chartConfig = {
-    immobilier: {
-      label: "Immobilier",
+    loyer: {
+      label: "Loyer",
       color: "#FF8C42",
     },
-    actions: {
-      label: "Actions", 
+    salaires: {
+      label: "Salaires", 
       color: "#22C55E",
     },
-    crypto: {
-      label: "Crypto",
+    services: {
+      label: "Services",
       color: "#3B82F6",
     },
     autres: {
@@ -119,11 +119,11 @@ const DashboardPage: React.FC = () => {
           </CardContent>
         </Card>
 
-        {/* Investment Pie Chart */}
+        {/* Expenses by Category Pie Chart */}
         <Card className="bg-white shadow-sm">
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
-              <CardTitle className="text-lg font-semibold text-gray-900">Investissements</CardTitle>
+              <CardTitle className="text-lg font-semibold text-gray-900">Dépenses par catégorie</CardTitle>
               <select className="text-sm border border-gray-200 rounded-md px-3 py-1 bg-white">
                 <option>Mois</option>
                 <option>Année</option>
@@ -141,7 +141,7 @@ const DashboardPage: React.FC = () => {
                   content={<ChartTooltipContent hideLabel />}
                 />
                 <Pie
-                  data={investmentData}
+                  data={expensesData}
                   cx="50%"
                   cy="50%"
                   innerRadius={60}
@@ -149,7 +149,7 @@ const DashboardPage: React.FC = () => {
                   paddingAngle={2}
                   dataKey="value"
                 >
-                  {investmentData.map((entry, index) => (
+                  {expensesData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
@@ -161,7 +161,7 @@ const DashboardPage: React.FC = () => {
               <div className="text-center">
                 <div className="text-xs text-gray-500 font-medium">Total</div>
                 <div className="text-2xl font-bold text-gray-900">
-                  {totalInvestment.toLocaleString('fr-TN', { 
+                  {totalExpenses.toLocaleString('fr-TN', { 
                     minimumFractionDigits: 2,
                     maximumFractionDigits: 2 
                   })} DT
@@ -171,7 +171,7 @@ const DashboardPage: React.FC = () => {
             
             {/* Légende */}
             <div className="grid grid-cols-2 gap-3 mt-6">
-              {investmentData.map((item, index) => (
+              {expensesData.map((item, index) => (
                 <div key={index} className="flex items-center gap-2">
                   <div 
                     className="w-3 h-3 rounded-sm"
@@ -195,7 +195,7 @@ const DashboardPage: React.FC = () => {
               <PieChart>
                 <ChartTooltip />
                 <Pie
-                  data={doughnutData}
+                  data={revenueData}
                   cx="50%"
                   cy="50%"
                   innerRadius={40}
@@ -203,7 +203,7 @@ const DashboardPage: React.FC = () => {
                   paddingAngle={2}
                   dataKey="value"
                 >
-                  {doughnutData.map((entry, index) => (
+                  {revenueData.map((entry, index) => (
                     <Cell key={`cell-${index}`} fill={entry.color} />
                   ))}
                 </Pie>
