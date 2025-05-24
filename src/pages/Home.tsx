@@ -1,11 +1,10 @@
-
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Check, Globe, Menu, X } from 'lucide-react';
 import { useState } from 'react';
-import { LanguageSwitcher } from '@/components/LanguageSwitcher';
+import LanguageSwitcher from '@/components/LanguageSwitcher';
 
 const Home = () => {
   const { t } = useTranslation();
