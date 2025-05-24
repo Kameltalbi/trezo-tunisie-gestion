@@ -5,7 +5,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Coins, Loader2, Eye, EyeOff, CheckCircle } from "lucide-react";
+import { Loader2, Eye, EyeOff, CheckCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -110,10 +110,11 @@ const Register = () => {
       <div className="w-full max-w-md">
         <div className="flex flex-col items-center mb-8">
           <Link to="/" className="flex items-center space-x-2 mb-4">
-            <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white p-3 rounded-xl shadow-md">
-              <Coins size={32} />
-            </div>
-            <span className="text-3xl font-bold text-gray-900">Trezo</span>
+            <img 
+              src="/lovable-uploads/71b93732-45ea-4330-96cf-7bff5ea4f99a.png" 
+              alt="Trézo" 
+              className="h-24 w-auto"
+            />
           </Link>
           <p className="text-gray-500 text-center">Créez votre compte et commencez à gérer votre trésorerie</p>
         </div>
