@@ -4,6 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter }
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { ArrowRight, BarChart3, PieChart, TrendingUp, Users, Star, Check, LayoutDashboard } from "lucide-react";
+import LanguageSwitcher from "@/components/LanguageSwitcher";
 
 const Home = () => {
   return (
@@ -25,6 +26,7 @@ const Home = () => {
               <a href="#pricing" className="text-gray-600 hover:text-emerald-600 transition-colors">Tarifs</a>
             </nav>
             <div className="flex items-center space-x-4">
+              <LanguageSwitcher />
               <Link to="/dashboard">
                 <Button variant="ghost">
                   <LayoutDashboard className="mr-2 h-4 w-4" />
