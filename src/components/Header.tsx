@@ -45,54 +45,56 @@ const Header = () => {
   return (
     <header className="bg-background border-b border-border shadow-sm">
       <div className="container mx-auto px-4 py-3">
-        <div className="flex items-center justify-between">
-          {/* Date et heure */}
-          <div className="flex flex-col text-sm">
-            <span className="font-medium text-foreground">
-              {formatDate(currentTime)}
-            </span>
-            <span className="text-muted-foreground">
-              {formatTime(currentTime)}
-            </span>
-          </div>
-
-          {/* Menu mode clair/sombre */}
-          <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-2">
-              <Sun className="h-4 w-4" />
-              <Switch
-                checked={isDarkMode}
-                onCheckedChange={(checked) => {
-                  setTheme(checked ? 'dark' : 'light');
-                }}
-              />
-              <Moon className="h-4 w-4" />
+        <div className="flex items-center justify-end">
+          {/* Date et heure déplacées à droite */}
+          <div className="flex items-center space-x-6">
+            <div className="flex flex-col text-sm">
+              <span className="font-medium text-foreground">
+                {formatDate(currentTime)}
+              </span>
+              <span className="text-muted-foreground">
+                {formatTime(currentTime)}
+              </span>
             </div>
 
-            {/* Menu dropdown pour les options de thème */}
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="sm">
-                  {theme === 'light' && <Sun className="h-4 w-4" />}
-                  {theme === 'dark' && <Moon className="h-4 w-4" />}
-                  {theme === 'system' && <Monitor className="h-4 w-4" />}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuItem onClick={() => setTheme('light')}>
-                  <Sun className="mr-2 h-4 w-4" />
-                  <span>Clair</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme('dark')}>
-                  <Moon className="mr-2 h-4 w-4" />
-                  <span>Sombre</span>
-                </DropdownMenuItem>
-                <DropdownMenuItem onClick={() => setTheme('system')}>
-                  <Monitor className="mr-2 h-4 w-4" />
-                  <span>Système</span>
-                </DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
+            {/* Menu mode clair/sombre */}
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-2">
+                <Sun className="h-4 w-4" />
+                <Switch
+                  checked={isDarkMode}
+                  onCheckedChange={(checked) => {
+                    setTheme(checked ? 'dark' : 'light');
+                  }}
+                />
+                <Moon className="h-4 w-4" />
+              </div>
+
+              {/* Menu dropdown pour les options de thème */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm">
+                    {theme === 'light' && <Sun className="h-4 w-4" />}
+                    {theme === 'dark' && <Moon className="h-4 w-4" />}
+                    {theme === 'system' && <Monitor className="h-4 w-4" />}
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <DropdownMenuItem onClick={() => setTheme('light')}>
+                    <Sun className="mr-2 h-4 w-4" />
+                    <span>Clair</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTheme('dark')}>
+                    <Moon className="mr-2 h-4 w-4" />
+                    <span>Sombre</span>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setTheme('system')}>
+                    <Monitor className="mr-2 h-4 w-4" />
+                    <span>Système</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            </div>
           </div>
         </div>
       </div>
