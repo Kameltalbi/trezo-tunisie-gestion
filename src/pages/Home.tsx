@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
-import { ArrowRight, BarChart3, PieChart, TrendingUp, Users, Star, Check } from "lucide-react";
+import { ArrowRight, BarChart3, PieChart, TrendingUp, Users, Star, Check, LayoutDashboard } from "lucide-react";
 
 const Home = () => {
   return (
@@ -25,6 +25,12 @@ const Home = () => {
               <a href="#pricing" className="text-gray-600 hover:text-emerald-600 transition-colors">Tarifs</a>
             </nav>
             <div className="flex items-center space-x-4">
+              <Link to="/dashboard">
+                <Button variant="ghost">
+                  <LayoutDashboard className="mr-2 h-4 w-4" />
+                  Dashboard
+                </Button>
+              </Link>
               <Link to="/login">
                 <Button variant="ghost">Connexion</Button>
               </Link>
@@ -47,14 +53,20 @@ const Home = () => {
               <p className="text-lg text-gray-600 mb-8">
                 Gérez facilement votre budget, suivez vos dépenses et atteignez vos objectifs financiers.
               </p>
-              <div className="space-x-4">
+              <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <Link to="/register">
-                  <Button size="lg">
+                  <Button size="lg" className="w-full sm:w-auto">
                     Commencer gratuitement <ArrowRight className="ml-2" />
                   </Button>
                 </Link>
+                <Link to="/dashboard">
+                  <Button variant="outline" size="lg" className="w-full sm:w-auto">
+                    <LayoutDashboard className="mr-2 h-4 w-4" />
+                    Voir le dashboard
+                  </Button>
+                </Link>
                 <a href="#features">
-                  <Button variant="outline" size="lg">
+                  <Button variant="ghost" size="lg" className="w-full sm:w-auto">
                     Découvrir les fonctionnalités
                   </Button>
                 </a>
