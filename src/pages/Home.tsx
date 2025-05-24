@@ -184,66 +184,86 @@ const Home = () => {
             Tarifs
           </h2>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Free Plan */}
+            {/* Free Trial Plan */}
             <Card>
               <CardHeader className="text-center">
-                <CardTitle className="text-2xl font-semibold">Gratuit</CardTitle>
+                <CardTitle className="text-2xl font-semibold">Essai gratuit</CardTitle>
                 <CardDescription>
-                  Pour les débutants
+                  Découvrez toutes les fonctionnalités
                 </CardDescription>
                 <div className="mt-4">
                   <Badge variant="secondary">
                     <Check className="h-4 w-4 mr-2" />
-                    Fonctionnalités de base
+                    14 jours d'essai
                   </Badge>
                 </div>
               </CardHeader>
               <CardContent className="text-center">
                 <div className="text-4xl font-bold text-gray-900 mb-4">
-                  0€
+                  Gratuit
                 </div>
-                <ul className="text-sm text-gray-600 space-y-2">
-                  <li>Suivi des dépenses limité</li>
-                  <li>Budgétisation simple</li>
-                  <li>Support communautaire</li>
+                <div className="text-sm text-emerald-600 mb-4">14 jours d'essai complet</div>
+                <ul className="text-sm text-gray-600 space-y-2 text-left">
+                  <li>✓ Tableau de bord complet</li>
+                  <li>✓ Gestion des encaissements</li>
+                  <li>✓ Suivi des dépenses</li>
+                  <li>✓ 2 comptes bancaires maximum</li>
+                  <li>✓ 3 projets maximum</li>
+                  <li>✓ Objectifs financiers de base</li>
+                  <li>✓ Support communautaire</li>
                 </ul>
               </CardContent>
               <CardFooter className="text-center">
-                <Button>
-                  S'inscrire gratuitement
-                </Button>
+                <Link to="/register" className="w-full">
+                  <Button className="w-full">
+                    Commencer l'essai gratuit
+                  </Button>
+                </Link>
               </CardFooter>
             </Card>
 
             {/* Pro Plan */}
-            <Card>
+            <Card className="border-emerald-500 border-2 relative">
+              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
+                <Badge className="bg-emerald-500 text-white">
+                  Le plus populaire
+                </Badge>
+              </div>
               <CardHeader className="text-center">
                 <CardTitle className="text-2xl font-semibold">Pro</CardTitle>
                 <CardDescription>
-                  Pour les utilisateurs avancés
+                  Pour les particuliers et PME
                 </CardDescription>
                 <div className="mt-4">
                   <Badge variant="outline">
                     <Check className="h-4 w-4 mr-2" />
-                    Toutes les fonctionnalités
+                    Fonctionnalités avancées
                   </Badge>
                 </div>
               </CardHeader>
               <CardContent className="text-center">
-                <div className="text-4xl font-bold text-gray-900 mb-4">
-                  9,99€<span className="text-sm text-gray-500">/mois</span>
+                <div className="text-4xl font-bold text-gray-900 mb-2">
+                  450 DT
                 </div>
-                <ul className="text-sm text-gray-600 space-y-2">
-                  <li>Suivi des dépenses illimité</li>
-                  <li>Budgétisation avancée</li>
-                  <li>Analyse financière</li>
-                  <li>Support prioritaire</li>
+                <div className="text-sm text-gray-500 mb-4">par an</div>
+                <ul className="text-sm text-gray-600 space-y-2 text-left">
+                  <li>✓ Toutes les fonctionnalités de l'essai</li>
+                  <li>✓ Comptes bancaires illimités</li>
+                  <li>✓ Projets illimités</li>
+                  <li>✓ Gestion avancée de la trésorerie</li>
+                  <li>✓ Cash Flow et prévisions</li>
+                  <li>✓ Gestion des dettes</li>
+                  <li>✓ Rapports PDF/Excel avancés</li>
+                  <li>✓ Objectifs financiers illimités</li>
+                  <li>✓ Support par email</li>
                 </ul>
               </CardContent>
               <CardFooter className="text-center">
-                <Button>
-                  Essai gratuit de 14 jours
-                </Button>
+                <Link to="/register" className="w-full">
+                  <Button className="w-full">
+                    Choisir Pro
+                  </Button>
+                </Link>
               </CardFooter>
             </Card>
 
@@ -257,24 +277,34 @@ const Home = () => {
                 <div className="mt-4">
                   <Badge variant="outline">
                     <Check className="h-4 w-4 mr-2" />
-                    Solutions personnalisées
+                    Solutions sur mesure
                   </Badge>
                 </div>
               </CardHeader>
               <CardContent className="text-center">
-                <div className="text-4xl font-bold text-gray-900 mb-4">
-                  Contactez-nous
+                <div className="text-4xl font-bold text-gray-900 mb-2">
+                  599 DT
                 </div>
-                <ul className="text-sm text-gray-600 space-y-2">
-                  <li>Fonctionnalités personnalisées</li>
-                  <li>Intégrations API</li>
-                  <li>Support dédié</li>
+                <div className="text-sm text-gray-500 mb-4">par an</div>
+                <ul className="text-sm text-gray-600 space-y-2 text-left">
+                  <li>✓ Toutes les fonctionnalités Pro</li>
+                  <li>✓ Multi-utilisateurs (jusqu'à 10)</li>
+                  <li>✓ Administration avancée</li>
+                  <li>✓ Gestion des rôles et permissions</li>
+                  <li>✓ Rapports personnalisés</li>
+                  <li>✓ API et intégrations</li>
+                  <li>✓ Sauvegarde automatique</li>
+                  <li>✓ Support prioritaire 24/7</li>
+                  <li>✓ Formation personnalisée</li>
+                  <li>✓ Conseiller dédié</li>
                 </ul>
               </CardContent>
               <CardFooter className="text-center">
-                <Button>
-                  Demander un devis
-                </Button>
+                <Link to="/register" className="w-full">
+                  <Button className="w-full">
+                    Choisir Entreprise
+                  </Button>
+                </Link>
               </CardFooter>
             </Card>
           </div>
