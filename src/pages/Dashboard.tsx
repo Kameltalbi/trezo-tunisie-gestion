@@ -1,10 +1,11 @@
+
 import React from 'react';
-import { Card, CardContent } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Progress } from '@/components/ui/progress';
 import {
-  Bar,
   Line,
-  Pie,
-  Doughnut
+  Doughnut,
+  Bar
 } from 'react-chartjs-2';
 import {
   Chart as ChartJS,
@@ -32,113 +33,300 @@ ChartJS.register(
 );
 
 const DashboardPage: React.FC = () => {
-  const barData = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+  // Données pour le graphique de dépenses
+  const spendingData = {
+    labels: ['Jan', 'Fév', 'Mar', 'Avr', 'Mai', 'Jun', 'Jul'],
     datasets: [
       {
-        label: 'Encaissements',
-        data: [12000, 15000, 13000, 18000, 16000],
-        backgroundColor: 'rgba(54, 162, 235, 0.6)',
+        label: 'Dépenses',
+        data: [2000, 2200, 1800, 2400, 2100, 2600, 2300],
+        borderColor: '#3b82f6',
+        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+        fill: true,
+        tension: 0.4,
       },
     ],
   };
 
-  const lineData = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
+  // Données pour le doughnut des investissements
+  const investmentData = {
+    labels: ['Google', 'Apple', 'Meta'],
     datasets: [
       {
-        label: 'Solde mensuel',
-        data: [4500, 5000, 4000, 6000, 7000],
-        borderColor: 'rgba(75, 192, 192, 1)',
-        fill: false,
+        data: [40, 35, 25],
+        backgroundColor: ['#ff9500', '#10b981', '#3b82f6'],
+        borderWidth: 0,
       },
     ],
   };
 
-  const pieData = {
-    labels: ['Salaires', 'Fournisseurs', 'Charges fixes', 'Autres'],
+  // Données pour le graphique des revenus
+  const incomeData = {
+    labels: ['Technologie', 'Voitures', 'Avions', 'Énergie', 'Technologie', 'Marques automobiles'],
     datasets: [
       {
-        data: [40000, 25000, 15000, 10000],
-        backgroundColor: [
-          'rgba(75, 192, 192, 0.6)',
-          'rgba(255, 205, 86, 0.6)',
-          'rgba(255, 99, 132, 0.6)',
-          'rgba(153, 102, 255, 0.6)',
-        ],
+        label: 'Revenus',
+        data: [30, 65, 45, 90, 55, 75],
+        backgroundColor: '#10b981',
+        borderRadius: 4,
       },
     ],
   };
 
-  const doughnutData = {
-    labels: ['Revenus locaux', 'Export', 'Autres revenus'],
-    datasets: [
-      {
-        data: [50000, 30000, 10000],
-        backgroundColor: [
-          'rgba(54, 162, 235, 0.6)',
-          'rgba(255, 159, 64, 0.6)',
-          'rgba(201, 203, 207, 0.6)',
-        ],
+  const chartOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        display: false,
       },
-    ],
+    },
+    scales: {
+      x: {
+        grid: {
+          display: false,
+        },
+      },
+      y: {
+        grid: {
+          color: '#f1f5f9',
+        },
+      },
+    },
   };
 
-  const cards = [
-    { title: 'Solde global', value: '+12 450 DT', color: 'text-green-600' },
-    { title: 'Encaissements prévus', value: '8 200 DT', color: 'text-blue-600' },
-    { title: 'Dépenses à venir', value: '6 800 DT', color: 'text-red-600' },
-    { title: 'Factures en retard', value: '4', color: 'text-orange-600' },
-    { title: 'Clients actifs', value: '35', color: 'text-indigo-600' },
-    { title: 'Fournisseurs actifs', value: '22', color: 'text-yellow-600' },
-    { title: 'Dettes restantes', value: '15 000 DT', color: 'text-rose-600' },
-    { title: 'Projets en cours', value: '7', color: 'text-purple-600' },
-  ];
+  const doughnutOptions = {
+    responsive: true,
+    maintainAspectRatio: false,
+    plugins: {
+      legend: {
+        position: 'bottom' as const,
+        labels: {
+          padding: 20,
+          usePointStyle: true,
+        },
+      },
+    },
+    cutout: '60%',
+  };
 
   return (
-    <div className="p-6 space-y-6">
-      <h1 className="text-3xl font-bold mb-6">Tableau de bord</h1>
+    <div className="p-6 space-y-6 bg-gray-50 min-h-screen">
+      {/* En-tête avec métriques principales */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Dépenses */}
+        <Card className="bg-white shadow-sm">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-medium text-gray-600">Dépenses</CardTitle>
+              <select className="text-xs border-none bg-transparent">
+                <option>Mois</option>
+              </select>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-gray-900 mb-4">2 500 DT</div>
+            <div className="h-20">
+              <Line data={spendingData} options={chartOptions} />
+            </div>
+          </CardContent>
+        </Card>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-        {cards.map((card, index) => (
-          <Card key={index}>
-            <CardContent className="p-4">
-              <p className="text-sm text-gray-500">{card.title}</p>
-              <p className={`text-xl font-semibold ${card.color}`}>{card.value}</p>
-            </CardContent>
-          </Card>
-        ))}
+        {/* Réalisations */}
+        <Card className="bg-white shadow-sm">
+          <CardHeader className="pb-3">
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-sm font-medium text-gray-600">Réalisations</CardTitle>
+              <span className="text-xs text-gray-500">Collecté 5/24</span>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Objectif mensuel</span>
+                <span className="font-medium">85%</span>
+              </div>
+              <Progress value={85} className="h-2" />
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Épargne cible</span>
+                <span className="font-medium">72%</span>
+              </div>
+              <Progress value={72} className="h-2" />
+            </div>
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm">
+                <span className="text-gray-600">Budget respecté</span>
+                <span className="font-medium">68%</span>
+              </div>
+              <Progress value={68} className="h-2" />
+            </div>
+          </CardContent>
+        </Card>
+
+        {/* Comptes */}
+        <Card className="bg-white shadow-sm">
+          <CardHeader className="pb-3">
+            <CardTitle className="text-sm font-medium text-gray-600">Comptes</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div>
+              <div className="flex justify-between items-center mb-2">
+                <span className="text-sm font-medium">Valeur nette</span>
+                <span className="text-lg font-bold">18 531,54 DT</span>
+              </div>
+            </div>
+            <div className="space-y-3 text-sm">
+              <div className="flex justify-between">
+                <span className="text-gray-600">Banque</span>
+                <span className="font-medium">8 681,49 DT</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Espèces & Chèques</span>
+                <span className="font-medium">9 669,69 DT</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Compte d'épargne</span>
+                <span className="font-medium">200,00 DT</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-gray-600">Solde disponible</span>
+                <span className="font-medium">980,00 DT</span>
+              </div>
+            </div>
+            <div className="pt-3 border-t space-y-2">
+              <div className="flex justify-between">
+                <span className="text-sm font-medium">Investissements</span>
+                <span className="font-bold">5 850,05 DT</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm font-medium">Retraites</span>
+                <span className="font-bold">5 850,05 DT</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm font-medium">Actifs</span>
+                <span className="font-bold">1 000,00 DT</span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-sm font-medium">Immobilier</span>
+                <span className="font-bold">1 000,00 DT</span>
+              </div>
+            </div>
+            <div className="pt-3 border-t">
+              <div className="flex justify-between">
+                <span className="text-sm font-medium text-red-600">Passifs</span>
+                <span className="text-blue-600 text-sm">+ Comptes de passif</span>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
       </div>
 
+      {/* Section graphiques principaux */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        <Card>
-          <CardContent className="p-4">
-            <h2 className="text-lg font-semibold mb-2">Encaissements mensuels</h2>
-            <Bar data={barData} />
+        {/* Investissements */}
+        <Card className="bg-white shadow-sm">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg font-semibold">Investissements</CardTitle>
+              <select className="text-sm border border-gray-200 rounded px-2 py-1">
+                <option>Mois</option>
+              </select>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="flex items-center justify-center mb-4">
+              <div className="relative">
+                <div className="h-40 w-40">
+                  <Doughnut data={investmentData} options={doughnutOptions} />
+                </div>
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <div className="text-center">
+                    <div className="text-2xl font-bold">5850,05</div>
+                    <div className="text-xs text-gray-500">Total</div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div className="flex justify-center space-x-6">
+              <div className="flex items-center">
+                <div className="w-3 h-3 bg-orange-500 rounded-full mr-2"></div>
+                <span className="text-sm">Google</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-3 h-3 bg-green-500 rounded-full mr-2"></div>
+                <span className="text-sm">Apple</span>
+              </div>
+              <div className="flex items-center">
+                <div className="w-3 h-3 bg-blue-500 rounded-full mr-2"></div>
+                <span className="text-sm">Meta</span>
+              </div>
+            </div>
           </CardContent>
         </Card>
 
-        <Card>
-          <CardContent className="p-4">
-            <h2 className="text-lg font-semibold mb-2">Solde mensuel</h2>
-            <Line data={lineData} />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <h2 className="text-lg font-semibold mb-2">Répartition des dépenses</h2>
-            <Pie data={pieData} />
-          </CardContent>
-        </Card>
-
-        <Card>
-          <CardContent className="p-4">
-            <h2 className="text-lg font-semibold mb-2">Sources de revenus</h2>
-            <Doughnut data={doughnutData} />
+        {/* Revenus */}
+        <Card className="bg-white shadow-sm">
+          <CardHeader>
+            <div className="flex items-center justify-between">
+              <CardTitle className="text-lg font-semibold">Revenus</CardTitle>
+              <select className="text-sm border border-gray-200 rounded px-2 py-1">
+                <option>Mois</option>
+              </select>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="h-48">
+              <Bar data={incomeData} options={chartOptions} />
+            </div>
           </CardContent>
         </Card>
       </div>
+
+      {/* Section investissements détaillés */}
+      <Card className="bg-white shadow-sm">
+        <CardHeader>
+          <CardTitle className="text-lg font-semibold">Investissements</CardTitle>
+          <p className="text-sm text-gray-500">Dernière mise à jour Mar 08,2023 · 5:53 PM ET</p>
+          <p className="text-xs text-gray-400">Valeur totale / Changement quotidien</p>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
+                  <span className="text-blue-600 font-semibold text-sm">GM</span>
+                </div>
+                <div>
+                  <div className="font-semibold">Globus Medical Inc</div>
+                  <div className="text-sm text-gray-500">GMED · 40 actions</div>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="font-bold">2 073,20 DT</div>
+                <div className="text-sm text-red-500">-200,00 (-1,28%)</div>
+              </div>
+            </div>
+            
+            <div className="flex items-center justify-between p-4 bg-gray-50 rounded-lg">
+              <div className="flex items-center space-x-3">
+                <div className="w-10 h-10 bg-green-100 rounded-full flex items-center justify-center">
+                  <span className="text-green-600 font-semibold text-sm">A</span>
+                </div>
+                <div>
+                  <div className="font-semibold">Alphabet CIA</div>
+                  <div className="text-sm text-gray-500">Google · 20 actions</div>
+                </div>
+              </div>
+              <div className="text-right">
+                <div className="font-bold">2 847,60 DT</div>
+                <div className="text-sm text-green-500">+524,80 (+0,88%)</div>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 };
