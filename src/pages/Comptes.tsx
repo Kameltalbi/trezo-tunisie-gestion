@@ -22,6 +22,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
 import { Account, AccountType } from '@/types';
 
@@ -49,7 +50,13 @@ const Comptes = () => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [dialogType, setDialogType] = useState<'add' | 'deposit' | 'withdraw' | 'fees'>('add');
   const [currentAccount, setCurrentAccount] = useState<Account | null>(null);
-  const [amount, setAmount] = useState('');
+  const [transactionForm, setTransactionForm] = useState({
+    amount: '',
+    description: '',
+    category: '',
+    reference: '',
+    date: new Date().toISOString().split('T')[0]
+  });
   const [accountForm, setAccountForm] = useState({
     name: '',
     type: 'checking' as AccountType,
@@ -73,7 +80,13 @@ const Comptes = () => {
   const openActionDialog = (type: 'deposit' | 'withdraw' | 'fees', account: Account) => {
     setDialogType(type);
     setCurrentAccount(account);
-    setAmount('');
+    setTransactionForm({
+      amount: '',
+      description: '',
+      category: '',
+      reference: '',
+      date: new Date().toISOString().split('T')[0]
+    });
     setIsDialogOpen(true);
   };
 
@@ -106,7 +119,7 @@ const Comptes = () => {
   };
 
   const handleAction = () => {
-    if (!currentAccount || !amount || isNaN(parseFloat(amount))) {
+    if (!currentAccount || !transactionForm.amount || isNaN(parseFloat(transactionForm.amount))) {
       toast({
         title: t('comptes.error'),
         description: t('comptes.enter_valid_amount'),
@@ -115,7 +128,7 @@ const Comptes = () => {
       return;
     }
 
-    const numAmount = parseFloat(amount);
+    const numAmount = parseFloat(transactionForm.amount);
     const updatedAccounts = accounts.map(account => {
       if (account.id === currentAccount.id) {
         let newBalance = account.currentBalance;
@@ -139,6 +152,17 @@ const Comptes = () => {
 
     setAccounts(updatedAccounts);
     setIsDialogOpen(false);
+
+    // Log transaction details
+    console.log('Transaction effectuée:', {
+      type: dialogType,
+      account: currentAccount.name,
+      amount: numAmount,
+      description: transactionForm.description,
+      category: transactionForm.category,
+      reference: transactionForm.reference,
+      date: transactionForm.date
+    });
 
     let actionMessage = '';
     switch (dialogType) {
@@ -184,6 +208,19 @@ const Comptes = () => {
         return t('comptes.credit');
       default:
         return type;
+    }
+  };
+
+  const getCategoryOptions = () => {
+    switch (dialogType) {
+      case 'deposit':
+        return ['Salaire', 'Virement', 'Remboursement', 'Intérêts', 'Autre'];
+      case 'withdraw':
+        return ['Alimentation', 'Transport', 'Logement', 'Santé', 'Loisirs', 'Autre'];
+      case 'fees':
+        return ['Frais bancaires', 'Commission', 'Agios', 'Frais de tenue de compte', 'Autre'];
+      default:
+        return [];
     }
   };
 
@@ -280,7 +317,7 @@ const Comptes = () => {
       </Card>
 
       <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogContent>
+        <DialogContent className="sm:max-w-[500px]">
           <DialogHeader>
             <DialogTitle>{getDialogTitle()}</DialogTitle>
             <DialogDescription>
@@ -327,13 +364,61 @@ const Comptes = () => {
             </div>
           ) : (
             <div className="space-y-4">
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="amount">{t('comptes.amount')} *</Label>
+                  <Input 
+                    id="amount" 
+                    type="number"
+                    placeholder="0.00"
+                    value={transactionForm.amount} 
+                    onChange={(e) => setTransactionForm({...transactionForm, amount: e.target.value})} 
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="date">Date</Label>
+                  <Input 
+                    id="date" 
+                    type="date"
+                    value={transactionForm.date} 
+                    onChange={(e) => setTransactionForm({...transactionForm, date: e.target.value})} 
+                  />
+                </div>
+              </div>
+
               <div className="space-y-2">
-                <Label htmlFor="amount">{t('comptes.amount')}</Label>
+                <Label htmlFor="category">Catégorie</Label>
+                <select 
+                  id="category"
+                  className="w-full p-2 border rounded"
+                  value={transactionForm.category}
+                  onChange={(e) => setTransactionForm({...transactionForm, category: e.target.value})}
+                >
+                  <option value="">Sélectionner une catégorie</option>
+                  {getCategoryOptions().map(cat => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="reference">Référence</Label>
                 <Input 
-                  id="amount" 
-                  type="number"
-                  value={amount} 
-                  onChange={(e) => setAmount(e.target.value)} 
+                  id="reference" 
+                  placeholder="Numéro de référence ou chèque"
+                  value={transactionForm.reference} 
+                  onChange={(e) => setTransactionForm({...transactionForm, reference: e.target.value})} 
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea 
+                  id="description" 
+                  placeholder="Détails de la transaction (optionnel)"
+                  rows={3}
+                  value={transactionForm.description} 
+                  onChange={(e) => setTransactionForm({...transactionForm, description: e.target.value})} 
                 />
               </div>
             </div>
