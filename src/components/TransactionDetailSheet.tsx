@@ -99,7 +99,7 @@ export const TransactionDetailSheet: React.FC<TransactionDetailSheetProps> = ({
               
               <div className="flex items-center justify-between">
                 <span className="text-sm text-gray-600">Type</span>
-                <Badge variant={transaction.type === 'income' ? 'success' : 'destructive'}>
+                <Badge variant={transaction.type === 'income' ? 'secondary' : 'destructive'} className={transaction.type === 'income' ? 'bg-green-100 text-green-800' : ''}>
                   {transaction.type === 'income' ? 'Encaissement' : 'Décaissement'}
                 </Badge>
               </div>
