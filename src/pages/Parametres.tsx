@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { v4 as uuidv4 } from "uuid";
 import { Devise, Langue, Utilisateur, Periode, Permission } from "@/types/parametres";
@@ -24,6 +23,39 @@ const ParametresPage = () => {
   const [currentItemId, setCurrentItemId] = useState<string | null>(null);
   
   const { toast } = useToast();
+
+  // Liste des permissions prédéfinies basées sur les pages de l'application
+  const permissionsPredefinis = [
+    { page: "Tableau de bord", description: "Accéder au tableau de bord principal" },
+    { page: "Flux de trésorerie", description: "Gérer les flux de trésorerie" },
+    { page: "Encaissements", description: "Gérer les encaissements" },
+    { page: "Décaissements", description: "Gérer les décaissements" },
+    { page: "Comptes", description: "Gérer les comptes" },
+    { page: "Transactions", description: "Gérer les transactions" },
+    { page: "Projets", description: "Gérer les projets" },
+    { page: "Objectifs", description: "Gérer les objectifs" },
+    { page: "Rapports", description: "Générer et consulter les rapports" },
+    { page: "Gestion des dettes", description: "Gérer les dettes" },
+    { page: "Paramètres", description: "Accéder aux paramètres système" },
+    { page: "Administration", description: "Accéder aux fonctions d'administration" },
+    { page: "Support", description: "Accéder au support technique" },
+    { page: "Supprimer", description: "Supprimer des éléments du système" }
+  ];
+
+  // Initialiser les permissions avec les permissions prédéfinies
+  useEffect(() => {
+    if (permissions.length === 0) {
+      const permissionsInitiales = permissionsPredefinis.map(perm => ({
+        id: uuidv4(),
+        page: perm.page,
+        description: perm.description,
+        admin: true,
+        editeur: perm.page !== "Administration" && perm.page !== "Paramètres",
+        collaborateur: perm.page !== "Administration" && perm.page !== "Paramètres" && perm.page !== "Supprimer"
+      }));
+      setPermissions(permissionsInitiales);
+    }
+  }, []);
 
   const openModal = (type: string, isEdit = false, item: any = null) => {
     setForm(item || {});
@@ -258,12 +290,24 @@ const ParametresPage = () => {
       case "permission":
         return (
           <>
-            <input 
-              placeholder="Nom de la page" 
+            <select 
               value={form.page || ""} 
-              onChange={(e) => setForm({ ...form, page: e.target.value })} 
-              className="w-full border p-2 rounded mb-3" 
-            />
+              onChange={(e) => {
+                const selectedPage = e.target.value;
+                const predefini = permissionsPredefinis.find(p => p.page === selectedPage);
+                setForm({ 
+                  ...form, 
+                  page: selectedPage,
+                  description: predefini?.description || ""
+                });
+              }} 
+              className="w-full border p-2 rounded mb-3"
+            >
+              <option value="">Sélectionner une page</option>
+              {permissionsPredefinis.map(perm => (
+                <option key={perm.page} value={perm.page}>{perm.page}</option>
+              ))}
+            </select>
             <input 
               placeholder="Description" 
               value={form.description || ""} 
@@ -303,7 +347,6 @@ const ParametresPage = () => {
     }
   };
 
-  // Tabs section for different parameter types
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">Paramètres</h1>
