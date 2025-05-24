@@ -2,8 +2,10 @@
 import { ReactNode } from "react";
 import { Navigate, useLocation } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
+import { ThemeProvider } from "../contexts/ThemeContext";
 import { Toaster } from "@/components/ui/sonner";
 import Sidebar from "./Sidebar";
+import Header from "./Header";
 
 interface LayoutProps {
   children: ReactNode;
@@ -17,12 +19,14 @@ const Layout = ({ children, requireAuth = false }: LayoutProps) => {
   // Afficher un écran de chargement si le statut d'authentification est en cours de vérification
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-background">
-        <div className="animate-pulse flex flex-col items-center">
-          <div className="h-10 w-10 rounded-full bg-emerald-500 mb-4"></div>
-          <div className="h-4 w-32 bg-slate-200 rounded"></div>
+      <ThemeProvider defaultTheme="system" storageKey="ui-theme">
+        <div className="min-h-screen flex items-center justify-center bg-background">
+          <div className="animate-pulse flex flex-col items-center">
+            <div className="h-10 w-10 rounded-full bg-emerald-500 mb-4"></div>
+            <div className="h-4 w-32 bg-slate-200 rounded"></div>
+          </div>
         </div>
-      </div>
+      </ThemeProvider>
     );
   }
 
@@ -36,26 +40,33 @@ const Layout = ({ children, requireAuth = false }: LayoutProps) => {
     return <Navigate to="/cash-flow" replace />;
   }
 
-  // Pour la page de login, ne pas montrer la sidebar
+  // Pour la page de login, ne pas montrer la sidebar ni le header
   if (!requireAuth && !user) {
     return (
-      <div className="min-h-screen bg-background">
-        {children}
-        <Toaster />
-      </div>
+      <ThemeProvider defaultTheme="system" storageKey="ui-theme">
+        <div className="min-h-screen bg-background">
+          {children}
+          <Toaster />
+        </div>
+      </ThemeProvider>
     );
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-background">
-      <Sidebar />
-      <main className="flex-1 transition-all duration-300 ml-[60px]">
-        <div className="container mx-auto py-6 px-4 sm:px-6 lg:px-8">
-          {children}
+    <ThemeProvider defaultTheme="system" storageKey="ui-theme">
+      <div className="min-h-screen flex flex-col bg-background">
+        <Header />
+        <div className="flex flex-1">
+          <Sidebar />
+          <main className="flex-1 transition-all duration-300 ml-[60px]">
+            <div className="container mx-auto py-6 px-4 sm:px-6 lg:px-8">
+              {children}
+            </div>
+          </main>
         </div>
-      </main>
-      <Toaster />
-    </div>
+        <Toaster />
+      </div>
+    </ThemeProvider>
   );
 };
 
