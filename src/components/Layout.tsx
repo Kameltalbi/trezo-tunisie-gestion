@@ -35,12 +35,12 @@ const Layout = ({ children, requireAuth = false }: LayoutProps) => {
     return <Navigate to="/login" replace state={{ from: location }} />;
   }
 
-  // Rediriger vers la page de flux de trésorerie si l'utilisateur est déjà connecté et qu'il tente d'accéder à la page de login
-  if (!requireAuth && user && location.pathname === "/login") {
-    return <Navigate to="/cash-flow" replace />;
+  // Rediriger vers le dashboard si l'utilisateur est déjà connecté et qu'il tente d'accéder à la page de login ou register
+  if (!requireAuth && user && (location.pathname === "/login" || location.pathname === "/register")) {
+    return <Navigate to="/dashboard" replace />;
   }
 
-  // Pour la page de login, ne pas montrer la sidebar ni le header
+  // Pour les pages publiques (home, login, register), ne pas montrer la sidebar ni le header
   if (!requireAuth && !user) {
     return (
       <ThemeProvider defaultTheme="system" storageKey="ui-theme">

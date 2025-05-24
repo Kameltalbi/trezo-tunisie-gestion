@@ -6,7 +6,9 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import Layout from "./components/Layout";
+import Home from "./pages/Home";
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import Parametres from "./pages/Parametres";
 import Admin from "./pages/Admin";
 import CashFlow from "./pages/CashFlow";
@@ -36,7 +38,9 @@ const App = () => (
         <Sonner />
         <BrowserRouter>
           <Routes>
+            <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
             <Route path="/parametres" element={<Layout requireAuth={true}><Parametres /></Layout>} />
             <Route path="/admin" element={<Layout requireAuth={true}><Admin /></Layout>} />
             <Route path="/cash-flow" element={<Layout requireAuth={true}><CashFlow /></Layout>} />
@@ -51,7 +55,6 @@ const App = () => (
             <Route path="/objectifs" element={<Layout requireAuth={true}><Objectifs /></Layout>} />
             <Route path="/rapports" element={<Layout requireAuth={true}><Rapports /></Layout>} />
             <Route path="/support" element={<Layout requireAuth={true}><Support /></Layout>} />
-            <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="*" element={<NotFound />} />
           </Routes>
         </BrowserRouter>

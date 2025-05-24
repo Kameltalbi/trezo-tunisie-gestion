@@ -1,21 +1,24 @@
 
 import { useState } from "react";
 import { useAuth } from "../contexts/AuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Coins, Loader2 } from "lucide-react";
+import { Coins, Loader2, Eye, EyeOff, Mail, Lock } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { Toaster } from "@/components/ui/sonner";
+import { Checkbox } from "@/components/ui/checkbox";
 
 const Login = () => {
   const { t } = useTranslation();
   const [email, setEmail] = useState<string>("demo@trezo.app");
   const [password, setPassword] = useState<string>("password");
+  const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const { login, isLoading, error } = useAuth();
   const navigate = useNavigate();
 
@@ -27,7 +30,6 @@ const Login = () => {
       navigate("/dashboard");
     } catch (error) {
       console.error("Erreur de connexion:", error);
-      // L'erreur sera gérée par le contexte d'authentification
     }
   };
 
@@ -42,21 +44,23 @@ const Login = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col items-center justify-center bg-background p-4">
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-emerald-50 to-blue-50 p-4">
       <div className="w-full max-w-md">
         <div className="flex flex-col items-center mb-8">
-          <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white p-3 rounded-xl shadow-md mb-4">
-            <Coins size={32} />
-          </div>
-          <h1 className="text-3xl font-bold text-gray-900">Trezo</h1>
-          <p className="text-gray-500 mt-1">{t("app.name")}</p>
+          <Link to="/" className="flex items-center space-x-2 mb-4">
+            <div className="bg-gradient-to-r from-emerald-500 to-emerald-600 text-white p-3 rounded-xl shadow-md">
+              <Coins size={32} />
+            </div>
+            <span className="text-3xl font-bold text-gray-900">Trezo</span>
+          </Link>
+          <p className="text-gray-500 text-center">Connectez-vous à votre espace de gestion</p>
         </div>
         
-        <Card className="shadow-lg rounded-2xl border-slate-100">
-          <CardHeader>
-            <CardTitle className="text-xl">{t("auth.login")}</CardTitle>
+        <Card className="shadow-xl rounded-2xl border-0 bg-white/80 backdrop-blur">
+          <CardHeader className="text-center">
+            <CardTitle className="text-2xl">{t("auth.login")}</CardTitle>
             <CardDescription>
-              Connectez-vous pour accéder à votre tableau de bord
+              Accédez à votre tableau de bord personnalisé
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -69,26 +73,59 @@ const Login = () => {
               
               <div className="space-y-2">
                 <Label htmlFor="email">Email</Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="votre@email.com"
-                  required
-                />
+                <div className="relative">
+                  <Mail className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="votre@email.com"
+                    className="pl-10"
+                    required
+                  />
+                </div>
               </div>
               
               <div className="space-y-2">
                 <Label htmlFor="password">Mot de passe</Label>
-                <Input
-                  id="password"
-                  type="password"
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  placeholder="••••••••"
-                  required
-                />
+                <div className="relative">
+                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    className="pl-10 pr-10"
+                    required
+                  />
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  </Button>
+                </div>
+              </div>
+
+              <div className="flex items-center justify-between">
+                <div className="flex items-center space-x-2">
+                  <Checkbox
+                    id="remember"
+                    checked={rememberMe}
+                    onCheckedChange={(checked) => setRememberMe(checked as boolean)}
+                  />
+                  <Label htmlFor="remember" className="text-sm">
+                    Se souvenir de moi
+                  </Label>
+                </div>
+                <a href="#" className="text-sm text-emerald-600 hover:underline">
+                  Mot de passe oublié ?
+                </a>
               </div>
               
               <Button type="submit" className="w-full" disabled={isLoading}>
@@ -104,9 +141,19 @@ const Login = () => {
             </form>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4 text-center text-sm text-muted-foreground">
-            <p>
-              Pour cette démo, utilisez:
-            </p>
+            <div className="w-full">
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-background px-2 text-muted-foreground">
+                    Ou essayez avec
+                  </span>
+                </div>
+              </div>
+            </div>
+            
             <div className="flex flex-col space-y-2 w-full">
               <Button 
                 variant="outline" 
@@ -124,6 +171,13 @@ const Login = () => {
               >
                 <span className="mr-2">🛡️</span> Compte administrateur
               </Button>
+            </div>
+
+            <div className="flex items-center justify-center space-x-2">
+              <span>Pas encore de compte ?</span>
+              <Link to="/register" className="text-emerald-600 hover:underline font-medium">
+                Créer un compte
+              </Link>
             </div>
           </CardFooter>
         </Card>
