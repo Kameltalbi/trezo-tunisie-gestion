@@ -10,7 +10,6 @@ import {
   DropdownMenuTrigger,
 } from './ui/dropdown-menu';
 import { Button } from './ui/button';
-import { Link } from 'react-router-dom';
 
 const Header = () => {
   const { theme, setTheme } = useTheme();
@@ -46,17 +45,8 @@ const Header = () => {
   return (
     <header className="bg-background border-b border-border shadow-sm">
       <div className="container mx-auto px-4 py-3">
-        <div className="flex items-center justify-between">
-          {/* Logo à gauche */}
-          <Link to="/dashboard" className="flex items-center">
-            <img 
-              src="/lovable-uploads/71b93732-45ea-4330-96cf-7bff5ea4f99a.png" 
-              alt="Trézo" 
-              className="h-24 w-auto"
-            />
-          </Link>
-
-          {/* Date, heure et thème à droite */}
+        <div className="flex items-center justify-end">
+          {/* Date, heure et thème */}
           <div className="flex items-center space-x-6">
             <div className="flex flex-col text-sm">
               <span className="font-medium text-foreground">
