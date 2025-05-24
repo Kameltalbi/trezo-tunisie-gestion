@@ -5,8 +5,11 @@ import { Badge } from "@/components/ui/badge";
 import { Link } from "react-router-dom";
 import { ArrowRight, BarChart3, PieChart, TrendingUp, Users, Star, Check, LayoutDashboard } from "lucide-react";
 import LanguageSwitcher from "@/components/LanguageSwitcher";
+import { useTranslation } from "react-i18next";
 
 const Home = () => {
+  const { t } = useTranslation();
+
   return (
     <div className="min-h-screen bg-gradient-to-b from-slate-50 to-white">
       {/* Header */}
@@ -21,23 +24,23 @@ const Home = () => {
               />
             </Link>
             <nav className="hidden md:flex items-center space-x-8">
-              <a href="#features" className="text-gray-600 hover:text-emerald-600 transition-colors">Fonctionnalités</a>
-              <a href="#testimonials" className="text-gray-600 hover:text-emerald-600 transition-colors">Témoignages</a>
-              <a href="#pricing" className="text-gray-600 hover:text-emerald-600 transition-colors">Tarifs</a>
+              <a href="#features" className="text-gray-600 hover:text-emerald-600 transition-colors">{t('home.nav.features')}</a>
+              <a href="#testimonials" className="text-gray-600 hover:text-emerald-600 transition-colors">{t('home.nav.testimonials')}</a>
+              <a href="#pricing" className="text-gray-600 hover:text-emerald-600 transition-colors">{t('home.nav.pricing')}</a>
             </nav>
             <div className="flex items-center space-x-4">
               <LanguageSwitcher />
               <Link to="/dashboard">
                 <Button variant="ghost">
                   <LayoutDashboard className="mr-2 h-4 w-4" />
-                  Dashboard
+                  {t('nav.dashboard')}
                 </Button>
               </Link>
               <Link to="/login">
-                <Button variant="ghost">Connexion</Button>
+                <Button variant="ghost">{t('auth.login')}</Button>
               </Link>
               <Link to="/register">
-                <Button>Créer un compte</Button>
+                <Button>{t('home.pricing.free.cta')}</Button>
               </Link>
             </div>
           </div>
@@ -50,26 +53,26 @@ const Home = () => {
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
             <div className="text-center lg:text-left">
               <h1 className="text-4xl lg:text-5xl font-bold text-gray-900 mb-4">
-                Prenez le contrôle de vos finances avec Trézo
+                {t('home.hero.title')}
               </h1>
               <p className="text-lg text-gray-600 mb-8">
-                Gérez facilement votre budget, suivez vos dépenses et atteignez vos objectifs financiers.
+                {t('home.hero.subtitle')}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
                 <Link to="/register">
                   <Button size="lg" className="w-full sm:w-auto">
-                    Commencer gratuitement <ArrowRight className="ml-2" />
+                    {t('home.hero.cta_start')} <ArrowRight className="ml-2" />
                   </Button>
                 </Link>
                 <Link to="/dashboard">
                   <Button variant="outline" size="lg" className="w-full sm:w-auto">
                     <LayoutDashboard className="mr-2 h-4 w-4" />
-                    Voir le dashboard
+                    {t('home.hero.cta_dashboard')}
                   </Button>
                 </Link>
                 <a href="#features">
                   <Button variant="ghost" size="lg" className="w-full sm:w-auto">
-                    Découvrir les fonctionnalités
+                    {t('home.hero.cta_discover')}
                   </Button>
                 </a>
               </div>
@@ -89,7 +92,7 @@ const Home = () => {
       <section id="features" className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-semibold text-center text-gray-900 mb-12">
-            Fonctionnalités clés
+            {t('home.features.title')}
           </h2>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {/* Feature Card 1 */}
@@ -97,15 +100,15 @@ const Home = () => {
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <BarChart3 className="h-5 w-5 text-emerald-500" />
-                  <span>Suivi des dépenses</span>
+                  <span>{t('home.features.expense_tracking.title')}</span>
                 </CardTitle>
                 <CardDescription>
-                  Visualisez et catégorisez vos dépenses pour une meilleure gestion.
+                  {t('home.features.expense_tracking.description')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-gray-500">
-                  Enregistrez facilement vos transactions et suivez l'évolution de vos dépenses au fil du temps.
+                  {t('home.features.expense_tracking.content')}
                 </p>
               </CardContent>
             </Card>
@@ -115,15 +118,15 @@ const Home = () => {
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <PieChart className="h-5 w-5 text-emerald-500" />
-                  <span>Budgétisation</span>
+                  <span>{t('home.features.budgeting.title')}</span>
                 </CardTitle>
                 <CardDescription>
-                  Créez des budgets personnalisés et recevez des alertes en cas de dépassement.
+                  {t('home.features.budgeting.description')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-gray-500">
-                  Fixez des limites de dépenses pour chaque catégorie et atteignez vos objectifs d'épargne.
+                  {t('home.features.budgeting.content')}
                 </p>
               </CardContent>
             </Card>
@@ -133,15 +136,15 @@ const Home = () => {
               <CardHeader>
                 <CardTitle className="flex items-center space-x-2">
                   <TrendingUp className="h-5 w-5 text-emerald-500" />
-                  <span>Analyse financière</span>
+                  <span>{t('home.features.analysis.title')}</span>
                 </CardTitle>
                 <CardDescription>
-                  Obtenez des informations précieuses sur vos habitudes de dépenses et votre santé financière.
+                  {t('home.features.analysis.description')}
                 </CardDescription>
               </CardHeader>
               <CardContent>
                 <p className="text-sm text-gray-500">
-                  Identifiez les domaines où vous pouvez économiser de l'argent et optimiser votre budget.
+                  {t('home.features.analysis.content')}
                 </p>
               </CardContent>
             </Card>
@@ -153,7 +156,7 @@ const Home = () => {
       <section id="testimonials" className="py-20">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-semibold text-center text-gray-900 mb-12">
-            Ce que nos utilisateurs disent
+            {t('home.testimonials.title')}
           </h2>
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
             {/* Testimonial Card 1 */}
@@ -161,13 +164,13 @@ const Home = () => {
               <CardContent className="text-center">
                 <Star className="h-6 w-6 text-yellow-500 mx-auto mb-4" />
                 <p className="text-gray-700 mb-4">
-                  "Trézo m'a aidé à prendre le contrôle de mes finances et à atteindre mes objectifs d'épargne. Je le recommande vivement !"
+                  "{t('home.testimonials.marie.text')}"
                 </p>
                 <div className="text-sm font-medium text-gray-900">
-                  — Marie Dupont
+                  — {t('home.testimonials.marie.name')}
                 </div>
                 <div className="text-xs text-gray-500">
-                  Étudiante
+                  {t('home.testimonials.marie.role')}
                 </div>
               </CardContent>
             </Card>
@@ -177,13 +180,13 @@ const Home = () => {
               <CardContent className="text-center">
                 <Star className="h-6 w-6 text-yellow-500 mx-auto mb-4" />
                 <p className="text-gray-700 mb-4">
-                  "Grâce à Trézo, je peux suivre mes dépenses en temps réel et identifier les gaspillages. Un outil indispensable pour une gestion financière efficace."
+                  "{t('home.testimonials.pierre.text')}"
                 </p>
                 <div className="text-sm font-medium text-gray-900">
-                  — Pierre Martin
+                  — {t('home.testimonials.pierre.name')}
                 </div>
                 <div className="text-xs text-gray-500">
-                  Entrepreneur
+                  {t('home.testimonials.pierre.role')}
                 </div>
               </CardContent>
             </Card>
@@ -195,42 +198,38 @@ const Home = () => {
       <section id="pricing" className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-semibold text-center text-gray-900 mb-12">
-            Tarifs
+            {t('home.pricing.title')}
           </h2>
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
             {/* Free Trial Plan */}
             <Card>
               <CardHeader className="text-center">
-                <CardTitle className="text-2xl font-semibold">Essai gratuit</CardTitle>
+                <CardTitle className="text-2xl font-semibold">{t('home.pricing.free.title')}</CardTitle>
                 <CardDescription>
-                  Découvrez toutes les fonctionnalités
+                  {t('home.pricing.free.description')}
                 </CardDescription>
                 <div className="mt-4">
                   <Badge variant="secondary">
                     <Check className="h-4 w-4 mr-2" />
-                    14 jours d'essai
+                    {t('home.pricing.free.badge')}
                   </Badge>
                 </div>
               </CardHeader>
               <CardContent className="text-center">
                 <div className="text-4xl font-bold text-gray-900 mb-4">
-                  Gratuit
+                  {t('home.pricing.free.price')}
                 </div>
-                <div className="text-sm text-emerald-600 mb-4">14 jours d'essai complet</div>
+                <div className="text-sm text-emerald-600 mb-4">{t('home.pricing.free.subtitle')}</div>
                 <ul className="text-sm text-gray-600 space-y-2 text-left">
-                  <li>✓ Tableau de bord complet</li>
-                  <li>✓ Gestion des encaissements</li>
-                  <li>✓ Suivi des dépenses</li>
-                  <li>✓ 2 comptes bancaires maximum</li>
-                  <li>✓ 3 projets maximum</li>
-                  <li>✓ Objectifs financiers de base</li>
-                  <li>✓ Support communautaire</li>
+                  {t('home.pricing.free.features', { returnObjects: true }).map((feature: string, index: number) => (
+                    <li key={index}>✓ {feature}</li>
+                  ))}
                 </ul>
               </CardContent>
               <CardFooter className="text-center">
                 <Link to="/register" className="w-full">
                   <Button className="w-full">
-                    Commencer l'essai gratuit
+                    {t('home.pricing.free.cta')}
                   </Button>
                 </Link>
               </CardFooter>
@@ -240,42 +239,36 @@ const Home = () => {
             <Card className="border-emerald-500 border-2 relative">
               <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
                 <Badge className="bg-emerald-500 text-white">
-                  Le plus populaire
+                  {t('home.pricing.pro.badge')}
                 </Badge>
               </div>
               <CardHeader className="text-center">
-                <CardTitle className="text-2xl font-semibold">Pro</CardTitle>
+                <CardTitle className="text-2xl font-semibold">{t('home.pricing.pro.title')}</CardTitle>
                 <CardDescription>
-                  Pour les particuliers et PME
+                  {t('home.pricing.pro.description')}
                 </CardDescription>
                 <div className="mt-4">
                   <Badge variant="outline">
                     <Check className="h-4 w-4 mr-2" />
-                    Fonctionnalités avancées
+                    {t('home.pricing.pro.badge_feature')}
                   </Badge>
                 </div>
               </CardHeader>
               <CardContent className="text-center">
                 <div className="text-4xl font-bold text-gray-900 mb-2">
-                  450 DT
+                  {t('home.pricing.pro.price')}
                 </div>
-                <div className="text-sm text-gray-500 mb-4">par an</div>
+                <div className="text-sm text-gray-500 mb-4">{t('home.pricing.pro.period')}</div>
                 <ul className="text-sm text-gray-600 space-y-2 text-left">
-                  <li>✓ Toutes les fonctionnalités de l'essai</li>
-                  <li>✓ Comptes bancaires illimités</li>
-                  <li>✓ Projets illimités</li>
-                  <li>✓ Gestion avancée de la trésorerie</li>
-                  <li>✓ Cash Flow et prévisions</li>
-                  <li>✓ Gestion des dettes</li>
-                  <li>✓ Rapports PDF/Excel avancés</li>
-                  <li>✓ Objectifs financiers illimités</li>
-                  <li>✓ Support par email</li>
+                  {t('home.pricing.pro.features', { returnObjects: true }).map((feature: string, index: number) => (
+                    <li key={index}>✓ {feature}</li>
+                  ))}
                 </ul>
               </CardContent>
               <CardFooter className="text-center">
                 <Link to="/register" className="w-full">
                   <Button className="w-full">
-                    Choisir Pro
+                    {t('home.pricing.pro.cta')}
                   </Button>
                 </Link>
               </CardFooter>
@@ -284,39 +277,32 @@ const Home = () => {
             {/* Enterprise Plan */}
             <Card>
               <CardHeader className="text-center">
-                <CardTitle className="text-2xl font-semibold">Entreprise</CardTitle>
+                <CardTitle className="text-2xl font-semibold">{t('home.pricing.enterprise.title')}</CardTitle>
                 <CardDescription>
-                  Pour les grandes organisations
+                  {t('home.pricing.enterprise.description')}
                 </CardDescription>
                 <div className="mt-4">
                   <Badge variant="outline">
                     <Check className="h-4 w-4 mr-2" />
-                    Solutions sur mesure
+                    {t('home.pricing.enterprise.badge_feature')}
                   </Badge>
                 </div>
               </CardHeader>
               <CardContent className="text-center">
                 <div className="text-4xl font-bold text-gray-900 mb-2">
-                  599 DT
+                  {t('home.pricing.enterprise.price')}
                 </div>
-                <div className="text-sm text-gray-500 mb-4">par an</div>
+                <div className="text-sm text-gray-500 mb-4">{t('home.pricing.enterprise.period')}</div>
                 <ul className="text-sm text-gray-600 space-y-2 text-left">
-                  <li>✓ Toutes les fonctionnalités Pro</li>
-                  <li>✓ Multi-utilisateurs (jusqu'à 10)</li>
-                  <li>✓ Administration avancée</li>
-                  <li>✓ Gestion des rôles et permissions</li>
-                  <li>✓ Rapports personnalisés</li>
-                  <li>✓ API et intégrations</li>
-                  <li>✓ Sauvegarde automatique</li>
-                  <li>✓ Support prioritaire 24/7</li>
-                  <li>✓ Formation personnalisée</li>
-                  <li>✓ Conseiller dédié</li>
+                  {t('home.pricing.enterprise.features', { returnObjects: true }).map((feature: string, index: number) => (
+                    <li key={index}>✓ {feature}</li>
+                  ))}
                 </ul>
               </CardContent>
               <CardFooter className="text-center">
                 <Link to="/register" className="w-full">
                   <Button className="w-full">
-                    Choisir Entreprise
+                    {t('home.pricing.enterprise.cta')}
                   </Button>
                 </Link>
               </CardFooter>
@@ -331,53 +317,53 @@ const Home = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
             {/* About Us */}
             <div>
-              <h3 className="text-lg font-semibold mb-4">À propos</h3>
+              <h3 className="text-lg font-semibold mb-4">{t('home.footer.about.title')}</h3>
               <p className="text-gray-400">
-                Trézo est une application de gestion financière conçue pour vous aider à prendre le contrôle de votre argent et à atteindre vos objectifs financiers.
+                {t('home.footer.about.content')}
               </p>
             </div>
 
             {/* Features */}
             <div>
-              <h3 className="text-lg font-semibold mb-4">Fonctionnalités</h3>
+              <h3 className="text-lg font-semibold mb-4">{t('home.footer.features_section.title')}</h3>
               <ul className="text-gray-400 space-y-2">
-                <li><a href="#" className="hover:text-white">Suivi des dépenses</a></li>
-                <li><a href="#" className="hover:text-white">Budgétisation</a></li>
-                <li><a href="#" className="hover:text-white">Analyse financière</a></li>
+                <li><a href="#" className="hover:text-white">{t('home.footer.features_section.expense_tracking')}</a></li>
+                <li><a href="#" className="hover:text-white">{t('home.footer.features_section.budgeting')}</a></li>
+                <li><a href="#" className="hover:text-white">{t('home.footer.features_section.analysis')}</a></li>
               </ul>
             </div>
 
             {/* Contact */}
             <div>
-              <h3 className="text-lg font-semibold mb-4">Contact</h3>
+              <h3 className="text-lg font-semibold mb-4">{t('home.footer.contact.title')}</h3>
               <p className="text-gray-400">
-                Email: support@trezo.app
+                {t('home.footer.contact.email')}
               </p>
               <p className="text-gray-400">
-                Téléphone: +33 1 23 45 67 89
+                {t('home.footer.contact.phone')}
               </p>
             </div>
 
             {/* Subscribe */}
             <div>
-              <h3 className="text-lg font-semibold mb-4">S'inscrire à la newsletter</h3>
+              <h3 className="text-lg font-semibold mb-4">{t('home.footer.newsletter.title')}</h3>
               <p className="text-gray-400 mb-4">
-                Recevez les dernières nouvelles et mises à jour de Trézo.
+                {t('home.footer.newsletter.description')}
               </p>
               <div className="flex">
                 <input
                   type="email"
-                  placeholder="Votre email"
+                  placeholder={t('home.footer.newsletter.placeholder')}
                   className="bg-gray-800 text-gray-400 rounded-l-md py-2 px-4 focus:outline-none"
                 />
                 <button className="bg-emerald-500 text-white rounded-r-md py-2 px-4 hover:bg-emerald-600 transition-colors">
-                  S'inscrire
+                  {t('home.footer.newsletter.button')}
                 </button>
               </div>
             </div>
           </div>
           <div className="text-center mt-8 text-gray-400">
-            &copy; {new Date().getFullYear()} Trézo. Tous droits réservés.
+            &copy; {new Date().getFullYear()} Trézo. {t('home.footer.copyright')}
           </div>
         </div>
       </footer>
