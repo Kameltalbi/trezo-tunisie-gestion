@@ -6,6 +6,7 @@ import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
+import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import { format } from 'date-fns';
 import { formatCurrency } from '@/lib/utils';
 import { CalendarIcon, Filter, Plus, ClipboardCheck, CheckCircle } from 'lucide-react';
@@ -14,6 +15,7 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "@/hooks/use-toast";
 import { validerPrevision, formatForecastStatus, type Prevision } from '@/utils/validationUtils';
 import { Transaction } from '@/types';
+import { TransactionDetailSheet } from '@/components/TransactionDetailSheet';
 
 interface Forecast extends Transaction {
   status: 'pending' | 'validated' | 'cancelled';
@@ -24,6 +26,8 @@ const TransactionsPage: React.FC = () => {
   const [forecasts, setForecasts] = useState<Forecast[]>([]);
   const [open, setOpen] = useState(false);
   const [forecastOpen, setForecastOpen] = useState(false);
+  const [selectedTransaction, setSelectedTransaction] = useState<Transaction | Forecast | null>(null);
+  const [detailSheetOpen, setDetailSheetOpen] = useState(false);
   const [newTransaction, setNewTransaction] = useState<Partial<Transaction>>({
     type: 'income',
     source: 'direct'
@@ -40,7 +44,6 @@ const TransactionsPage: React.FC = () => {
     endDate?: string;
   }>({});
 
-  // Sample data for demonstration
   React.useEffect(() => {
     const sampleTransactions: Transaction[] = [
       {
@@ -207,6 +210,11 @@ const TransactionsPage: React.FC = () => {
     setForecasts(forecasts.map(f => 
       f.id === id ? { ...f, status: 'cancelled' as const } : f
     ));
+  };
+
+  const handleRowClick = (transaction: Transaction | Forecast) => {
+    setSelectedTransaction(transaction);
+    setDetailSheetOpen(true);
   };
 
   const filteredTransactions = transactions.filter(transaction => {
@@ -477,7 +485,11 @@ const TransactionsPage: React.FC = () => {
                     </TableRow>
                   ) : (
                     filteredTransactions.map(transaction => (
-                      <TableRow key={transaction.id}>
+                      <TableRow 
+                        key={transaction.id} 
+                        className="cursor-pointer hover:bg-gray-50"
+                        onClick={() => handleRowClick(transaction)}
+                      >
                         <TableCell className={transaction.type === 'income' ? 'text-green-600' : 'text-red-600'}>
                           {transaction.type === 'income' ? 'Encaissement' : 'Décaissement'}
                         </TableCell>
@@ -526,7 +538,11 @@ const TransactionsPage: React.FC = () => {
                     </TableRow>
                   ) : (
                     filteredForecasts.map(forecast => (
-                      <TableRow key={forecast.id}>
+                      <TableRow 
+                        key={forecast.id}
+                        className="cursor-pointer hover:bg-gray-50"
+                        onClick={() => handleRowClick(forecast)}
+                      >
                         <TableCell className={forecast.type === 'income' ? 'text-green-600' : 'text-red-600'}>
                           {forecast.type === 'income' ? 'Encaissement prévu' : 'Décaissement prévu'}
                         </TableCell>
@@ -548,7 +564,7 @@ const TransactionsPage: React.FC = () => {
                         </TableCell>
                         <TableCell>
                           {forecast.status === 'pending' && (
-                            <div className="flex gap-2">
+                            <div className="flex gap-2" onClick={(e) => e.stopPropagation()}>
                               <Button 
                                 size="sm" 
                                 variant="outline" 
@@ -581,6 +597,12 @@ const TransactionsPage: React.FC = () => {
           </Tabs>
         </CardContent>
       </Card>
+
+      <TransactionDetailSheet
+        transaction={selectedTransaction}
+        open={detailSheetOpen}
+        onOpenChange={setDetailSheetOpen}
+      />
     </div>
   );
 };
