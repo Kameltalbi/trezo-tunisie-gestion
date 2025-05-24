@@ -351,21 +351,21 @@ const ProjetsPage: React.FC = () => {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Budget Total</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(getTotalBudget())}</div>
-            <p className="text-xs text-muted-foreground mt-1">Tous projets confondus</p>
+          <CardContent className="space-y-2">
+            <div className="text-xl lg:text-2xl font-bold break-words">{formatCurrency(getTotalBudget())}</div>
+            <p className="text-xs text-muted-foreground">Tous projets confondus</p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Consommé à date</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{formatCurrency(getConsumedBudget())}</div>
-            <div className="mt-2">
-              <div className="flex justify-between text-xs mb-1">
+          <CardContent className="space-y-2">
+            <div className="text-xl lg:text-2xl font-bold break-words">{formatCurrency(getConsumedBudget())}</div>
+            <div className="space-y-2">
+              <div className="flex justify-between text-xs">
                 <span>{getProgressPercentage(getConsumedBudget(), getTotalBudget())}%</span>
-                <span>{formatCurrency(getConsumedBudget())} / {formatCurrency(getTotalBudget())}</span>
+                <span className="truncate ml-2">{formatCurrency(getConsumedBudget())} / {formatCurrency(getTotalBudget())}</span>
               </div>
               <Progress value={getProgressPercentage(getConsumedBudget(), getTotalBudget())} />
             </div>
@@ -375,11 +375,11 @@ const ProjetsPage: React.FC = () => {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Reste à consommer</CardTitle>
           </CardHeader>
-          <CardContent>
-            <div className={`text-2xl font-bold ${getRemainingBudget() < 0 ? 'text-red-500' : ''}`}>
+          <CardContent className="space-y-2">
+            <div className={`text-xl lg:text-2xl font-bold break-words ${getRemainingBudget() < 0 ? 'text-red-500' : ''}`}>
               {formatCurrency(getRemainingBudget())}
             </div>
-            <p className="text-xs text-muted-foreground mt-1">
+            <p className="text-xs text-muted-foreground">
               {getRemainingBudget() < 0 ? 'Dépassement budgétaire' : 'Budget restant'}
             </p>
           </CardContent>
@@ -388,9 +388,9 @@ const ProjetsPage: React.FC = () => {
           <CardHeader className="pb-2">
             <CardTitle className="text-sm font-medium text-muted-foreground">Projets Actifs</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-2">
             <div className="text-2xl font-bold">{projects.filter(p => p.statut === 'actif').length}</div>
-            <p className="text-xs text-muted-foreground mt-1">Sur {projects.length} projets au total</p>
+            <p className="text-xs text-muted-foreground">Sur {projects.length} projets au total</p>
           </CardContent>
         </Card>
       </div>
