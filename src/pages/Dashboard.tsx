@@ -1,62 +1,42 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, LineChart, Line } from 'recharts';
-import {
-  Chart as ChartJS,
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  LineElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement,
-  PointElement
-} from 'chart.js';
-
-ChartJS.register(
-  CategoryScale,
-  LinearScale,
-  BarElement,
-  LineElement,
-  PointElement,
-  Title,
-  Tooltip,
-  Legend,
-  ArcElement
-);
 
 const DashboardPage: React.FC = () => {
-  const barData = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
-    datasets: [
-      {
-        label: 'Encaissements',
-        data: [12000, 15000, 13000, 18000, 16000],
-        backgroundColor: 'rgba(54, 162, 235, 0.6)',
-      },
-    ],
-  };
+  // Data for bar chart (Recharts format)
+  const barData = [
+    { month: 'Jan', encaissements: 12000 },
+    { month: 'Feb', encaissements: 15000 },
+    { month: 'Mar', encaissements: 13000 },
+    { month: 'Apr', encaissements: 18000 },
+    { month: 'May', encaissements: 16000 },
+  ];
 
-  const lineData = {
-    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May'],
-    datasets: [
-      {
-        label: 'Solde mensuel',
-        data: [4500, 5000, 4000, 6000, 7000],
-        borderColor: 'rgba(75, 192, 192, 1)',
-        fill: false,
-      },
-    ],
-  };
+  // Data for line chart (Recharts format)
+  const lineData = [
+    { month: 'Jan', solde: 4500 },
+    { month: 'Feb', solde: 5000 },
+    { month: 'Mar', solde: 4000 },
+    { month: 'Apr', solde: 6000 },
+    { month: 'May', solde: 7000 },
+  ];
 
-  // Données améliorées pour le graphique camembert avec des couleurs modernes
+  // Data for investment pie chart
   const investmentData = [
     { name: 'Immobilier', value: 35, amount: 2047.53, color: '#FF8C42' },
     { name: 'Actions', value: 24, amount: 1404.01, color: '#22C55E' },
     { name: 'Crypto', value: 15, amount: 877.51, color: '#3B82F6' },
     { name: 'Autres', value: 26, amount: 1520.95, color: '#E5E7EB' }
+  ];
+
+  // Data for revenue sources doughnut chart
+  const doughnutData = [
+    { name: 'Ventes', value: 45, color: '#3B82F6' },
+    { name: 'Services', value: 30, color: '#22C55E' },
+    { name: 'Consulting', value: 15, color: '#FF8C42' },
+    { name: 'Autres', value: 10, color: '#E5E7EB' }
   ];
 
   const totalInvestment = investmentData.reduce((sum, item) => sum + item.amount, 0);
@@ -108,20 +88,38 @@ const DashboardPage: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <Card>
-          <CardContent className="p-4">
-            <h2 className="text-lg font-semibold mb-2">Encaissements mensuels</h2>
-            <Bar data={barData} />
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold">Encaissements mensuels</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <BarChart data={barData}>
+                <XAxis dataKey="month" />
+                <YAxis />
+                <ChartTooltip />
+                <Bar dataKey="encaissements" fill="#3B82F6" />
+              </BarChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
 
         <Card>
-          <CardContent className="p-4">
-            <h2 className="text-lg font-semibold mb-2">Solde mensuel</h2>
-            <Line data={lineData} />
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold">Solde mensuel</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <LineChart data={lineData}>
+                <XAxis dataKey="month" />
+                <YAxis />
+                <ChartTooltip />
+                <Line type="monotone" dataKey="solde" stroke="#22C55E" strokeWidth={3} />
+              </LineChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
 
-        {/* Graphique Camembert Amélioré */}
+        {/* Investment Pie Chart */}
         <Card className="bg-white shadow-sm">
           <CardHeader className="pb-4">
             <div className="flex items-center justify-between">
@@ -132,7 +130,7 @@ const DashboardPage: React.FC = () => {
               </select>
             </div>
           </CardHeader>
-          <CardContent className="pt-0">
+          <CardContent className="pt-0 relative">
             <ChartContainer
               config={chartConfig}
               className="mx-auto aspect-square max-h-[300px]"
@@ -158,7 +156,7 @@ const DashboardPage: React.FC = () => {
               </PieChart>
             </ChartContainer>
             
-            {/* Total au centre avec style moderne */}
+            {/* Total au centre */}
             <div className="absolute inset-0 flex items-center justify-center pointer-events-none">
               <div className="text-center">
                 <div className="text-xs text-gray-500 font-medium">Total</div>
@@ -171,7 +169,7 @@ const DashboardPage: React.FC = () => {
               </div>
             </div>
             
-            {/* Légende modernisée */}
+            {/* Légende */}
             <div className="grid grid-cols-2 gap-3 mt-6">
               {investmentData.map((item, index) => (
                 <div key={index} className="flex items-center gap-2">
@@ -187,10 +185,30 @@ const DashboardPage: React.FC = () => {
           </CardContent>
         </Card>
 
+        {/* Revenue Sources Doughnut Chart */}
         <Card>
-          <CardContent className="p-4">
-            <h2 className="text-lg font-semibold mb-2">Sources de revenus</h2>
-            <Doughnut data={doughnutData} />
+          <CardHeader>
+            <CardTitle className="text-lg font-semibold">Sources de revenus</CardTitle>
+          </CardHeader>
+          <CardContent>
+            <ResponsiveContainer width="100%" height={300}>
+              <PieChart>
+                <ChartTooltip />
+                <Pie
+                  data={doughnutData}
+                  cx="50%"
+                  cy="50%"
+                  innerRadius={40}
+                  outerRadius={100}
+                  paddingAngle={2}
+                  dataKey="value"
+                >
+                  {doughnutData.map((entry, index) => (
+                    <Cell key={`cell-${index}`} fill={entry.color} />
+                  ))}
+                </Pie>
+              </PieChart>
+            </ResponsiveContainer>
           </CardContent>
         </Card>
       </div>
