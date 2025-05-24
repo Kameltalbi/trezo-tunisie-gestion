@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PlusCircle, Pencil, Trash2 } from "lucide-react";
@@ -12,6 +11,7 @@ import { toast } from "sonner";
 import { Objectif } from "@/types/parametres";
 import { Progress } from "@/components/ui/progress";
 import { formatCurrency } from "@/lib/utils";
+import { ObjectifDetailSheet } from "@/components/ObjectifDetailSheet";
 
 // Mock data for objectives
 const mockObjectifs: Objectif[] = [
@@ -42,7 +42,9 @@ const Objectifs = () => {
   const [objectifs, setObjectifs] = useState<Objectif[]>(mockObjectifs);
   const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
+  const [isDetailSheetOpen, setIsDetailSheetOpen] = useState(false);
   const [currentObjectif, setCurrentObjectif] = useState<Objectif | null>(null);
+  const [selectedObjectif, setSelectedObjectif] = useState<Objectif | null>(null);
   const [formData, setFormData] = useState({
     nom: "",
     type: "encaissement",
@@ -189,6 +191,12 @@ const Objectifs = () => {
     if (progression < 25) return "bg-red-500";
     if (progression < 75) return "bg-yellow-500";
     return "bg-green-500";
+  };
+
+  // Handle card click to open detail sheet
+  const handleCardClick = (objectif: Objectif) => {
+    setSelectedObjectif(objectif);
+    setIsDetailSheetOpen(true);
   };
 
   return (
@@ -388,15 +396,22 @@ const Objectifs = () => {
         </DialogContent>
       </Dialog>
 
+      {/* Detail Sheet */}
+      <ObjectifDetailSheet
+        objectif={selectedObjectif}
+        open={isDetailSheetOpen}
+        onOpenChange={setIsDetailSheetOpen}
+      />
+
       {/* Objectives list */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {objectifs.length > 0 ? (
           objectifs.map((objectif) => (
-            <Card key={objectif.id}>
+            <Card key={objectif.id} className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleCardClick(objectif)}>
               <CardHeader>
                 <CardTitle className="flex justify-between items-start">
                   <span>{objectif.nom}</span>
-                  <div className="flex space-x-2">
+                  <div className="flex space-x-2" onClick={(e) => e.stopPropagation()}>
                     <Button variant="ghost" size="sm" onClick={() => startEdit(objectif)}>
                       <Pencil className="h-4 w-4" />
                     </Button>
