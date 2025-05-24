@@ -1,9 +1,11 @@
+
 import React, { useState, useMemo } from 'react';
 
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { ArrowLeft, ArrowRight } from 'lucide-react';
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet';
+import { ArrowLeft, ArrowRight, TrendingUp, TrendingDown, DollarSign } from 'lucide-react';
 
 import {
   ResponsiveContainer,
@@ -42,10 +44,32 @@ const allMonthlyData = [
 
 const MONTHS_PER_VIEW = 6;
 
+// Données détaillées simulées pour chaque mois
+const getMonthDetails = (year: number, month: string) => {
+  const monthData = allMonthlyData.find(m => m.year === year && m.month === month);
+  if (!monthData) return null;
+
+  return {
+    ...monthData,
+    recettes: [
+      { id: 1, description: 'Vente de produits', montant: monthData.inflow * 0.6, date: `15/${month === 'janvier' ? '01' : month === 'février' ? '02' : '03'}/${year}` },
+      { id: 2, description: 'Prestations de services', montant: monthData.inflow * 0.3, date: `20/${month === 'janvier' ? '01' : month === 'février' ? '02' : '03'}/${year}` },
+      { id: 3, description: 'Autres revenus', montant: monthData.inflow * 0.1, date: `25/${month === 'janvier' ? '01' : month === 'février' ? '02' : '03'}/${year}` },
+    ],
+    depenses: [
+      { id: 1, description: 'Salaires et charges', montant: monthData.outflow * 0.5, date: `01/${month === 'janvier' ? '01' : month === 'février' ? '02' : '03'}/${year}` },
+      { id: 2, description: 'Loyer et charges locatives', montant: monthData.outflow * 0.2, date: `05/${month === 'janvier' ? '01' : month === 'février' ? '02' : '03'}/${year}` },
+      { id: 3, description: 'Fournisseurs', montant: monthData.outflow * 0.2, date: `10/${month === 'janvier' ? '01' : month === 'février' ? '02' : '03'}/${year}` },
+      { id: 4, description: 'Autres charges', montant: monthData.outflow * 0.1, date: `15/${month === 'janvier' ? '01' : month === 'février' ? '02' : '03'}/${year}` },
+    ]
+  };
+};
+
 const CashFlowPage: React.FC = () => {
   const years = Array.from(new Set(allMonthlyData.map((m) => m.year)));
   const [selectedYear, setSelectedYear] = useState<number>(years[0]);
   const [startIndex, setStartIndex] = useState(0);
+  const [selectedMonth, setSelectedMonth] = useState<{ year: number; month: string } | null>(null);
 
   const yearData = useMemo(() => allMonthlyData.filter((m) => m.year === selectedYear), [selectedYear]);
 
@@ -58,6 +82,8 @@ const CashFlowPage: React.FC = () => {
 
   const canGoBack = startIndex > 0;
   const canGoForward = startIndex + MONTHS_PER_VIEW < yearData.length;
+
+  const monthDetails = selectedMonth ? getMonthDetails(selectedMonth.year, selectedMonth.month) : null;
 
   return (
     <div className="p-6 space-y-6">
@@ -107,17 +133,127 @@ const CashFlowPage: React.FC = () => {
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-4">
         {visibleMonths.map((month, idx) => (
-          <Card key={idx} className="shadow-sm border border-gray-200">
-            <CardContent className="p-4">
-              <h3 className="text-sm font-medium text-gray-600 mb-2 capitalize">{month.month} {month.year}</h3>
-              <p className="text-xs text-gray-500">Encaissements</p>
-              <p className="text-md font-semibold text-blue-600">{formatCurrency(month.inflow)}</p>
-              <p className="text-xs text-gray-500 mt-2">Décaissements</p>
-              <p className="text-md font-semibold text-red-600">{formatCurrency(month.outflow)}</p>
-              <p className="text-xs text-gray-500 mt-2">Solde</p>
-              <p className={`text-md font-semibold ${month.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>{formatCurrency(month.balance)}</p>
-            </CardContent>
-          </Card>
+          <Sheet key={idx}>
+            <SheetTrigger asChild>
+              <Card 
+                className="shadow-sm border border-gray-200 cursor-pointer hover:shadow-md transition-shadow"
+                onClick={() => setSelectedMonth({ year: month.year, month: month.month })}
+              >
+                <CardContent className="p-4">
+                  <h3 className="text-sm font-medium text-gray-600 mb-2 capitalize">{month.month} {month.year}</h3>
+                  <p className="text-xs text-gray-500">Encaissements</p>
+                  <p className="text-md font-semibold text-blue-600">{formatCurrency(month.inflow)}</p>
+                  <p className="text-xs text-gray-500 mt-2">Décaissements</p>
+                  <p className="text-md font-semibold text-red-600">{formatCurrency(month.outflow)}</p>
+                  <p className="text-xs text-gray-500 mt-2">Solde</p>
+                  <p className={`text-md font-semibold ${month.balance >= 0 ? 'text-green-600' : 'text-red-600'}`}>{formatCurrency(month.balance)}</p>
+                </CardContent>
+              </Card>
+            </SheetTrigger>
+            
+            <SheetContent className="w-[600px] sm:max-w-[600px]">
+              {monthDetails && (
+                <>
+                  <SheetHeader>
+                    <SheetTitle className="capitalize">
+                      Détails - {monthDetails.month} {monthDetails.year}
+                    </SheetTitle>
+                  </SheetHeader>
+                  
+                  <div className="mt-6 space-y-6">
+                    {/* Résumé du mois */}
+                    <div className="grid grid-cols-3 gap-4">
+                      <Card>
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-2">
+                            <TrendingUp className="h-5 w-5 text-green-600" />
+                            <div>
+                              <p className="text-xs text-gray-500">Recettes</p>
+                              <p className="text-lg font-semibold text-green-600">
+                                {formatCurrency(monthDetails.inflow)}
+                              </p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      
+                      <Card>
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-2">
+                            <TrendingDown className="h-5 w-5 text-red-600" />
+                            <div>
+                              <p className="text-xs text-gray-500">Dépenses</p>
+                              <p className="text-lg font-semibold text-red-600">
+                                {formatCurrency(monthDetails.outflow)}
+                              </p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                      
+                      <Card>
+                        <CardContent className="p-4">
+                          <div className="flex items-center gap-2">
+                            <DollarSign className={`h-5 w-5 ${monthDetails.inflow - monthDetails.outflow >= 0 ? 'text-green-600' : 'text-red-600'}`} />
+                            <div>
+                              <p className="text-xs text-gray-500">Solde</p>
+                              <p className={`text-lg font-semibold ${monthDetails.inflow - monthDetails.outflow >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                {formatCurrency(monthDetails.inflow - monthDetails.outflow)}
+                              </p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    </div>
+
+                    {/* Détail des recettes */}
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3 text-green-600">Recettes</h3>
+                      <div className="space-y-2">
+                        {monthDetails.recettes.map((recette) => (
+                          <Card key={recette.id}>
+                            <CardContent className="p-3">
+                              <div className="flex justify-between items-center">
+                                <div>
+                                  <p className="font-medium">{recette.description}</p>
+                                  <p className="text-xs text-gray-500">{recette.date}</p>
+                                </div>
+                                <p className="font-semibold text-green-600">
+                                  {formatCurrency(recette.montant)}
+                                </p>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+
+                    {/* Détail des dépenses */}
+                    <div>
+                      <h3 className="text-lg font-semibold mb-3 text-red-600">Dépenses</h3>
+                      <div className="space-y-2">
+                        {monthDetails.depenses.map((depense) => (
+                          <Card key={depense.id}>
+                            <CardContent className="p-3">
+                              <div className="flex justify-between items-center">
+                                <div>
+                                  <p className="font-medium">{depense.description}</p>
+                                  <p className="text-xs text-gray-500">{depense.date}</p>
+                                </div>
+                                <p className="font-semibold text-red-600">
+                                  {formatCurrency(depense.montant)}
+                                </p>
+                              </div>
+                            </CardContent>
+                          </Card>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                </>
+              )}
+            </SheetContent>
+          </Sheet>
         ))}
       </div>
     </div>
