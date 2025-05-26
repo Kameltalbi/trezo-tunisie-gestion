@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { useAuth } from "@/contexts/AuthContext";
 import { useEntreprise, useUpdateEntreprise, type Entreprise } from "@/hooks/useEntreprise";
@@ -7,6 +6,7 @@ import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
+import { toast } from "sonner";
 
 const EntrepriseForm = () => {
   const { user } = useAuth();
