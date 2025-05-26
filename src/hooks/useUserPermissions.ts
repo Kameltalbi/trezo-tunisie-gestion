@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -41,31 +40,55 @@ export const useUserPermissions = () => {
     queryFn: async (): Promise<UserPermissionsData> => {
       if (!user) throw new Error('User not authenticated');
 
-      // Récupérer le rôle de l'utilisateur (utiliser maybeSingle au lieu de single)
+      // Récupérer le rôle de l'utilisateur
       const { data: roleData, error: roleError } = await supabase
         .from('user_roles')
         .select('role')
         .eq('user_id', user.id)
         .maybeSingle();
 
-      if (roleError) throw roleError;
+      if (roleError && roleError.code !== 'PGRST116') {
+        console.error('Erreur lors de la récupération du rôle:', roleError);
+        throw roleError;
+      }
 
-      // Si pas de rôle trouvé, créer un rôle admin par défaut
       let userRole = roleData?.role;
+
+      // Si pas de rôle trouvé, créer un rôle admin par défaut pour le premier utilisateur
       if (!userRole) {
-        console.log('Aucun rôle trouvé pour l\'utilisateur, création du rôle admin...');
-        const { data: newRole, error: createError } = await supabase
-          .from('user_roles')
-          .insert({ user_id: user.id, role: 'admin' })
-          .select('role')
-          .single();
+        console.log('Aucun rôle trouvé pour l\'utilisateur, vérification si c\'est le premier utilisateur...');
         
-        if (createError) {
-          console.error('Erreur lors de la création du rôle:', createError);
-          // Fallback: assumer admin si on ne peut pas créer
-          userRole = 'admin';
-        } else {
-          userRole = newRole.role;
+        // Vérifier s'il y a déjà des admins dans le système
+        const { count: adminCount, error: countError } = await supabase
+          .from('user_roles')
+          .select('*', { count: 'exact', head: true })
+          .eq('role', 'admin');
+
+        if (countError) {
+          console.error('Erreur lors du comptage des admins:', countError);
+        }
+
+        // Si aucun admin existe, créer cet utilisateur comme admin
+        const roleToAssign = (adminCount === 0) ? 'admin' : 'utilisateur';
+        
+        try {
+          const { data: newRole, error: createError } = await supabase
+            .from('user_roles')
+            .insert({ user_id: user.id, role: roleToAssign })
+            .select('role')
+            .single();
+          
+          if (createError) {
+            console.error('Erreur lors de la création du rôle:', createError);
+            // Si on ne peut pas créer le rôle, assumer utilisateur par défaut
+            userRole = 'utilisateur';
+          } else {
+            userRole = newRole.role;
+            console.log(`Rôle ${roleToAssign} créé avec succès`);
+          }
+        } catch (err) {
+          console.error('Erreur catch lors de la création du rôle:', err);
+          userRole = 'utilisateur';
         }
       }
 
@@ -76,14 +99,18 @@ export const useUserPermissions = () => {
         .eq('user_id', user.id)
         .maybeSingle();
 
-      if (planError && planError.code !== 'PGRST116') throw planError;
+      if (planError && planError.code !== 'PGRST116') {
+        console.error('Erreur lors de la récupération du plan:', planError);
+      }
 
       // Compter le nombre d'utilisateurs actuels pour cette organisation
       const { count: currentUsers, error: countError } = await supabase
         .from('user_roles')
         .select('*', { count: 'exact', head: true });
 
-      if (countError) throw countError;
+      if (countError) {
+        console.error('Erreur lors du comptage des utilisateurs:', countError);
+      }
 
       const isAdmin = userRole === 'admin';
       const maxUsers = planData?.max_projects || 5; // Utiliser max_projects comme limite d'utilisateurs
@@ -94,12 +121,13 @@ export const useUserPermissions = () => {
         maxUsers,
         currentUsers: currentUsers || 0,
         isAdmin,
-        role: userRole,
+        role: userRole || 'utilisateur',
       };
     },
     enabled: !!user,
-    retry: 3,
+    retry: 2,
     retryDelay: 1000,
+    staleTime: 30000, // Cache pendant 30 secondes
   });
 };
 
