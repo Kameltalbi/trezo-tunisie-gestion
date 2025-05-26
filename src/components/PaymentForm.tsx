@@ -29,7 +29,7 @@ const PaymentForm = ({ plan, onSubmit, isLoading }: PaymentFormProps) => {
       bank_name: "Banque Internationale Arabe de Tunisie (BIAT)",
       account_number: "08104000013729000038",
       rib: "08 104 0000137290000 38",
-      recipient: "Trézo SARL"
+      recipient: "ABC SARL"
     } : undefined;
 
     onSubmit({
@@ -94,7 +94,7 @@ const PaymentForm = ({ plan, onSubmit, isLoading }: PaymentFormProps) => {
                   <div><strong>Banque :</strong> Banque Internationale Arabe de Tunisie (BIAT)</div>
                   <div><strong>Numéro de compte :</strong> 08104000013729000038</div>
                   <div><strong>RIB :</strong> 08 104 0000137290000 38</div>
-                  <div><strong>Bénéficiaire :</strong> Trézo SARL</div>
+                  <div><strong>Bénéficiaire :</strong> ABC SARL</div>
                   <div className="mt-3 p-3 bg-yellow-50 rounded border-l-4 border-yellow-400">
                     <p className="text-yellow-800 text-sm">
                       <strong>Important :</strong> Veuillez mentionner votre email dans la référence du virement
