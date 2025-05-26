@@ -7,7 +7,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { useToast } from '@/hooks/use-toast';
-import { ChevronDown, ChevronRight } from 'lucide-react';
+import { ChevronDown, ChevronRight, Shield, User } from 'lucide-react';
 
 interface UserPermissionsManagerProps {
   userId: string;
@@ -16,11 +16,11 @@ interface UserPermissionsManagerProps {
 }
 
 const UserPermissionsManager = ({ userId, userEmail, onClose }: UserPermissionsManagerProps) => {
-  const [expandedPages, setExpandedPages] = useState<Set<string>>(new Set());
+  const [expandedPages, setExpandedPages] = useState<Set<string>>(new Set(['dashboard', 'transactions'])); // Expand some by default
   const { toast } = useToast();
   
-  const { data: allPermissions = [] } = usePermissions();
-  const { data: userPermissions = [] } = useAllUserPermissions(userId);
+  const { data: allPermissions = [], isLoading: loadingPermissions } = usePermissions();
+  const { data: userPermissions = [], isLoading: loadingUserPermissions } = useAllUserPermissions(userId);
   const updatePermissionMutation = useUpdateUserPermission();
 
   // Grouper les permissions par page
@@ -72,7 +72,7 @@ const UserPermissionsManager = ({ userId, userEmail, onClose }: UserPermissionsM
   const getPageDisplayName = (page: string) => {
     const pageNames: Record<string, string> = {
       'dashboard': 'Tableau de bord',
-      'transactions': 'Transactions',
+      'transactions': 'Transactions', 
       'encaissements': 'Encaissements',
       'decaissements': 'Décaissements',
       'comptes': 'Comptes bancaires',
@@ -99,16 +99,46 @@ const UserPermissionsManager = ({ userId, userEmail, onClose }: UserPermissionsM
     }
   };
 
+  if (loadingPermissions || loadingUserPermissions) {
+    return (
+      <div className="space-y-4">
+        <div className="flex justify-between items-center mb-6">
+          <div>
+            <h3 className="text-lg font-semibold">Gestion des permissions</h3>
+            <p className="text-sm text-gray-600">Chargement...</p>
+          </div>
+          <Button variant="outline" onClick={onClose}>
+            Fermer
+          </Button>
+        </div>
+        <div className="text-center py-8">Chargement des permissions...</div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-4">
       <div className="flex justify-between items-center mb-6">
         <div>
-          <h3 className="text-lg font-semibold">Gestion des permissions</h3>
-          <p className="text-sm text-gray-600">Utilisateur: {userEmail}</p>
+          <h3 className="text-lg font-semibold flex items-center gap-2">
+            <Shield className="w-5 h-5" />
+            Gestion des permissions
+          </h3>
+          <p className="text-sm text-gray-600 flex items-center gap-2">
+            <User className="w-4 h-4" />
+            Utilisateur: {userEmail}
+          </p>
         </div>
         <Button variant="outline" onClick={onClose}>
           Fermer
         </Button>
+      </div>
+
+      <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+        <p className="text-sm text-blue-800">
+          <strong>Instructions:</strong> Cochez les cases pour accorder des permissions à l'utilisateur. 
+          Les permissions sont organisées par page de l'application.
+        </p>
       </div>
 
       <div className="space-y-4">
@@ -118,9 +148,9 @@ const UserPermissionsManager = ({ userId, userEmail, onClose }: UserPermissionsM
           const grantedCount = permissions.filter(p => grantedPermissions.has(p.id)).length;
           
           return (
-            <Card key={page}>
+            <Card key={page} className="border-2">
               <CardHeader 
-                className="cursor-pointer"
+                className="cursor-pointer hover:bg-gray-50 transition-colors"
                 onClick={() => togglePageExpansion(page)}
               >
                 <CardTitle className="flex items-center justify-between">
@@ -131,8 +161,8 @@ const UserPermissionsManager = ({ userId, userEmail, onClose }: UserPermissionsM
                       <ChevronRight className="w-4 h-4" />
                     )}
                     <span>{getPageDisplayName(page)}</span>
-                    <Badge variant="outline">
-                      {grantedCount}/{pagePermissionCount}
+                    <Badge variant="outline" className="ml-2">
+                      {grantedCount}/{pagePermissionCount} permissions
                     </Badge>
                   </div>
                 </CardTitle>
@@ -147,7 +177,7 @@ const UserPermissionsManager = ({ userId, userEmail, onClose }: UserPermissionsM
                       return (
                         <div 
                           key={permission.id}
-                          className="flex items-center justify-between p-3 border rounded-lg"
+                          className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 transition-colors"
                         >
                           <div className="flex items-center space-x-3">
                             <Checkbox
@@ -156,6 +186,7 @@ const UserPermissionsManager = ({ userId, userEmail, onClose }: UserPermissionsM
                                 handlePermissionChange(permission.id, checked as boolean)
                               }
                               disabled={updatePermissionMutation.isPending}
+                              className="w-5 h-5"
                             />
                             <div>
                               <div className="flex items-center space-x-2">
@@ -168,7 +199,7 @@ const UserPermissionsManager = ({ userId, userEmail, onClose }: UserPermissionsM
                                 </Badge>
                               </div>
                               {permission.description && (
-                                <p className="text-sm text-gray-600">
+                                <p className="text-sm text-gray-600 mt-1">
                                   {permission.description}
                                 </p>
                               )}
@@ -184,6 +215,12 @@ const UserPermissionsManager = ({ userId, userEmail, onClose }: UserPermissionsM
           );
         })}
       </div>
+
+      {Object.keys(permissionsByPage).length === 0 && (
+        <div className="text-center py-8 text-gray-500">
+          Aucune permission trouvée dans le système.
+        </div>
+      )}
     </div>
   );
 };

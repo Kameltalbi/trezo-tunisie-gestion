@@ -25,12 +25,20 @@ export interface UserPermissionUpdate {
   granted: boolean;
 }
 
+export interface UserPermissionsData {
+  canAddUsers: boolean;
+  maxUsers: number;
+  currentUsers: number;
+  isAdmin: boolean;
+  role: string;
+}
+
 export const useUserPermissions = () => {
   const { user } = useAuth();
 
   return useQuery({
     queryKey: ['user-permissions', user?.id],
-    queryFn: async (): Promise<UserPermissions> => {
+    queryFn: async (): Promise<UserPermissionsData> => {
       if (!user) throw new Error('User not authenticated');
 
       // Récupérer le rôle de l'utilisateur (utiliser maybeSingle au lieu de single)
