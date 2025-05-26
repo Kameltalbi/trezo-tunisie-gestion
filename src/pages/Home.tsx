@@ -263,7 +263,7 @@ const Home = () => {
                 <ul className="text-sm text-gray-600 space-y-2 text-left">
                   <li>✓ Toutes les fonctionnalités de l'essai</li>
                   <li>✓ Comptes bancaires illimités</li>
-                  <li>✓ Projets illimités</li>
+                  <li>✓ 10 projets maximum</li>
                   <li>✓ Gestion avancée de la trésorerie</li>
                   <li>✓ Cash Flow et prévisions</li>
                   <li>✓ Gestion des dettes</li>
