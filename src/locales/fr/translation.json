@@ -15,6 +15,11 @@
     "logout_success": "Déconnexion réussie",
     "logout_error": "Erreur lors de la déconnexion"
   },
+  "errors": {
+    "404_title": "404",
+    "404_message": "Oups ! La page que vous recherchez n'existe pas.",
+    "back_home": "Retour à l'accueil"
+  },
   "home": {
     "features": "Fonctionnalités",
     "testimonials": "Témoignages",

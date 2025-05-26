@@ -15,6 +15,11 @@
     "logout_success": "Successfully logged out",
     "logout_error": "Error during logout"
   },
+  "errors": {
+    "404_title": "404",
+    "404_message": "Oops! The page you are looking for does not exist.",
+    "back_home": "Back to home"
+  },
   "home": {
     "features": "Features",
     "testimonials": "Testimonials",

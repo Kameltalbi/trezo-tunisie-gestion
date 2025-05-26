@@ -8,7 +8,6 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Flag } from "lucide-react";
 
 const LanguageSwitcher = () => {
   const { i18n } = useTranslation();
@@ -20,11 +19,15 @@ const LanguageSwitcher = () => {
     localStorage.setItem("i18nextLng", lng);
   };
 
+  const getCurrentFlag = () => {
+    return currentLang === "fr" ? "🇫🇷" : "🇬🇧";
+  };
+
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="icon" className="h-9 w-9">
-          <Flag className="h-4 w-4" />
+          <span className="text-lg">{getCurrentFlag()}</span>
           <span className="sr-only">Toggle language</span>
         </Button>
       </DropdownMenuTrigger>
@@ -33,12 +36,14 @@ const LanguageSwitcher = () => {
           onClick={() => changeLanguage("fr")}
           className={currentLang === "fr" ? "bg-accent text-accent-foreground" : ""}
         >
+          <span className="mr-2">🇫🇷</span>
           Français
         </DropdownMenuItem>
         <DropdownMenuItem 
           onClick={() => changeLanguage("en")}
           className={currentLang === "en" ? "bg-accent text-accent-foreground" : ""}
         >
+          <span className="mr-2">🇬🇧</span>
           English
         </DropdownMenuItem>
       </DropdownMenuContent>
