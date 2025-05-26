@@ -7,6 +7,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider } from "./contexts/AuthContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
 import Layout from "./components/Layout";
+import ProtectedRoute from "./components/ProtectedRoute";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -45,22 +46,28 @@ const App = () => (
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              <Route path="/checkout" element={<Layout requireAuth={true}><Checkout /></Layout>} />
-              <Route path="/subscription" element={<Layout requireAuth={true}><Subscription /></Layout>} />
-              <Route path="/parametres" element={<Layout requireAuth={true}><Parametres /></Layout>} />
-              <Route path="/admin" element={<Layout requireAuth={true}><Admin /></Layout>} />
-              <Route path="/cash-flow" element={<Layout requireAuth={true}><CashFlow /></Layout>} />
-              <Route path="/debt-management" element={<Layout requireAuth={true}><DebtManagement /></Layout>} />
-              <Route path="/decaissements" element={<Layout requireAuth={true}><Depenses /></Layout>} />
-              <Route path="/encaissements" element={<Layout requireAuth={true}><Encaissements /></Layout>} />
-              <Route path="/transactions" element={<Layout requireAuth={true}><Transactions /></Layout>} />
-              <Route path="/dashboard" element={<Layout requireAuth={true}><Dashboard /></Layout>} />
-              <Route path="/comptes" element={<Layout requireAuth={true}><Comptes /></Layout>} />
-              <Route path="/projets" element={<Layout requireAuth={true}><Projets /></Layout>} />
-              <Route path="/projets/:id" element={<Layout requireAuth={true}><ProjetDetail /></Layout>} />
-              <Route path="/objectifs" element={<Layout requireAuth={true}><Objectifs /></Layout>} />
-              <Route path="/rapports" element={<Layout requireAuth={true}><Rapports /></Layout>} />
-              <Route path="/support" element={<Layout requireAuth={true}><Support /></Layout>} />
+              <Route path="/*" element={
+                <ProtectedRoute>
+                  <Layout />
+                </ProtectedRoute>
+              }>
+                <Route path="checkout" element={<Checkout />} />
+                <Route path="subscription" element={<Subscription />} />
+                <Route path="parametres" element={<Parametres />} />
+                <Route path="admin" element={<Admin />} />
+                <Route path="cash-flow" element={<CashFlow />} />
+                <Route path="debt-management" element={<DebtManagement />} />
+                <Route path="decaissements" element={<Depenses />} />
+                <Route path="encaissements" element={<Encaissements />} />
+                <Route path="transactions" element={<Transactions />} />
+                <Route path="dashboard" element={<Dashboard />} />
+                <Route path="comptes" element={<Comptes />} />
+                <Route path="projets" element={<Projets />} />
+                <Route path="projets/:id" element={<ProjetDetail />} />
+                <Route path="objectifs" element={<Objectifs />} />
+                <Route path="rapports" element={<Rapports />} />
+                <Route path="support" element={<Support />} />
+              </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
