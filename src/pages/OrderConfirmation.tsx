@@ -96,7 +96,7 @@ const OrderConfirmation = () => {
 
         <div className="text-center mt-6">
           <p className="text-sm text-gray-500">
-            Une question ? Contactez notre équipe support à support@abc-sarl.com
+            Une question ? Contactez notre équipe support à support@trezo.pro
           </p>
         </div>
       </div>
