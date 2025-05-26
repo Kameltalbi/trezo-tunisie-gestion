@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
@@ -54,11 +53,11 @@ const DashboardPage: React.FC = () => {
       return acc;
     }, {});
     
-    const totalAmount = Object.values(categoryData).reduce((sum: number, item: any) => sum + item.amount, 0);
+    const totalAmount = Object.values(categoryData).reduce((sum: number, item: any) => sum + Number(item.amount), 0);
     
     return Object.values(categoryData).map((item: any) => ({
       ...item,
-      value: totalAmount > 0 ? Math.round((item.amount / totalAmount) * 100) : 0
+      value: totalAmount > 0 ? Math.round((Number(item.amount) / totalAmount) * 100) : 0
     }));
   }, [depenses.data]);
 
@@ -75,15 +74,15 @@ const DashboardPage: React.FC = () => {
       return acc;
     }, {});
     
-    const totalAmount = Object.values(sourceData).reduce((sum: number, item: any) => sum + item.amount, 0);
+    const totalAmount = Object.values(sourceData).reduce((sum: number, item: any) => sum + Number(item.amount), 0);
     
     return Object.values(sourceData).map((item: any) => ({
       ...item,
-      value: totalAmount > 0 ? Math.round((item.amount / totalAmount) * 100) : 0
+      value: totalAmount > 0 ? Math.round((Number(item.amount) / totalAmount) * 100) : 0
     }));
   }, [revenus.data]);
 
-  const totalExpenses = expensesData.reduce((sum, item) => sum + item.amount, 0);
+  const totalExpenses = expensesData.reduce((sum, item) => sum + Number(item.amount), 0);
 
   // Calculate dashboard summary cards from real data
   const dashboardSummary = React.useMemo(() => {

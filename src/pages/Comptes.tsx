@@ -1,7 +1,6 @@
-
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Plus, Wallet, ArrowUp, ArrowDown, Edit } from 'lucide-react';
+import { Plus, Wallet, ArrowUp, ArrowDown, Edit, MoreHorizontal, Trash2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -12,6 +11,12 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { Input } from '@/components/ui/input';
 import {
   Table,
@@ -48,7 +53,7 @@ const Comptes = () => {
   ]);
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [dialogType, setDialogType] = useState<'add' | 'deposit' | 'withdraw' | 'fees'>('add');
+  const [dialogType, setDialogType] = useState<'add' | 'deposit' | 'withdraw' | 'fees' | 'edit' | 'delete'>('add');
   const [currentAccount, setCurrentAccount] = useState<Account | null>(null);
   const [transactionForm, setTransactionForm] = useState({
     amount: '',
@@ -77,16 +82,25 @@ const Comptes = () => {
     setIsDialogOpen(true);
   };
 
-  const openActionDialog = (type: 'deposit' | 'withdraw' | 'fees', account: Account) => {
+  const openActionDialog = (type: 'deposit' | 'withdraw' | 'fees' | 'edit' | 'delete', account: Account) => {
     setDialogType(type);
     setCurrentAccount(account);
-    setTransactionForm({
-      amount: '',
-      description: '',
-      category: '',
-      reference: '',
-      date: new Date().toISOString().split('T')[0]
-    });
+    
+    if (type === 'edit') {
+      setAccountForm({
+        name: account.name,
+        type: account.type,
+        initialBalance: account.initialBalance.toString()
+      });
+    } else if (type !== 'delete') {
+      setTransactionForm({
+        amount: '',
+        description: '',
+        category: '',
+        reference: '',
+        date: new Date().toISOString().split('T')[0]
+      });
+    }
     setIsDialogOpen(true);
   };
 
@@ -118,7 +132,60 @@ const Comptes = () => {
     });
   };
 
+  const handleEditAccount = () => {
+    if (!currentAccount || !accountForm.name || !accountForm.initialBalance) {
+      toast({
+        title: t('comptes.error'),
+        description: t('comptes.fill_all_fields'),
+        variant: "destructive",
+      });
+      return;
+    }
+
+    const initialBalance = parseFloat(accountForm.initialBalance);
+    const updatedAccounts = accounts.map(account => {
+      if (account.id === currentAccount.id) {
+        return {
+          ...account,
+          name: accountForm.name,
+          type: accountForm.type,
+          initialBalance
+        };
+      }
+      return account;
+    });
+
+    setAccounts(updatedAccounts);
+    setIsDialogOpen(false);
+    toast({
+      title: t('comptes.success'),
+      description: 'Compte modifié avec succès',
+    });
+  };
+
+  const handleDeleteAccount = () => {
+    if (!currentAccount) return;
+
+    const updatedAccounts = accounts.filter(account => account.id !== currentAccount.id);
+    setAccounts(updatedAccounts);
+    setIsDialogOpen(false);
+    toast({
+      title: t('comptes.success'),
+      description: 'Compte supprimé avec succès',
+    });
+  };
+
   const handleAction = () => {
+    if (dialogType === 'edit') {
+      handleEditAccount();
+      return;
+    }
+    
+    if (dialogType === 'delete') {
+      handleDeleteAccount();
+      return;
+    }
+
     if (!currentAccount || !transactionForm.amount || isNaN(parseFloat(transactionForm.amount))) {
       toast({
         title: t('comptes.error'),
@@ -193,6 +260,10 @@ const Comptes = () => {
         return t('comptes.withdraw_funds');
       case 'fees':
         return t('comptes.modify_fees');
+      case 'edit':
+        return 'Modifier le compte';
+      case 'delete':
+        return 'Supprimer le compte';
       default:
         return '';
     }
@@ -268,32 +339,38 @@ const Comptes = () => {
                       {formatCurrency(account.currentBalance)}
                     </TableCell>
                     <TableCell className="text-right">
-                      <div className="flex justify-end gap-2">
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => openActionDialog('deposit', account)}
-                        >
-                          <ArrowDown size={16} className="mr-1 text-emerald-600" />
-                          {t('comptes.deposit')}
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => openActionDialog('withdraw', account)}
-                        >
-                          <ArrowUp size={16} className="mr-1 text-red-600" />
-                          {t('comptes.withdraw')}
-                        </Button>
-                        <Button 
-                          size="sm" 
-                          variant="outline"
-                          onClick={() => openActionDialog('fees', account)}
-                        >
-                          <Edit size={16} className="mr-1" />
-                          {t('comptes.fees')}
-                        </Button>
-                      </div>
+                      <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                          <Button variant="outline" size="sm">
+                            <MoreHorizontal size={16} />
+                          </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-48">
+                          <DropdownMenuItem onClick={() => openActionDialog('deposit', account)}>
+                            <ArrowDown size={16} className="mr-2 text-emerald-600" />
+                            {t('comptes.deposit')}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => openActionDialog('withdraw', account)}>
+                            <ArrowUp size={16} className="mr-2 text-red-600" />
+                            {t('comptes.withdraw')}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => openActionDialog('fees', account)}>
+                            <Edit size={16} className="mr-2" />
+                            {t('comptes.fees')}
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => openActionDialog('edit', account)}>
+                            <Edit size={16} className="mr-2" />
+                            Modifier
+                          </DropdownMenuItem>
+                          <DropdownMenuItem 
+                            onClick={() => openActionDialog('delete', account)}
+                            className="text-red-600"
+                          >
+                            <Trash2 size={16} className="mr-2" />
+                            Supprimer
+                          </DropdownMenuItem>
+                        </DropdownMenuContent>
+                      </DropdownMenu>
                     </TableCell>
                   </TableRow>
                 ))
@@ -323,11 +400,21 @@ const Comptes = () => {
             <DialogDescription>
               {dialogType === 'add' 
                 ? t('comptes.add_account_desc') 
+                : dialogType === 'delete'
+                ? `Êtes-vous sûr de vouloir supprimer le compte "${currentAccount?.name}" ?`
+                : dialogType === 'edit' 
+                ? `Modifier les informations du compte "${currentAccount?.name}"`
                 : t('comptes.action_account_desc', { account: currentAccount?.name })}
             </DialogDescription>
           </DialogHeader>
 
-          {dialogType === 'add' ? (
+          {dialogType === 'delete' ? (
+            <div className="py-4">
+              <p className="text-sm text-muted-foreground">
+                Cette action est irréversible. Toutes les données associées à ce compte seront perdues.
+              </p>
+            </div>
+          ) : (dialogType === 'add' || dialogType === 'edit') ? (
             <div className="space-y-4">
               <div className="space-y-2">
                 <Label htmlFor="name">{t('comptes.name')}</Label>
@@ -428,8 +515,14 @@ const Comptes = () => {
             <Button variant="outline" onClick={() => setIsDialogOpen(false)}>
               {t('comptes.cancel')}
             </Button>
-            <Button onClick={dialogType === 'add' ? handleAddAccount : handleAction}>
-              {dialogType === 'add' ? t('comptes.create') : t('comptes.confirm')}
+            <Button 
+              onClick={dialogType === 'add' ? handleAddAccount : handleAction}
+              variant={dialogType === 'delete' ? 'destructive' : 'default'}
+            >
+              {dialogType === 'add' ? t('comptes.create') : 
+               dialogType === 'delete' ? 'Supprimer' :
+               dialogType === 'edit' ? 'Modifier' :
+               t('comptes.confirm')}
             </Button>
           </DialogFooter>
         </DialogContent>
