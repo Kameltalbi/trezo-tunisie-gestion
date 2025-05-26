@@ -1,51 +1,59 @@
-
 import React, { useState } from "react";
 import { Trash2, Edit, Plus, Check, UserPlus } from "lucide-react";
 import SectionBox from "@/components/SectionBox";
 import UserInvitationForm from "@/components/UserInvitationForm";
+import UserPermissionsManager from "@/components/UserPermissionsManager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useDevises, useCreateDevise, useUpdateDevise, useDeleteDevise } from "@/hooks/useDevises";
 import { useUserRoles, useUpdateUserRole, UserRole } from "@/hooks/useUserRoles";
 import { useUserPermissions } from "@/hooks/useUserPermissions";
+import { useDeletePermissions, useToggleDeletePermission } from "@/hooks/useDeletePermissions";
 
 const ParametresPage = () => {
   const [modalType, setModalType] = useState<null | string>(null);
   const [form, setForm] = useState<any>({});
   const [isEditing, setIsEditing] = useState(false);
   const [currentItemId, setCurrentItemId] = useState<string | null>(null);
+  const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   
   const { toast } = useToast();
   
   const { data: devises = [], isLoading: loadingDevises } = useDevises();
   const { data: userRoles = [], isLoading: loadingRoles } = useUserRoles();
   const { data: userPermissions } = useUserPermissions();
+  const { data: deletePermissions = [], isLoading: loadingPermissions } = useDeletePermissions();
 
   const createDeviseMutation = useCreateDevise();
   const updateDeviseMutation = useUpdateDevise();
   const deleteDeviseMutation = useDeleteDevise();
   const updateUserRoleMutation = useUpdateUserRole();
+  const togglePermissionMutation = useToggleDeletePermission();
 
-  // Liste des pages du système
-  const systemPages = [
-    { id: 'dashboard', nom: 'Tableau de bord' },
-    { id: 'transactions', nom: 'Transactions' },
-    { id: 'encaissements', nom: 'Encaissements' },
-    { id: 'decaissements', nom: 'Décaissements' },
-    { id: 'comptes', nom: 'Comptes bancaires' },
-    { id: 'projets', nom: 'Projets' },
-    { id: 'objectifs', nom: 'Objectifs' },
-    { id: 'cash-flow', nom: 'Flux de trésorerie' },
-    { id: 'debt-management', nom: 'Gestion des dettes' },
-    { id: 'rapports', nom: 'Rapports' },
-    { id: 'parametres', nom: 'Paramètres' },
-    { id: 'admin', nom: 'Administration' },
-    { id: 'support', nom: 'Support' }
-  ];
+  // Liste des pages du système avec noms d'affichage
+  const getPageDisplayName = (page: string) => {
+    const pageNames: Record<string, string> = {
+      'dashboard': 'Tableau de bord',
+      'transactions': 'Transactions',
+      'encaissements': 'Encaissements',
+      'decaissements': 'Décaissements',
+      'comptes': 'Comptes bancaires',
+      'projets': 'Projets',
+      'objectifs': 'Objectifs',
+      'cash-flow': 'Flux de trésorerie',
+      'debt-management': 'Gestion des dettes',
+      'rapports': 'Rapports',
+      'parametres': 'Paramètres',
+      'admin': 'Administration',
+      'support': 'Support'
+    };
+    return pageNames[page] || page;
+  };
 
   const openModal = (type: string, isEdit = false, item: any = null) => {
     setForm(item || {});
@@ -59,6 +67,7 @@ const ParametresPage = () => {
     setModalType(null);
     setIsEditing(false);
     setCurrentItemId(null);
+    setSelectedUserId(null);
   };
 
   const handleSave = async () => {
@@ -95,9 +104,6 @@ const ParametresPage = () => {
           });
           toast({ description: "Rôle utilisateur mis à jour avec succès" });
         }
-      } else if (modalType === "permission") {
-        // Ajouter logique pour les permissions si nécessaire
-        toast({ description: "Permission ajoutée avec succès" });
       }
 
       closeModal();
@@ -112,9 +118,6 @@ const ParametresPage = () => {
       if (type === "devise") {
         await deleteDeviseMutation.mutateAsync(id);
         toast({ description: "Devise supprimée avec succès" });
-      } else if (type === "permission") {
-        // Logique pour supprimer une permission
-        toast({ description: "Permission supprimée avec succès" });
       }
     } catch (error) {
       console.error('Erreur lors de la suppression:', error);
@@ -124,7 +127,6 @@ const ParametresPage = () => {
 
   const handleSetDefault = async (id: string) => {
     try {
-      // D'abord, désactiver la devise par défaut actuelle
       const currentDefault = devises.find(d => d.is_default);
       if (currentDefault && currentDefault.id !== id) {
         await updateDeviseMutation.mutateAsync({ 
@@ -133,7 +135,6 @@ const ParametresPage = () => {
         });
       }
       
-      // Ensuite, définir la nouvelle devise par défaut
       await updateDeviseMutation.mutateAsync({ 
         id, 
         is_default: true 
@@ -143,6 +144,21 @@ const ParametresPage = () => {
     } catch (error) {
       console.error('Erreur lors de la définition de la devise par défaut:', error);
       toast({ description: "Erreur lors de la définition de la devise par défaut", variant: "destructive" });
+    }
+  };
+
+  const handlePermissionToggle = async (permissionId: string, granted: boolean) => {
+    try {
+      await togglePermissionMutation.mutateAsync({ permissionId, granted });
+      toast({ 
+        description: granted ? "Permission accordée" : "Permission révoquée" 
+      });
+    } catch (error) {
+      console.error('Erreur lors de la mise à jour de la permission:', error);
+      toast({ 
+        description: "Erreur lors de la mise à jour de la permission", 
+        variant: "destructive" 
+      });
     }
   };
 
@@ -183,20 +199,6 @@ const ParametresPage = () => {
             </div>
           </div>
         );
-      case "permission":
-        return (
-          <div className="space-y-4">
-            <div>
-              <label className="block text-sm font-medium mb-2">Nom de la page</label>
-              <input 
-                placeholder="Nom de la page" 
-                value={form.nom || ""} 
-                onChange={(e) => setForm({ ...form, nom: e.target.value })} 
-                className="w-full border p-2 rounded" 
-              />
-            </div>
-          </div>
-        );
       case "user":
         return <UserInvitationForm onSuccess={closeModal} onCancel={closeModal} />;
       default:
@@ -204,11 +206,24 @@ const ParametresPage = () => {
     }
   };
 
-  if (loadingDevises || loadingRoles) {
+  if (loadingDevises || loadingRoles || loadingPermissions) {
     return (
       <div className="p-6 max-w-7xl mx-auto">
         <h1 className="text-2xl font-bold mb-6">Paramètres</h1>
         <div className="text-center py-8">Chargement...</div>
+      </div>
+    );
+  }
+
+  if (selectedUserId) {
+    const selectedUser = userRoles.find(u => u.user_id === selectedUserId);
+    return (
+      <div className="p-6 max-w-7xl mx-auto">
+        <UserPermissionsManager
+          userId={selectedUserId}
+          userEmail={selectedUser?.email || 'Utilisateur inconnu'}
+          onClose={() => setSelectedUserId(null)}
+        />
       </div>
     );
   }
@@ -221,7 +236,7 @@ const ParametresPage = () => {
         <TabsList className="w-full grid grid-cols-3 mb-6">
           <TabsTrigger value="devises">Devises</TabsTrigger>
           <TabsTrigger value="utilisateurs">Utilisateurs & Rôles</TabsTrigger>
-          <TabsTrigger value="permissions">Permissions</TabsTrigger>
+          <TabsTrigger value="permissions">Permissions de suppression</TabsTrigger>
         </TabsList>
         
         <TabsContent value="devises">
@@ -368,36 +383,37 @@ const ParametresPage = () => {
         </TabsContent>
 
         <TabsContent value="permissions">
-          <SectionBox 
-            title="Permissions des pages" 
-            onAdd={() => openModal("permission")}
-          >
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-left text-gray-600 border-b">
-                    <th className="p-2">Nom de la page</th>
-                    <th className="p-2">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {systemPages.map((page) => (
-                    <tr key={page.id} className="border-t">
-                      <td className="p-2">{page.nom}</td>
-                      <td className="p-2">
-                        <Button 
-                          onClick={() => handleDelete(page.id, "permission")} 
-                          size="icon" 
-                          variant="ghost" 
-                          className="text-red-500"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
+          <SectionBox title="Permissions de suppression par page">
+            <div className="space-y-4">
+              <p className="text-sm text-gray-600 mb-4">
+                Cochez les pages sur lesquelles vous souhaitez avoir le droit de supprimer des éléments.
+              </p>
+              
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                {deletePermissions.map((permission) => (
+                  <div 
+                    key={permission.id}
+                    className="flex items-center space-x-3 p-3 border rounded-lg hover:bg-gray-50 transition-colors"
+                  >
+                    <Checkbox
+                      checked={permission.hasPermission}
+                      onCheckedChange={(checked) => 
+                        handlePermissionToggle(permission.id, checked as boolean)
+                      }
+                      disabled={togglePermissionMutation.isPending}
+                    />
+                    <span className="font-medium">
+                      {getPageDisplayName(permission.page)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              {deletePermissions.length === 0 && (
+                <div className="text-center py-8 text-gray-500">
+                  Aucune permission de suppression trouvée.
+                </div>
+              )}
             </div>
           </SectionBox>
         </TabsContent>
@@ -408,7 +424,6 @@ const ParametresPage = () => {
           <DialogHeader>
             <DialogTitle>
               {modalType === "user" ? "Inviter un utilisateur" : 
-               modalType === "permission" ? (isEditing ? "Modifier permission" : "Ajouter permission") :
                isEditing ? `Modifier ${modalType}` : `Ajouter ${modalType}`}
             </DialogTitle>
           </DialogHeader>
