@@ -41,32 +41,22 @@ export const useUserPermissions = () => {
     queryFn: async (): Promise<UserPermissionsData> => {
       if (!user) throw new Error('User not authenticated');
 
-      // Utiliser une requête RPC ou une fonction pour éviter la récursion RLS
       try {
-        // Essayer d'abord avec une requête directe en utilisant les services Supabase
-        const { data: roleData, error: roleError } = await supabase
-          .rpc('get_user_role', { user_id: user.id });
-
         let userRole;
         
-        if (roleError || !roleData) {
-          // Si la fonction RPC n'existe pas, utiliser une approche alternative
-          // Vérifier si l'utilisateur est kamel.talbi@yahoo.fr pour le superadmin
-          if (user.email === 'kamel.talbi@yahoo.fr') {
-            userRole = 'superadmin';
-          } else {
-            // Pour les autres utilisateurs, essayer une requête simple
-            const { data: simpleRoleData } = await supabase
-              .from('user_roles')
-              .select('role')
-              .eq('user_id', user.id)
-              .limit(1)
-              .maybeSingle();
-            
-            userRole = simpleRoleData?.role || 'utilisateur';
-          }
+        // Vérifier si l'utilisateur est kamel.talbi@yahoo.fr pour le superadmin
+        if (user.email === 'kamel.talbi@yahoo.fr') {
+          userRole = 'superadmin';
         } else {
-          userRole = roleData;
+          // Pour les autres utilisateurs, essayer une requête simple
+          const { data: simpleRoleData } = await supabase
+            .from('user_roles')
+            .select('role')
+            .eq('user_id', user.id)
+            .limit(1)
+            .maybeSingle();
+          
+          userRole = simpleRoleData?.role || 'utilisateur';
         }
 
         // Si pas de rôle trouvé et que c'est kamel.talbi@yahoo.fr, créer le rôle superadmin
