@@ -25,6 +25,8 @@ const Login = () => {
     try {
       await signIn(email, password);
       toast.success("Connexion réussie !");
+      // La redirection sera gérée automatiquement par le Layout
+      // qui vérifiera si l'utilisateur a un abonnement actif
       navigate("/dashboard");
     } catch (error) {
       console.error("Erreur de connexion:", error);

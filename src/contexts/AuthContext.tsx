@@ -50,6 +50,14 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     full_name: session.user.user_metadata?.full_name || null,
                     company_name: session.user.user_metadata?.company_name || null,
                   });
+
+                // Pour un nouvel utilisateur, créer un rôle utilisateur par défaut
+                await supabase
+                  .from('user_roles')
+                  .insert({
+                    user_id: session.user.id,
+                    role: 'utilisateur'
+                  });
               }
             } catch (error) {
               console.error('Erreur lors de la création du profil:', error);
@@ -111,7 +119,22 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       if (error) throw error;
       
-      // La redirection sera gérée par onAuthStateChange
+      // Vérifier si l'utilisateur a un abonnement actif
+      if (data.user) {
+        const { data: subscription } = await supabase
+          .from('subscriptions')
+          .select('*')
+          .eq('user_id', data.user.id)
+          .eq('status', 'active')
+          .maybeSingle();
+
+        // Si pas d'abonnement actif, rediriger vers checkout
+        if (!subscription) {
+          // Cette redirection sera gérée dans le Layout
+          return;
+        }
+      }
+      
     } catch (error) {
       setError(error instanceof Error ? error.message : "Erreur de connexion");
       throw error;

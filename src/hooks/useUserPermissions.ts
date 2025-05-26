@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -99,7 +100,7 @@ export const useUserPermissions = () => {
           }
         }
 
-        // Récupérer le plan actuel de l'utilisateur
+        // Récupérer le plan actuel de l'utilisateur avec les vraies limites
         const { data: planData, error: planError } = await supabase
           .from('user_current_plan')
           .select('*')
@@ -121,13 +122,29 @@ export const useUserPermissions = () => {
 
         const isAdmin = userRole === 'admin';
         const isSuperAdmin = userRole === 'superadmin';
-        const maxUsers = planData?.max_projects || 50; // Augmenter la limite par défaut
+        
+        // Déterminer les vraies limites basées sur le plan
+        let maxUsers = 1; // Par défaut pour les comptes gratuits/sans plan
+        
+        if (planData) {
+          // Utiliser max_projects comme limite d'utilisateurs (c'est ce qui semble être configuré)
+          maxUsers = planData.max_projects || 1;
+        }
+
+        // Les superadmins ont des droits illimités
+        if (isSuperAdmin) {
+          maxUsers = 1000;
+        }
+
         const canAddUsers = (isAdmin || isSuperAdmin) && (currentUsers || 0) < maxUsers;
 
         console.log('Permissions calculées:', {
           userRole,
           isAdmin,
           isSuperAdmin,
+          maxUsers,
+          currentUsers,
+          planData,
           userEmail: user.email
         });
 
@@ -154,10 +171,10 @@ export const useUserPermissions = () => {
           };
         }
         
-        // Pour les autres, droits utilisateur par défaut
+        // Pour les autres, droits utilisateur par défaut avec limite réelle
         return {
           canAddUsers: false,
-          maxUsers: 5,
+          maxUsers: 1, // Limite réelle pour les comptes gratuits
           currentUsers: 0,
           isAdmin: false,
           isSuperAdmin: false,
