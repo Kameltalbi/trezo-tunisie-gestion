@@ -2,29 +2,25 @@
 import React from 'react';
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
-import { Clock, Crown } from "lucide-react";
+import { Clock, Crown, AlertTriangle } from "lucide-react";
 import { Link } from "react-router-dom";
-import { useUserCurrentPlan } from "@/hooks/useUserCurrentPlan";
+import { useTrialExpiration } from "@/hooks/useTrialExpiration";
 
 const TrialBanner: React.FC = () => {
-  const { data: currentPlan } = useUserCurrentPlan();
+  const { isTrialActive, trialEndDate, daysLeft } = useTrialExpiration();
 
-  if (!currentPlan?.is_trial || !currentPlan.trial_end_date) {
+  if (!isTrialActive || !trialEndDate) {
     return null;
   }
-
-  const trialEndDate = new Date(currentPlan.trial_end_date);
-  const now = new Date();
-  const daysLeft = Math.ceil((trialEndDate.getTime() - now.getTime()) / (1000 * 60 * 60 * 24));
 
   if (daysLeft <= 0) {
     return (
       <Alert className="mb-4 border-red-200 bg-red-50">
-        <Clock className="h-4 w-4 text-red-600" />
+        <AlertTriangle className="h-4 w-4 text-red-600" />
         <AlertDescription className="text-red-800">
           <div className="flex justify-between items-center">
             <span>Votre essai gratuit a expiré. Souscrivez à un plan pour continuer.</span>
-            <Link to="/subscription">
+            <Link to="/checkout">
               <Button variant="default" size="sm">
                 <Crown className="mr-2 h-4 w-4" />
                 Choisir un plan
@@ -44,13 +40,21 @@ const TrialBanner: React.FC = () => {
       <AlertDescription className={isUrgent ? 'text-orange-800' : 'text-blue-800'}>
         <div className="flex justify-between items-center">
           <span>
+            {isUrgent ? (
+              <strong>⚠️ Attention : </strong>
+            ) : null}
             Essai gratuit : {daysLeft} jour{daysLeft > 1 ? 's' : ''} restant{daysLeft > 1 ? 's' : ''}
-            {currentPlan.plan_name && ` (Plan ${currentPlan.plan_name})`}
+            {isUrgent && (
+              <span className="block text-sm mt-1">
+                Votre essai expire le {trialEndDate.toLocaleDateString('fr-FR')}. 
+                Souscrivez maintenant pour éviter toute interruption.
+              </span>
+            )}
           </span>
-          <Link to="/subscription">
+          <Link to="/checkout">
             <Button variant={isUrgent ? "default" : "outline"} size="sm">
               <Crown className="mr-2 h-4 w-4" />
-              Souscrire maintenant
+              {isUrgent ? "Souscrire maintenant" : "Voir les plans"}
             </Button>
           </Link>
         </div>

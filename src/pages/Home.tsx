@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -34,7 +33,7 @@ const Home = () => {
                 <Button variant="ghost">{t('auth.login')}</Button>
               </Link>
               <Link to="/checkout">
-                <Button>{t('home.create_account')}</Button>
+                <Button>{t('home.try_free')}</Button>
               </Link>
             </div>
           </div>
@@ -75,6 +74,8 @@ const Home = () => {
           </div>
         </div>
       </section>
+
+      {/* ... keep existing code (features section) */}
 
       {/* Features Section */}
       <section id="features" className="py-20 bg-gray-50">

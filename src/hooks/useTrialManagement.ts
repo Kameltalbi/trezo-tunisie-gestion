@@ -7,6 +7,20 @@ export const useStartTrial = () => {
 
   return useMutation({
     mutationFn: async ({ userId, planId }: { userId: string; planId: string }) => {
+      // Vérifier si l'utilisateur a déjà eu un essai gratuit
+      const { data: existingSubscriptions, error: checkError } = await supabase
+        .from('subscriptions')
+        .select('*')
+        .eq('user_id', userId)
+        .eq('is_trial', true);
+
+      if (checkError) throw checkError;
+
+      // Si l'utilisateur a déjà eu un essai, l'empêcher d'en commencer un nouveau
+      if (existingSubscriptions && existingSubscriptions.length > 0) {
+        throw new Error("Vous avez déjà utilisé votre essai gratuit. Veuillez souscrire à un plan payant.");
+      }
+
       // Récupérer les informations du plan pour l'essai
       const { data: plan, error: planError } = await supabase
         .from('plans')
@@ -20,10 +34,10 @@ export const useStartTrial = () => {
         throw new Error("Ce plan ne propose pas d'essai gratuit");
       }
 
-      // Calculer les dates d'essai
+      // Calculer les dates d'essai (14 jours fixes)
       const trialStartDate = new Date();
       const trialEndDate = new Date();
-      trialEndDate.setDate(trialStartDate.getDate() + plan.trial_days);
+      trialEndDate.setDate(trialStartDate.getDate() + 14); // Toujours 14 jours
 
       // Créer l'abonnement d'essai
       const { data: subscription, error: subscriptionError } = await supabase
