@@ -27,7 +27,7 @@ export const useUserLimits = (limitType: 'transactions' | 'reports') => {
       });
       
       if (error) throw error;
-      return data as UserLimits;
+      return data as unknown as UserLimits;
     },
     enabled: !!user,
   });
