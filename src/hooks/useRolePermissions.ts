@@ -86,7 +86,7 @@ export const useUpdateRolePermission = () => {
         const { data, error } = await supabase
           .from('role_permissions')
           .delete()
-          .eq('role', role)
+          .eq('role', role as any)
           .eq('permission_id', permissionId)
           .select()
           .maybeSingle();
