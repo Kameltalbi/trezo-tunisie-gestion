@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -262,12 +261,11 @@ const Home = () => {
                 <div className="text-sm text-gray-500 mb-4">par an</div>
                 <ul className="text-sm text-gray-600 space-y-2 text-left">
                   <li>✓ Toutes les fonctionnalités de l'essai</li>
-                  <li>✓ Comptes bancaires illimités</li>
-                  <li>✓ 10 projets maximum</li>
-                  <li>✓ Gestion avancée de la trésorerie</li>
+                  <li>✓ 3 Comptes bancaires</li>
+                  <li>✓ Projets 10 projets par an</li>
                   <li>✓ Cash Flow et prévisions</li>
                   <li>✓ Gestion des dettes</li>
-                  <li>✓ Rapports PDF/Excel avancés</li>
+                  <li>✓ Rapports PDF/Excel</li>
                   <li>✓ Objectifs financiers illimités</li>
                   <li>✓ Support par email</li>
                 </ul>
@@ -302,13 +300,12 @@ const Home = () => {
                 <div className="text-sm text-gray-500 mb-4">par an</div>
                 <ul className="text-sm text-gray-600 space-y-2 text-left">
                   <li>✓ Toutes les fonctionnalités Pro</li>
-                  <li>✓ Multi-utilisateurs (jusqu'à 10)</li>
+                  <li>✓ Multi-utilisateurs (jusqu'à 7)</li>
                   <li>✓ Administration avancée</li>
                   <li>✓ Gestion des rôles et permissions</li>
                   <li>✓ Rapports personnalisés</li>
-                  <li>✓ API et intégrations</li>
                   <li>✓ Sauvegarde automatique</li>
-                  <li>✓ Support prioritaire 24/7</li>
+                  <li>✓ Support prioritaire</li>
                   <li>✓ Formation personnalisée</li>
                   <li>✓ Conseiller dédié</li>
                 </ul>
