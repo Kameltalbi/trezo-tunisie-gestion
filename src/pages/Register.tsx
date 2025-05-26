@@ -1,6 +1,7 @@
 
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../contexts/AuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,7 +9,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Loader2, Eye, EyeOff, CheckCircle } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
-import { Checkbox } from "@/components/ui/checkbox";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -16,46 +16,40 @@ const Register = () => {
     email: "",
     password: "",
     confirmPassword: "",
-    company: "",
-    acceptTerms: false
+    company: ""
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
+  const { signUp, isLoading, error } = useAuth();
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
+    const { name, value } = e.target;
     setFormData(prev => ({
       ...prev,
-      [name]: type === 'checkbox' ? checked : value
+      [name]: value
     }));
   };
 
   const validateForm = () => {
     if (!formData.nom.trim()) {
-      setError("Le nom est requis");
+      toast.error("Le nom est requis");
       return false;
     }
     if (!formData.email.trim()) {
-      setError("L'email est requis");
+      toast.error("L'email est requis");
       return false;
     }
     if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      setError("L'email n'est pas valide");
+      toast.error("L'email n'est pas valide");
       return false;
     }
     if (formData.password.length < 6) {
-      setError("Le mot de passe doit contenir au moins 6 caractères");
+      toast.error("Le mot de passe doit contenir au moins 6 caractères");
       return false;
     }
     if (formData.password !== formData.confirmPassword) {
-      setError("Les mots de passe ne correspondent pas");
-      return false;
-    }
-    if (!formData.acceptTerms) {
-      setError("Vous devez accepter les conditions d'utilisation");
+      toast.error("Les mots de passe ne correspondent pas");
       return false;
     }
     return true;
@@ -63,22 +57,19 @@ const Register = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError("");
     
     if (!validateForm()) return;
 
-    setIsLoading(true);
-    
     try {
-      // Simulation d'une création de compte
-      await new Promise(resolve => setTimeout(resolve, 1500));
+      await signUp(formData.email, formData.password, {
+        full_name: formData.nom
+      });
       
-      toast.success("Compte créé avec succès ! Vous pouvez maintenant vous connecter.");
+      toast.success("Compte créé avec succès ! Vérifiez votre email si nécessaire.");
       navigate("/login");
     } catch (error) {
-      setError("Erreur lors de la création du compte. Veuillez réessayer.");
-    } finally {
-      setIsLoading(false);
+      console.error("Erreur lors de l'inscription:", error);
+      toast.error("Erreur lors de la création du compte");
     }
   };
 
@@ -123,7 +114,7 @@ const Register = () => {
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">Créer un compte</CardTitle>
             <CardDescription>
-              Rejoignez plus de 5000 entreprises qui nous font confiance
+              Rejoignez-nous pour gérer votre trésorerie efficacement
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -249,26 +240,6 @@ const Register = () => {
                     <span className="text-xs">Les mots de passe correspondent</span>
                   </div>
                 )}
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Checkbox
-                  id="acceptTerms"
-                  checked={formData.acceptTerms}
-                  onCheckedChange={(checked) => 
-                    setFormData(prev => ({ ...prev, acceptTerms: checked as boolean }))
-                  }
-                />
-                <Label htmlFor="acceptTerms" className="text-sm">
-                  J'accepte les{' '}
-                  <a href="#" className="text-emerald-600 hover:underline">
-                    conditions d'utilisation
-                  </a>{' '}
-                  et la{' '}
-                  <a href="#" className="text-emerald-600 hover:underline">
-                    politique de confidentialité
-                  </a>
-                </Label>
               </div>
               
               <Button type="submit" className="w-full" disabled={isLoading}>

@@ -1,160 +1,120 @@
 
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
-import { AuthState, User } from "../types";
+import { supabase } from "@/integrations/supabase/client";
+import { User, Session } from "@supabase/supabase-js";
 
-// Dans un vrai projet avec Supabase, ce contexte serait connecté à l'API Supabase Auth
-
-interface AuthContextType extends AuthState {
-  login: (email: string, password: string) => Promise<void>;
-  logout: () => Promise<void>;
-  updateUser: (data: Partial<User>) => Promise<void>;
+interface AuthContextType {
+  user: User | null;
+  session: Session | null;
+  isLoading: boolean;
+  error: string | null;
+  signUp: (email: string, password: string, userData?: { full_name?: string }) => Promise<void>;
+  signIn: (email: string, password: string) => Promise<void>;
+  signOut: () => Promise<void>;
 }
-
-const defaultUsers: { [key: string]: User } = {
-  "demo@trezo.app": {
-    id: "user-1",
-    email: "demo@trezo.app",
-    nom: "Utilisateur Demo",
-    role: "utilisateur"
-  },
-  "admin@trezo.app": {
-    id: "admin-1",
-    email: "admin@trezo.app",
-    nom: "Administrateur",
-    role: "admin"
-  }
-};
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [authState, setAuthState] = useState<AuthState>({
-    user: null,
-    isLoading: true,
-    error: null,
-  });
+  const [user, setUser] = useState<User | null>(null);
+  const [session, setSession] = useState<Session | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Simuler la vérification du statut d'authentification au chargement
   useEffect(() => {
-    const savedUser = localStorage.getItem("trezo_user");
-    
-    if (savedUser) {
-      try {
-        setAuthState({
-          user: JSON.parse(savedUser),
-          isLoading: false,
-          error: null,
-        });
-      } catch (error) {
-        console.error("Erreur de parsing utilisateur:", error);
-        setAuthState({
-          user: null,
-          isLoading: false,
-          error: "Session expirée",
-        });
+    // Écouter les changements d'état d'authentification
+    const { data: { subscription } } = supabase.auth.onAuthStateChange(
+      async (event, session) => {
+        setSession(session);
+        setUser(session?.user ?? null);
+        setIsLoading(false);
+        setError(null);
       }
-    } else {
-      setAuthState({
-        user: null,
-        isLoading: false,
-        error: null,
-      });
-    }
+    );
+
+    // Vérifier la session existante
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
+      setIsLoading(false);
+    });
+
+    return () => subscription.unsubscribe();
   }, []);
 
-  const login = async (email: string, password: string) => {
-    setAuthState({
-      ...authState,
-      isLoading: true,
-      error: null,
-    });
+  const signUp = async (email: string, password: string, userData?: { full_name?: string }) => {
+    setIsLoading(true);
+    setError(null);
 
     try {
-      // Simulation d'une requête API vers Supabase
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Accepter l'email de démo ou admin
-      if (email in defaultUsers && password === "password") {
-        const userToLogin = defaultUsers[email];
-        localStorage.setItem("trezo_user", JSON.stringify(userToLogin));
-        setAuthState({
-          user: userToLogin,
-          isLoading: false,
-          error: null,
-        });
-        
-        // Rediriger vers la page du tableau de bord après connexion
-        window.location.href = "/dashboard";
-      } else {
-        throw new Error("Identifiants incorrects");
+      const { data, error } = await supabase.auth.signUp({
+        email,
+        password,
+        options: {
+          data: userData
+        }
+      });
+
+      if (error) throw error;
+
+      // Si l'inscription réussit mais nécessite une confirmation
+      if (data.user && !data.session) {
+        setError("Veuillez vérifier votre email pour confirmer votre compte.");
       }
     } catch (error) {
-      setAuthState({
-        ...authState,
-        isLoading: false,
-        error: error instanceof Error ? error.message : "Erreur de connexion",
-      });
+      setError(error instanceof Error ? error.message : "Erreur lors de l'inscription");
+      throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const logout = async () => {
-    setAuthState({
-      ...authState,
-      isLoading: true,
-    });
+  const signIn = async (email: string, password: string) => {
+    setIsLoading(true);
+    setError(null);
 
     try {
-      // Simulation d'une requête API vers Supabase
-      await new Promise(resolve => setTimeout(resolve, 500));
-      localStorage.removeItem("trezo_user");
-      setAuthState({
-        user: null,
-        isLoading: false,
-        error: null,
+      const { data, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
       });
+
+      if (error) throw error;
+      
+      // La redirection sera gérée par onAuthStateChange
     } catch (error) {
-      setAuthState({
-        ...authState,
-        isLoading: false,
-        error: error instanceof Error ? error.message : "Erreur de déconnexion",
-      });
+      setError(error instanceof Error ? error.message : "Erreur de connexion");
+      throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  const updateUser = async (data: Partial<User>) => {
-    if (!authState.user) return;
-    
-    setAuthState({
-      ...authState,
-      isLoading: true,
-    });
+  const signOut = async () => {
+    setIsLoading(true);
+    setError(null);
 
     try {
-      // Simulation d'une requête API vers Supabase
-      await new Promise(resolve => setTimeout(resolve, 800));
-      const updatedUser = { ...authState.user, ...data };
-      localStorage.setItem("trezo_user", JSON.stringify(updatedUser));
-      setAuthState({
-        user: updatedUser,
-        isLoading: false,
-        error: null,
-      });
+      const { error } = await supabase.auth.signOut();
+      if (error) throw error;
     } catch (error) {
-      setAuthState({
-        ...authState,
-        isLoading: false,
-        error: error instanceof Error ? error.message : "Erreur de mise à jour",
-      });
+      setError(error instanceof Error ? error.message : "Erreur de déconnexion");
+      throw error;
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
     <AuthContext.Provider
       value={{
-        ...authState,
-        login,
-        logout,
-        updateUser,
+        user,
+        session,
+        isLoading,
+        error,
+        signUp,
+        signIn,
+        signOut,
       }}
     >
       {children}

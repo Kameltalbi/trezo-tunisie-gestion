@@ -11,36 +11,25 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { Toaster } from "@/components/ui/sonner";
-import { Checkbox } from "@/components/ui/checkbox";
 
 const Login = () => {
   const { t } = useTranslation();
-  const [email, setEmail] = useState<string>("demo@trezo.app");
-  const [password, setPassword] = useState<string>("password");
+  const [email, setEmail] = useState<string>("");
+  const [password, setPassword] = useState<string>("");
   const [showPassword, setShowPassword] = useState(false);
-  const [rememberMe, setRememberMe] = useState(false);
-  const { login, isLoading, error } = useAuth();
+  const { signIn, isLoading, error } = useAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await login(email, password);
-      toast.success(t("auth.login_success"));
+      await signIn(email, password);
+      toast.success("Connexion réussie !");
       navigate("/dashboard");
     } catch (error) {
       console.error("Erreur de connexion:", error);
+      toast.error("Erreur de connexion. Vérifiez vos identifiants.");
     }
-  };
-
-  const setDemoUser = () => {
-    setEmail("demo@trezo.app");
-    setPassword("password");
-  };
-
-  const setAdminUser = () => {
-    setEmail("admin@trezo.app");
-    setPassword("password");
   };
 
   return (
@@ -59,7 +48,7 @@ const Login = () => {
         
         <Card className="shadow-xl rounded-2xl border-0 bg-white/80 backdrop-blur">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl">{t("auth.login")}</CardTitle>
+            <CardTitle className="text-2xl">Connexion</CardTitle>
             <CardDescription>
               Accédez à votre tableau de bord personnalisé
             </CardDescription>
@@ -112,68 +101,20 @@ const Login = () => {
                   </Button>
                 </div>
               </div>
-
-              <div className="flex items-center justify-between">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="remember"
-                    checked={rememberMe}
-                    onCheckedChange={(checked) => setRememberMe(checked as boolean)}
-                  />
-                  <Label htmlFor="remember" className="text-sm">
-                    Se souvenir de moi
-                  </Label>
-                </div>
-                <a href="#" className="text-sm text-emerald-600 hover:underline">
-                  Mot de passe oublié ?
-                </a>
-              </div>
               
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    {t("auth.login_loading")}
+                    Connexion en cours...
                   </>
                 ) : (
-                  t("auth.login_button")
+                  "Se connecter"
                 )}
               </Button>
             </form>
           </CardContent>
           <CardFooter className="flex flex-col space-y-4 text-center text-sm text-muted-foreground">
-            <div className="w-full">
-              <div className="relative">
-                <div className="absolute inset-0 flex items-center">
-                  <span className="w-full border-t" />
-                </div>
-                <div className="relative flex justify-center text-xs uppercase">
-                  <span className="bg-background px-2 text-muted-foreground">
-                    Ou essayez avec
-                  </span>
-                </div>
-              </div>
-            </div>
-            
-            <div className="flex flex-col space-y-2 w-full">
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="w-full"
-                onClick={setDemoUser}
-              >
-                <span className="mr-2">👤</span> Compte utilisateur standard
-              </Button>
-              <Button 
-                variant="outline" 
-                size="sm"
-                className="w-full"
-                onClick={setAdminUser}
-              >
-                <span className="mr-2">🛡️</span> Compte administrateur
-              </Button>
-            </div>
-
             <div className="flex items-center justify-center space-x-2">
               <span>Pas encore de compte ?</span>
               <Link to="/register" className="text-emerald-600 hover:underline font-medium">
