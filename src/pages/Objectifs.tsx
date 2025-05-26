@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PlusCircle, Pencil, Trash2 } from "lucide-react";
@@ -160,8 +159,22 @@ const Objectifs = () => {
     setCurrentObjectif(null);
   };
 
+  // Convert Objectif from hook to match ObjectifDetailSheet expected type
+  const convertObjectifForDetailSheet = (objectif: Objectif) => {
+    return {
+      id: objectif.id,
+      nom: objectif.nom,
+      type: objectif.type,
+      valeurActuelle: objectif.valeur_actuelle,
+      valeurCible: objectif.valeur_cible,
+      dateDebut: objectif.date_debut,
+      dateFin: objectif.date_fin,
+      progression: calculateProgression(objectif)
+    };
+  };
+
   const handleCardClick = (objectif: Objectif) => {
-    setSelectedObjectif(objectif);
+    setSelectedObjectif(convertObjectifForDetailSheet(objectif));
     setIsDetailSheetOpen(true);
   };
 
