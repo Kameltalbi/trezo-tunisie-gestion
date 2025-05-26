@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
@@ -86,15 +87,15 @@ const DashboardPage: React.FC = () => {
 
   // Calculate dashboard summary cards from real data
   const dashboardSummary = React.useMemo(() => {
-    const totalEncaissements = encaissements.data?.reduce((sum: number, item: any) => sum + Number(item.montant), 0) || 0;
-    const totalDepenses = depenses.data?.reduce((sum: number, item: any) => sum + Number(item.montant), 0) || 0;
+    const totalEncaissements = encaissements.data?.reduce((sum: number, item: any) => sum + Number(item.montant || 0), 0) || 0;
+    const totalDepenses = depenses.data?.reduce((sum: number, item: any) => sum + Number(item.montant || 0), 0) || 0;
     const soldeGlobal = totalEncaissements - totalDepenses;
     
     return {
       soldeGlobal,
       encaissementsPrevus: totalEncaissements,
       depensesAVenir: totalDepenses,
-      facturesEnRetard: depenses.data?.filter((d: any) => d.statut === 'en_retard').length || 0
+      facturesEnRetard: depenses.data?.filter((d: any) => String(d.statut) === 'en_retard').length || 0
     };
   }, [encaissements.data, depenses.data]);
 
