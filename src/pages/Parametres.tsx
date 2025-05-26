@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Trash2, Edit, Plus } from "lucide-react";
+import { Trash2, Edit, Plus, Check } from "lucide-react";
 import SectionBox from "@/components/SectionBox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
@@ -90,6 +90,22 @@ const ParametresPage = () => {
     }
   };
 
+  const handleSetDefault = async (id: string) => {
+    try {
+      await updateDeviseMutation.mutateAsync({ 
+        id, 
+        is_default: true 
+      });
+      toast({ description: "Devise définie par défaut avec succès" });
+    } catch (error) {
+      console.error('Erreur lors de la définition de la devise par défaut:', error);
+      toast({ 
+        description: "Erreur lors de la définition de la devise par défaut", 
+        variant: "destructive" 
+      });
+    }
+  };
+
   const renderFormFields = () => {
     switch (modalType) {
       case "devise":
@@ -147,9 +163,10 @@ const ParametresPage = () => {
       <h1 className="text-2xl font-bold mb-6">Paramètres</h1>
       
       <Tabs defaultValue="devises" className="w-full">
-        <TabsList className="w-full grid grid-cols-2 mb-6">
+        <TabsList className="w-full grid grid-cols-3 mb-6">
           <TabsTrigger value="devises">Devises</TabsTrigger>
           <TabsTrigger value="permissions">Permissions</TabsTrigger>
+          <TabsTrigger value="utilisateurs">Utilisateurs & Entreprises</TabsTrigger>
         </TabsList>
         
         {/* Devises Content */}
@@ -181,6 +198,16 @@ const ParametresPage = () => {
                       <td className="p-2">{d.separateur}</td>
                       <td className="p-2">{d.is_default ? "Oui" : "Non"}</td>
                       <td className="p-2 flex space-x-2">
+                        {!d.is_default && (
+                          <Button 
+                            onClick={() => handleSetDefault(d.id)} 
+                            size="icon" 
+                            variant="ghost"
+                            title="Définir par défaut"
+                          >
+                            <Check className="w-4 h-4 text-green-500" />
+                          </Button>
+                        )}
                         <Button 
                           onClick={() => openModal("devise", true, d)} 
                           size="icon" 
@@ -229,6 +256,47 @@ const ParametresPage = () => {
                       <td className="p-2">{p.description}</td>
                       <td className="p-2">{p.page}</td>
                       <td className="p-2">{p.action}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </SectionBox>
+        </TabsContent>
+
+        {/* Utilisateurs & Entreprises Content */}
+        <TabsContent value="utilisateurs">
+          <SectionBox 
+            title="Utilisateurs & Entreprises"
+            onAdd={() => {}}
+          >
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-gray-600 border-b">
+                    <th className="p-2">Email</th>
+                    <th className="p-2">Nom</th>
+                    <th className="p-2">Entreprise</th>
+                    <th className="p-2">Rôle</th>
+                    <th className="p-2">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {userRoles.map((u) => (
+                    <tr key={u.id} className="border-t">
+                      <td className="p-2">{u.email}</td>
+                      <td className="p-2">{u.full_name}</td>
+                      <td className="p-2">{u.company_name}</td>
+                      <td className="p-2">{u.role}</td>
+                      <td className="p-2 flex space-x-2">
+                        <Button 
+                          onClick={() => openModal("user", true, u)} 
+                          size="icon" 
+                          variant="ghost"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                      </td>
                     </tr>
                   ))}
                 </tbody>
