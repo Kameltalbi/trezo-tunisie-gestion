@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PlusCircle, Pencil, Trash2 } from "lucide-react";
@@ -290,7 +291,6 @@ const Objectifs = () => {
             <DialogDescription>{t("objectifs.description")}</DialogDescription>
           </DialogHeader>
           <div className="grid gap-4 py-4">
-            {/* ... keep existing code (same form fields as create dialog) */}
             <div className="grid grid-cols-4 items-center gap-4">
               <Label htmlFor="edit-nom" className="text-right">{t("objectifs.name")}</Label>
               <Input 
@@ -377,7 +377,7 @@ const Objectifs = () => {
               {updateObjectif.isPending ? t("objectifs.updating") : t("objectifs.update")}
             </Button>
           </DialogFooter>
-        </Dialog>
+        </DialogContent>
       </Dialog>
 
       {/* Detail Sheet */}
