@@ -1,44 +1,30 @@
 
-import { useAuth } from "@/contexts/AuthContext";
-import { Navigate } from "react-router-dom";
-import { useState } from "react";
-import Sidebar from "./Sidebar";
-import Header from "./Header";
-import TrialBanner from "./TrialBanner";
+import React from 'react';
+import { Outlet } from 'react-router-dom';
+import Sidebar from './Sidebar';
+import Header from './Header';
+import { useAuth } from '@/contexts/AuthContext';
+import TrialWatcher from './TrialWatcher';
+import CustomBadge from './CustomBadge';
 
-interface LayoutProps {
-  children: React.ReactNode;
-  requireAuth?: boolean;
-}
+const Layout = () => {
+  const { user } = useAuth();
 
-const Layout = ({ children, requireAuth = false }: LayoutProps) => {
-  const { user, isLoading } = useAuth();
-  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
-
-  // Si l'authentification est requise et que l'utilisateur n'est pas connecté
-  if (requireAuth && !isLoading && !user) {
-    return <Navigate to="/login" replace />;
-  }
-
-  // Si l'utilisateur n'est pas connecté, afficher seulement le contenu
   if (!user) {
-    return <div className="bg-background text-foreground">{children}</div>;
+    return <Outlet />;
   }
 
   return (
-    <div className="min-h-screen bg-background text-foreground">
-      <Header />
-      <div className="flex">
-        <Sidebar onExpandedChange={setIsSidebarExpanded} />
-        <main 
-          className={`flex-1 p-6 transition-all duration-300 ${
-            isSidebarExpanded ? 'ml-60' : 'ml-16'
-          }`}
-        >
-          <TrialBanner />
-          {children}
+    <div className="min-h-screen bg-gray-50 flex">
+      <Sidebar />
+      <div className="flex-1 flex flex-col">
+        <Header />
+        <main className="flex-1 p-6 overflow-auto">
+          <TrialWatcher />
+          <Outlet />
         </main>
       </div>
+      <CustomBadge />
     </div>
   );
 };
