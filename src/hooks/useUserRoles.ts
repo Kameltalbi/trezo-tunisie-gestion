@@ -39,7 +39,7 @@ export const useUserRoles = () => {
     queryFn: async () => {
       if (!user) return [];
 
-      // Récupérer tous les rôles d'utilisateurs (pour les admins)
+      // Récupérer tous les rôles d'utilisateurs
       const { data: userRoles, error: rolesError } = await supabase
         .from('user_roles')
         .select('*');
