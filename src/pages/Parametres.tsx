@@ -1,3 +1,4 @@
+
 import React, { useState } from "react";
 import { Trash2, Edit, Plus, Check, UserPlus } from "lucide-react";
 import SectionBox from "@/components/SectionBox";
@@ -154,7 +155,203 @@ const ParametresPage = () => {
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
-      {/* ...le reste du contenu de la page est inchangé et peut rester tel quel */}
+      <h1 className="text-2xl font-bold mb-6">Paramètres</h1>
+      
+      <Tabs defaultValue="devises" className="w-full">
+        <TabsList className="w-full grid grid-cols-3 mb-6">
+          <TabsTrigger value="devises">Devises</TabsTrigger>
+          <TabsTrigger value="permissions">Permissions</TabsTrigger>
+          <TabsTrigger value="utilisateurs">Utilisateurs & Rôles</TabsTrigger>
+        </TabsList>
+        
+        <TabsContent value="devises">
+          <SectionBox 
+            title="Devises" 
+            onAdd={() => openModal("devise")}
+          >
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-gray-600 border-b">
+                    <th className="p-2">Nom</th>
+                    <th className="p-2">Symbole</th>
+                    <th className="p-2">Code</th>
+                    <th className="p-2">Décimales</th>
+                    <th className="p-2">Séparateur</th>
+                    <th className="p-2">Défaut</th>
+                    <th className="p-2">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {devises.length > 0 ? devises.map((d) => (
+                    <tr key={d.id} className="border-t">
+                      <td className="p-2">{d.nom}</td>
+                      <td className="p-2">{d.symbole}</td>
+                      <td className="p-2">{d.code}</td>
+                      <td className="p-2">{d.decimales}</td>
+                      <td className="p-2">{d.separateur}</td>
+                      <td className="p-2">{d.is_default ? "Oui" : "Non"}</td>
+                      <td className="p-2 flex space-x-2">
+                        <Button 
+                          onClick={() => openModal("devise", true, d)} 
+                          size="icon" 
+                          variant="ghost"
+                        >
+                          <Edit className="w-4 h-4" />
+                        </Button>
+                        <Button 
+                          onClick={() => handleDelete(d.id, "devise")} 
+                          size="icon" 
+                          variant="ghost" 
+                          className="text-red-500"
+                          disabled={d.is_default}
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </td>
+                    </tr>
+                  )) : (
+                    <tr>
+                      <td colSpan={7} className="p-4 text-center text-gray-500">
+                        Aucune devise configurée
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </SectionBox>
+        </TabsContent>
+        
+        <TabsContent value="permissions">
+          <SectionBox title="Permissions du système">
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-gray-600 border-b">
+                    <th className="p-2">Nom</th>
+                    <th className="p-2">Description</th>
+                    <th className="p-2">Page</th>
+                    <th className="p-2">Action</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {permissions.length > 0 ? permissions.map((p) => (
+                    <tr key={p.id} className="border-t">
+                      <td className="p-2">{p.nom}</td>
+                      <td className="p-2">{p.description}</td>
+                      <td className="p-2">{p.page}</td>
+                      <td className="p-2">{p.action}</td>
+                    </tr>
+                  )) : (
+                    <tr>
+                      <td colSpan={4} className="p-4 text-center text-gray-500">
+                        Aucune permission configurée
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </SectionBox>
+        </TabsContent>
+
+        <TabsContent value="utilisateurs">
+          <SectionBox 
+            title="Utilisateurs & Rôles"
+            onAdd={userPermissions?.canAddUsers ? () => openModal("user") : undefined}
+            addButtonText={
+              <div className="flex items-center gap-2">
+                <UserPlus className="w-4 h-4" />
+                Inviter un utilisateur
+              </div>
+            }
+          >
+            {!userPermissions?.canAddUsers && (
+              <div className="mb-4 p-3 bg-yellow-50 border border-yellow-200 rounded-lg">
+                <p className="text-sm text-yellow-800">
+                  Limite d'utilisateurs atteinte ({userPermissions?.currentUsers}/{userPermissions?.maxUsers}). 
+                  Mettez à niveau votre plan pour ajouter plus d'utilisateurs.
+                </p>
+              </div>
+            )}
+            
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-gray-600 border-b">
+                    <th className="p-2">Email</th>
+                    <th className="p-2">Nom</th>
+                    <th className="p-2">Entreprise</th>
+                    <th className="p-2">Rôle</th>
+                    <th className="p-2">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {userRoles.length > 0 ? userRoles.map((u) => (
+                    <tr key={u.id} className="border-t">
+                      <td className="p-2">{u.email || '-'}</td>
+                      <td className="p-2">{u.full_name || '-'}</td>
+                      <td className="p-2">{u.company_name || '-'}</td>
+                      <td className="p-2">
+                        <Badge variant={u.role === 'admin' ? 'default' : 'secondary'}>
+                          {u.role}
+                        </Badge>
+                      </td>
+                      <td className="p-2 flex space-x-2">
+                        {userPermissions?.isAdmin && (
+                          <Button 
+                            onClick={() => openModal("user_role", true, u)} 
+                            size="icon" 
+                            variant="ghost"
+                          >
+                            <Edit className="w-4 h-4" />
+                          </Button>
+                        )}
+                      </td>
+                    </tr>
+                  )) : (
+                    <tr>
+                      <td colSpan={5} className="p-4 text-center text-gray-500">
+                        Aucun utilisateur trouvé
+                      </td>
+                    </tr>
+                  )}
+                </tbody>
+              </table>
+            </div>
+          </SectionBox>
+        </TabsContent>
+      </Tabs>
+
+      <Dialog open={!!modalType} onOpenChange={(open) => !open && closeModal()}>
+        <DialogContent className="sm:max-w-md">
+          <DialogHeader>
+            <DialogTitle>
+              {modalType === "user" ? "Inviter un utilisateur" : 
+               isEditing ? `Modifier ${modalType}` : `Ajouter ${modalType}`}
+            </DialogTitle>
+          </DialogHeader>
+          
+          <div className="space-y-3 py-4">
+            {renderFormFields()}
+          </div>
+          
+          {modalType !== "user" && (
+            <DialogFooter>
+              <Button variant="outline" onClick={closeModal}>
+                Annuler
+              </Button>
+              <Button 
+                onClick={handleSave}
+                disabled={createDeviseMutation.isPending || updateDeviseMutation.isPending || updateUserRoleMutation.isPending}
+              >
+                {isEditing ? "Mettre à jour" : "Ajouter"}
+              </Button>
+            </DialogFooter>
+          )}
+        </DialogContent>
+      </Dialog>
     </div>
   );
 };
