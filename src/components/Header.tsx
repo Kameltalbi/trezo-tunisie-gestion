@@ -3,7 +3,6 @@ import React, { useState, useEffect } from 'react';
 import { Sun, Moon, Monitor, LogOut, User } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
 import { useAuth } from '../contexts/AuthContext';
-import { Switch } from './ui/switch';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -77,44 +76,30 @@ const Header = () => {
               </span>
             </div>
 
-            {/* Contrôles de thème */}
-            <div className="flex items-center space-x-4">
-              <div className="flex items-center space-x-2">
-                <Sun className="h-4 w-4" />
-                <Switch
-                  checked={theme === 'dark'}
-                  onCheckedChange={(checked) => {
-                    setTheme(checked ? 'dark' : 'light');
-                  }}
-                />
-                <Moon className="h-4 w-4" />
-              </div>
-
-              {/* Menu dropdown pour les options de thème */}
-              <DropdownMenu>
-                <DropdownMenuTrigger asChild>
-                  <Button variant="ghost" size="sm">
-                    {theme === 'light' && <Sun className="h-4 w-4" />}
-                    {theme === 'dark' && <Moon className="h-4 w-4" />}
-                    {theme === 'system' && <Monitor className="h-4 w-4" />}
-                  </Button>
-                </DropdownMenuTrigger>
-                <DropdownMenuContent align="end">
-                  <DropdownMenuItem onClick={() => setTheme('light')}>
-                    <Sun className="mr-2 h-4 w-4" />
-                    <span>Clair</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setTheme('dark')}>
-                    <Moon className="mr-2 h-4 w-4" />
-                    <span>Sombre</span>
-                  </DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => setTheme('system')}>
-                    <Monitor className="mr-2 h-4 w-4" />
-                    <span>Système</span>
-                  </DropdownMenuItem>
-                </DropdownMenuContent>
-              </DropdownMenu>
-            </div>
+            {/* Menu dropdown pour les options de thème */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" size="sm">
+                  {theme === 'light' && <Sun className="h-4 w-4" />}
+                  {theme === 'dark' && <Moon className="h-4 w-4" />}
+                  {theme === 'system' && <Monitor className="h-4 w-4" />}
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end">
+                <DropdownMenuItem onClick={() => setTheme('light')}>
+                  <Sun className="mr-2 h-4 w-4" />
+                  <span>Clair</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme('dark')}>
+                  <Moon className="mr-2 h-4 w-4" />
+                  <span>Sombre</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={() => setTheme('system')}>
+                  <Monitor className="mr-2 h-4 w-4" />
+                  <span>Système</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
 
             {/* Menu utilisateur */}
             {user && (
