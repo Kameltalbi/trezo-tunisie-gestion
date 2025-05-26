@@ -177,7 +177,17 @@
   },
   "cash_management": {
     "title": "Treasury Management",
-    "description": "Manage your cash flows"
+    "description": "Manage your cash flows",
+    "cash_flow_plan": "Cash Flow Plan",
+    "monthly_inflow": "Monthly Inflow",
+    "monthly_outflow": "Monthly Outflow",
+    "net_balance": "Net Balance",
+    "previous_months": "Previous months",
+    "next_months": "Next months",
+    "details": "Details",
+    "no_income_data": "No income data available",
+    "no_expense_data": "No expense data available",
+    "no_expenses_this_month": "No expenses this month"
   },
   "debt_management": {
     "title": "Debt Management",
