@@ -257,6 +257,60 @@ export type Database = {
           },
         ]
       }
+      entreprises: {
+        Row: {
+          adresse: string | null
+          capital: number | null
+          created_at: string
+          devise_id: string | null
+          email: string | null
+          forme_juridique: string | null
+          id: string
+          logo_url: string | null
+          nom: string
+          secteur_activite: string | null
+          siret: string | null
+          telephone: string | null
+          tva: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          adresse?: string | null
+          capital?: number | null
+          created_at?: string
+          devise_id?: string | null
+          email?: string | null
+          forme_juridique?: string | null
+          id?: string
+          logo_url?: string | null
+          nom: string
+          secteur_activite?: string | null
+          siret?: string | null
+          telephone?: string | null
+          tva?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          adresse?: string | null
+          capital?: number | null
+          created_at?: string
+          devise_id?: string | null
+          email?: string | null
+          forme_juridique?: string | null
+          id?: string
+          logo_url?: string | null
+          nom?: string
+          secteur_activite?: string | null
+          siret?: string | null
+          telephone?: string | null
+          tva?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       flux_tresorerie: {
         Row: {
           categorie: string | null
