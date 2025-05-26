@@ -35,7 +35,7 @@ const Home = () => {
               <Link to="/login">
                 <Button variant="ghost">Connexion</Button>
               </Link>
-              <Link to="/register">
+              <Link to="/checkout">
                 <Button>Créer un compte</Button>
               </Link>
             </div>
@@ -55,7 +55,7 @@ const Home = () => {
                 Gérez facilement votre budget, suivez vos dépenses et atteignez vos objectifs financiers.
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Link to="/register">
+                <Link to="/checkout">
                   <Button size="lg" className="w-full sm:w-auto">
                     Commencer gratuitement <ArrowRight className="ml-2" />
                   </Button>
@@ -271,7 +271,7 @@ const Home = () => {
                 </ul>
               </CardContent>
               <CardFooter className="text-center">
-                <Link to="/register" className="w-full">
+                <Link to="/checkout" className="w-full">
                   <Button className="w-full">
                     Choisir Pro
                   </Button>
@@ -311,7 +311,7 @@ const Home = () => {
                 </ul>
               </CardContent>
               <CardFooter className="text-center">
-                <Link to="/register" className="w-full">
+                <Link to="/checkout" className="w-full">
                   <Button className="w-full">
                     Choisir Entreprise
                   </Button>

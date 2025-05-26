@@ -24,6 +24,8 @@ import Objectifs from "./pages/Objectifs";
 import Rapports from "./pages/Rapports";
 import Transactions from "./pages/Transactions";
 import Support from "./pages/Support";
+import Checkout from "./pages/Checkout";
+import Subscription from "./pages/Subscription";
 
 // Import i18n configuration
 import "./i18n";
@@ -41,6 +43,8 @@ const App = () => (
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
             <Route path="/register" element={<Register />} />
+            <Route path="/checkout" element={<Layout requireAuth={true}><Checkout /></Layout>} />
+            <Route path="/subscription" element={<Layout requireAuth={true}><Subscription /></Layout>} />
             <Route path="/parametres" element={<Layout requireAuth={true}><Parametres /></Layout>} />
             <Route path="/admin" element={<Layout requireAuth={true}><Admin /></Layout>} />
             <Route path="/cash-flow" element={<Layout requireAuth={true}><CashFlow /></Layout>} />

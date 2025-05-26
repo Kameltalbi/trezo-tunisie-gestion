@@ -9,7 +9,175 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
-      [_ in never]: never
+      payments: {
+        Row: {
+          amount: number
+          bank_details: Json | null
+          created_at: string
+          currency: string
+          id: string
+          notes: string | null
+          payment_method: string
+          status: string
+          subscription_id: string | null
+          transaction_reference: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          amount: number
+          bank_details?: Json | null
+          created_at?: string
+          currency?: string
+          id?: string
+          notes?: string | null
+          payment_method: string
+          status: string
+          subscription_id?: string | null
+          transaction_reference?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          bank_details?: Json | null
+          created_at?: string
+          currency?: string
+          id?: string
+          notes?: string | null
+          payment_method?: string
+          status?: string
+          subscription_id?: string | null
+          transaction_reference?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payments_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "subscriptions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      plans: {
+        Row: {
+          created_at: string
+          currency: string
+          duration_months: number
+          features: Json | null
+          id: string
+          is_active: boolean | null
+          max_bank_accounts: number | null
+          max_projects: number | null
+          name: string
+          price: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          currency?: string
+          duration_months?: number
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          max_bank_accounts?: number | null
+          max_projects?: number | null
+          name: string
+          price: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          currency?: string
+          duration_months?: number
+          features?: Json | null
+          id?: string
+          is_active?: boolean | null
+          max_bank_accounts?: number | null
+          max_projects?: number | null
+          name?: string
+          price?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      profiles: {
+        Row: {
+          company_name: string | null
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          phone: string | null
+          updated_at: string
+        }
+        Insert: {
+          company_name?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Update: {
+          company_name?: string | null
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          phone?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      subscriptions: {
+        Row: {
+          auto_renew: boolean | null
+          created_at: string
+          end_date: string
+          id: string
+          plan_id: string
+          start_date: string
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          auto_renew?: boolean | null
+          created_at?: string
+          end_date: string
+          id?: string
+          plan_id: string
+          start_date?: string
+          status: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          auto_renew?: boolean | null
+          created_at?: string
+          end_date?: string
+          id?: string
+          plan_id?: string
+          start_date?: string
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "subscriptions_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
