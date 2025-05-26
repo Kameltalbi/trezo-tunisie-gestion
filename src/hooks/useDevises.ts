@@ -44,3 +44,62 @@ export const useDefaultDevise = () => {
     },
   });
 };
+
+export const useCreateDevise = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (data: Omit<Devise, 'id' | 'created_at' | 'updated_at'>) => {
+      const { data: devise, error } = await supabase
+        .from('devises')
+        .insert(data)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return devise;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['devises'] });
+    },
+  });
+};
+
+export const useUpdateDevise = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ id, ...data }: Partial<Devise> & { id: string }) => {
+      const { data: devise, error } = await supabase
+        .from('devises')
+        .update(data)
+        .eq('id', id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return devise;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['devises'] });
+    },
+  });
+};
+
+export const useDeleteDevise = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async (id: string) => {
+      const { error } = await supabase
+        .from('devises')
+        .delete()
+        .eq('id', id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['devises'] });
+    },
+  });
+};

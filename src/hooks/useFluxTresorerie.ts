@@ -3,55 +3,52 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
 
-export interface Encaissement {
+export interface FluxTresorerie {
   id: string;
   user_id: string;
   compte_id?: string;
-  projet_id?: string;
-  titre: string;
-  montant: number;
-  date_transaction: string;
-  categorie: string;
-  sous_categorie?: string;
+  date_prevision: string;
+  type: 'entree' | 'sortie';
+  montant_prevu: number;
+  montant_realise?: number;
   description?: string;
-  reference?: string;
-  statut: 'confirme' | 'en_attente' | 'annule';
-  recurrence?: 'aucune' | 'quotidienne' | 'hebdomadaire' | 'bimensuelle' | 'mensuelle' | 'trimestrielle' | 'semestrielle' | 'annuelle';
+  categorie?: string;
+  statut: 'prevu' | 'realise' | 'annule';
   created_at: string;
   updated_at: string;
 }
 
-export const useEncaissements = () => {
+export const useFluxTresorerie = () => {
   const { user } = useAuth();
   
   return useQuery({
-    queryKey: ['encaissements', user?.id],
+    queryKey: ['flux-tresorerie', user?.id],
     queryFn: async () => {
       if (!user) return [];
       
       const { data, error } = await supabase
-        .from('encaissements')
+        .from('flux_tresorerie')
         .select('*')
         .eq('user_id', user.id)
-        .order('date_transaction', { ascending: false });
+        .order('date_prevision', { ascending: false });
 
       if (error) throw error;
-      return data as Encaissement[];
+      return data as FluxTresorerie[];
     },
     enabled: !!user,
   });
 };
 
-export const useCreateEncaissement = () => {
+export const useCreateFluxTresorerie = () => {
   const queryClient = useQueryClient();
   const { user } = useAuth();
   
   return useMutation({
-    mutationFn: async (data: Omit<Encaissement, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+    mutationFn: async (data: Omit<FluxTresorerie, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
       if (!user) throw new Error("User must be authenticated");
 
-      const { data: encaissement, error } = await supabase
-        .from('encaissements')
+      const { data: flux, error } = await supabase
+        .from('flux_tresorerie')
         .insert({
           ...data,
           user_id: user.id
@@ -60,10 +57,10 @@ export const useCreateEncaissement = () => {
         .single();
 
       if (error) throw error;
-      return encaissement;
+      return flux;
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['encaissements'] });
+      queryClient.invalidateQueries({ queryKey: ['flux-tresorerie'] });
     },
   });
 };

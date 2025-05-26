@@ -16,7 +16,7 @@ export interface Decaissement {
   description?: string;
   reference?: string;
   statut: 'confirme' | 'en_attente' | 'annule';
-  recurrence: 'aucune' | 'quotidienne' | 'hebdomadaire' | 'bimensuelle' | 'mensuelle' | 'trimestrielle' | 'semestrielle' | 'annuelle';
+  recurrence?: 'aucune' | 'quotidienne' | 'hebdomadaire' | 'bimensuelle' | 'mensuelle' | 'trimestrielle' | 'semestrielle' | 'annuelle';
   created_at: string;
   updated_at: string;
 }
@@ -64,7 +64,6 @@ export const useCreateDecaissement = () => {
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['decaissements'] });
-      queryClient.invalidateQueries({ queryKey: ['transactions'] });
     },
   });
 };

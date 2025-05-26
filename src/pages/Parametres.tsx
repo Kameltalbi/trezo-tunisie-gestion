@@ -1,61 +1,31 @@
-import React, { useState, useEffect } from "react";
-import { v4 as uuidv4 } from "uuid";
-import { Devise, Langue, Utilisateur, Periode, Permission } from "@/types/parametres";
-import { Trash2, X, Plus, Edit } from "lucide-react";
+
+import React, { useState } from "react";
+import { Trash2, Edit, Plus } from "lucide-react";
 import SectionBox from "@/components/SectionBox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/components/ui/use-toast";
-import { supabase } from "@/integrations/supabase/client";
+import { useDevises, useCreateDevise, useUpdateDevise, useDeleteDevise } from "@/hooks/useDevises";
+import { useUserRoles, usePermissions } from "@/hooks/useUserRoles";
 
 const ParametresPage = () => {
-  const [devises, setDevises] = useState<Devise[]>([]);
-  const [langues, setLangues] = useState<Langue[]>([]);
-  const [utilisateurs, setUtilisateurs] = useState<Utilisateur[]>([]);
-  const [periodes, setPeriodes] = useState<Periode[]>([]);
-  const [permissions, setPermissions] = useState<Permission[]>([]);
-
   const [modalType, setModalType] = useState<null | string>(null);
   const [form, setForm] = useState<any>({});
   const [isEditing, setIsEditing] = useState(false);
   const [currentItemId, setCurrentItemId] = useState<string | null>(null);
   
   const { toast } = useToast();
-
-  // Liste des permissions prédéfinies basées sur les pages de l'application
-  const permissionsPredefinis = [
-    { page: "Tableau de bord", description: "Accéder au tableau de bord principal" },
-    { page: "Flux de trésorerie", description: "Gérer les flux de trésorerie" },
-    { page: "Encaissements", description: "Gérer les encaissements" },
-    { page: "Décaissements", description: "Gérer les décaissements" },
-    { page: "Comptes", description: "Gérer les comptes" },
-    { page: "Transactions", description: "Gérer les transactions" },
-    { page: "Projets", description: "Gérer les projets" },
-    { page: "Objectifs", description: "Gérer les objectifs" },
-    { page: "Rapports", description: "Générer et consulter les rapports" },
-    { page: "Gestion des dettes", description: "Gérer les dettes" },
-    { page: "Paramètres", description: "Accéder aux paramètres système" },
-    { page: "Administration", description: "Accéder aux fonctions d'administration" },
-    { page: "Support", description: "Accéder au support technique" },
-    { page: "Supprimer", description: "Supprimer des éléments du système" }
-  ];
-
-  // Initialiser les permissions avec les permissions prédéfinies
-  useEffect(() => {
-    if (permissions.length === 0) {
-      const permissionsInitiales = permissionsPredefinis.map(perm => ({
-        id: uuidv4(),
-        page: perm.page,
-        description: perm.description,
-        admin: true,
-        editeur: perm.page !== "Administration" && perm.page !== "Paramètres",
-        collaborateur: perm.page !== "Administration" && perm.page !== "Paramètres" && perm.page !== "Supprimer"
-      }));
-      setPermissions(permissionsInitiales);
-    }
-  }, []);
+  
+  // Hooks pour les données Supabase
+  const { data: devises = [], isLoading: loadingDevises } = useDevises();
+  const { data: permissions = [], isLoading: loadingPermissions } = usePermissions();
+  const { data: userRoles = [], isLoading: loadingRoles } = useUserRoles();
+  
+  // Mutations pour les devises
+  const createDeviseMutation = useCreateDevise();
+  const updateDeviseMutation = useUpdateDevise();
+  const deleteDeviseMutation = useDeleteDevise();
 
   const openModal = (type: string, isEdit = false, item: any = null) => {
     setForm(item || {});
@@ -75,128 +45,50 @@ const ParametresPage = () => {
     setCurrentItemId(null);
   };
 
-  const handleSave = () => {
-    const id = currentItemId || uuidv4();
-
-    if (modalType === "devise") {
-      const entry: Devise = {
-        id,
-        nom: form.nom,
-        symbole: form.symbole,
-        decimales: Number(form.decimales),
-        separateur: form.separateur,
-      };
-      
-      if (isEditing) {
-        setDevises(devises.map(d => d.id === id ? entry : d));
-        toast({ description: "Devise mise à jour avec succès", variant: "success" });
-      } else {
-        setDevises([...devises, entry]);
-        toast({ description: "Devise ajoutée avec succès", variant: "success" });
-      }
-    }
-
-    if (modalType === "langue") {
-      const entry: Langue = { id, nom: form.nom };
-      
-      if (isEditing) {
-        setLangues(langues.map(l => l.id === id ? entry : l));
-        toast({ description: "Langue mise à jour avec succès", variant: "success" });
-      } else {
-        setLangues([...langues, entry]);
-        toast({ description: "Langue ajoutée avec succès", variant: "success" });
-      }
-    }
-
-    if (modalType === "utilisateur") {
-      const entry: Utilisateur = { 
-        id, 
-        nom: form.nom,
-        email: form.email,
-        role: form.role
-      };
-      
-      if (isEditing) {
-        setUtilisateurs(utilisateurs.map(u => u.id === id ? entry : u));
-        toast({ description: "Utilisateur mis à jour avec succès", variant: "success" });
-      } else {
-        setUtilisateurs([...utilisateurs, entry]);
-        toast({ description: "Utilisateur ajouté avec succès", variant: "success" });
-      }
-    }
-
-    if (modalType === "periode") {
-      const entry: Periode = { 
-        id, 
-        debut: form.debut, 
-        fin: form.fin 
-      };
-      
-      if (isEditing) {
-        setPeriodes(periodes.map(p => p.id === id ? entry : p));
-        toast({ description: "Période mise à jour avec succès", variant: "success" });
-      } else {
-        setPeriodes([...periodes, entry]);
-        toast({ description: "Période ajoutée avec succès", variant: "success" });
-      }
-    }
-
-    if (modalType === "permission") {
-      const entry: Permission = { 
-        id, 
-        page: form.page,
-        description: form.description,
-        admin: form.admin || false,
-        editeur: form.editeur || false,
-        collaborateur: form.collaborateur || false
-      };
-      
-      if (isEditing) {
-        setPermissions(permissions.map(p => p.id === id ? entry : p));
-        toast({ description: "Permission mise à jour avec succès", variant: "success" });
-      } else {
-        setPermissions([...permissions, entry]);
-        toast({ description: "Permission ajoutée avec succès", variant: "success" });
-      }
-    }
-
-    closeModal();
-  };
-
-  const handleDelete = (id: string, type: string) => {
-    const update = (data: any[]) => data.filter((d) => d.id !== id);
-    
-    if (type === "devise") {
-      setDevises(update(devises));
-      toast({ description: "Devise supprimée avec succès", variant: "success" });
-    }
-    if (type === "langue") {
-      setLangues(update(langues));
-      toast({ description: "Langue supprimée avec succès", variant: "success" });
-    }
-    if (type === "utilisateur") {
-      setUtilisateurs(update(utilisateurs));
-      toast({ description: "Utilisateur supprimé avec succès", variant: "success" });
-    }
-    if (type === "periode") {
-      setPeriodes(update(periodes));
-      toast({ description: "Période supprimée avec succès", variant: "success" });
-    }
-    if (type === "permission") {
-      setPermissions(update(permissions));
-      toast({ description: "Permission supprimée avec succès", variant: "success" });
-    }
-  };
-
-  const togglePermission = (id: string, role: "admin" | "editeur" | "collaborateur") => {
-    setPermissions(
-      permissions.map((p) => {
-        if (p.id === id) {
-          return { ...p, [role]: !p[role] };
+  const handleSave = async () => {
+    try {
+      if (modalType === "devise") {
+        const deviseData = {
+          nom: form.nom,
+          symbole: form.symbole,
+          code: form.code || form.nom?.substring(0, 3).toUpperCase(),
+          decimales: Number(form.decimales) || 2,
+          separateur: form.separateur || ',',
+          is_default: form.is_default || false,
+        };
+        
+        if (isEditing && currentItemId) {
+          await updateDeviseMutation.mutateAsync({ id: currentItemId, ...deviseData });
+          toast({ description: "Devise mise à jour avec succès" });
+        } else {
+          await createDeviseMutation.mutateAsync(deviseData);
+          toast({ description: "Devise ajoutée avec succès" });
         }
-        return p;
-      })
-    );
+      }
+      
+      closeModal();
+    } catch (error) {
+      console.error('Erreur lors de la sauvegarde:', error);
+      toast({ 
+        description: "Erreur lors de la sauvegarde", 
+        variant: "destructive" 
+      });
+    }
+  };
+
+  const handleDelete = async (id: string, type: string) => {
+    try {
+      if (type === "devise") {
+        await deleteDeviseMutation.mutateAsync(id);
+        toast({ description: "Devise supprimée avec succès" });
+      }
+    } catch (error) {
+      console.error('Erreur lors de la suppression:', error);
+      toast({ 
+        description: "Erreur lors de la suppression", 
+        variant: "destructive" 
+      });
+    }
   };
 
   const renderFormFields = () => {
@@ -217,6 +109,12 @@ const ParametresPage = () => {
               className="w-full border p-2 rounded mb-3" 
             />
             <input 
+              placeholder="Code (ex: TND)" 
+              value={form.code || ""} 
+              onChange={(e) => setForm({ ...form, code: e.target.value })} 
+              className="w-full border p-2 rounded mb-3" 
+            />
+            <input 
               type="number" 
               placeholder="Décimales" 
               value={form.decimales || ""} 
@@ -231,132 +129,27 @@ const ParametresPage = () => {
             />
           </>
         );
-      case "langue":
-        return (
-          <input 
-            placeholder="Nom" 
-            value={form.nom || ""} 
-            onChange={(e) => setForm({ ...form, nom: e.target.value })} 
-            className="w-full border p-2 rounded mb-3" 
-          />
-        );
-      case "utilisateur":
-        return (
-          <>
-            <input 
-              placeholder="Nom" 
-              value={form.nom || ""} 
-              onChange={(e) => setForm({ ...form, nom: e.target.value })} 
-              className="w-full border p-2 rounded mb-3" 
-            />
-            <input 
-              type="email" 
-              placeholder="Email" 
-              value={form.email || ""} 
-              onChange={(e) => setForm({ ...form, email: e.target.value })} 
-              className="w-full border p-2 rounded mb-3" 
-            />
-            <select 
-              value={form.role || ""} 
-              onChange={(e) => setForm({ ...form, role: e.target.value })} 
-              className="w-full border p-2 rounded mb-3"
-            >
-              <option value="">Sélectionner un rôle</option>
-              <option value="Admin">Admin</option>
-              <option value="Collaborateur">Collaborateur</option>
-              <option value="Consultant">Consultant</option>
-            </select>
-          </>
-        );
-      case "periode":
-        return (
-          <>
-            <input 
-              type="date" 
-              placeholder="Début" 
-              value={form.debut || ""} 
-              onChange={(e) => setForm({ ...form, debut: e.target.value })} 
-              className="w-full border p-2 rounded mb-3" 
-            />
-            <input 
-              type="date" 
-              placeholder="Fin" 
-              value={form.fin || ""} 
-              onChange={(e) => setForm({ ...form, fin: e.target.value })} 
-              className="w-full border p-2 rounded mb-3" 
-            />
-          </>
-        );
-      case "permission":
-        return (
-          <>
-            <select 
-              value={form.page || ""} 
-              onChange={(e) => {
-                const selectedPage = e.target.value;
-                const predefini = permissionsPredefinis.find(p => p.page === selectedPage);
-                setForm({ 
-                  ...form, 
-                  page: selectedPage,
-                  description: predefini?.description || ""
-                });
-              }} 
-              className="w-full border p-2 rounded mb-3"
-            >
-              <option value="">Sélectionner une page</option>
-              {permissionsPredefinis.map(perm => (
-                <option key={perm.page} value={perm.page}>{perm.page}</option>
-              ))}
-            </select>
-            <input 
-              placeholder="Description" 
-              value={form.description || ""} 
-              onChange={(e) => setForm({ ...form, description: e.target.value })} 
-              className="w-full border p-2 rounded mb-3" 
-            />
-            <div className="mt-4 space-y-3">
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="admin" 
-                  checked={form.admin || false} 
-                  onCheckedChange={(checked) => setForm({ ...form, admin: !!checked })}
-                />
-                <label htmlFor="admin" className="text-sm">Admin</label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="editeur" 
-                  checked={form.editeur || false} 
-                  onCheckedChange={(checked) => setForm({ ...form, editeur: !!checked })}
-                />
-                <label htmlFor="editeur" className="text-sm">Éditeur</label>
-              </div>
-              <div className="flex items-center space-x-2">
-                <Checkbox 
-                  id="collaborateur" 
-                  checked={form.collaborateur || false} 
-                  onCheckedChange={(checked) => setForm({ ...form, collaborateur: !!checked })}
-                />
-                <label htmlFor="collaborateur" className="text-sm">Collaborateur</label>
-              </div>
-            </div>
-          </>
-        );
       default:
         return null;
     }
   };
+
+  if (loadingDevises || loadingPermissions || loadingRoles) {
+    return (
+      <div className="p-6 max-w-7xl mx-auto">
+        <h1 className="text-2xl font-bold mb-6">Paramètres</h1>
+        <div className="text-center py-8">Chargement...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">Paramètres</h1>
       
       <Tabs defaultValue="devises" className="w-full">
-        <TabsList className="w-full grid grid-cols-5 mb-6">
+        <TabsList className="w-full grid grid-cols-2 mb-6">
           <TabsTrigger value="devises">Devises</TabsTrigger>
-          <TabsTrigger value="langues">Langues</TabsTrigger>
-          <TabsTrigger value="utilisateurs">Utilisateurs</TabsTrigger>
-          <TabsTrigger value="periodes">Périodes</TabsTrigger>
           <TabsTrigger value="permissions">Permissions</TabsTrigger>
         </TabsList>
         
@@ -372,8 +165,10 @@ const ParametresPage = () => {
                   <tr className="text-left text-gray-600 border-b">
                     <th className="p-2">Nom</th>
                     <th className="p-2">Symbole</th>
+                    <th className="p-2">Code</th>
                     <th className="p-2">Décimales</th>
-                    <th className="p-2">Millier</th>
+                    <th className="p-2">Séparateur</th>
+                    <th className="p-2">Défaut</th>
                     <th className="p-2">Actions</th>
                   </tr>
                 </thead>
@@ -382,8 +177,10 @@ const ParametresPage = () => {
                     <tr key={d.id} className="border-t">
                       <td className="p-2">{d.nom}</td>
                       <td className="p-2">{d.symbole}</td>
+                      <td className="p-2">{d.code}</td>
                       <td className="p-2">{d.decimales}</td>
                       <td className="p-2">{d.separateur}</td>
+                      <td className="p-2">{d.is_default ? "Oui" : "Non"}</td>
                       <td className="p-2 flex space-x-2">
                         <Button 
                           onClick={() => openModal("devise", true, d)} 
@@ -397,141 +194,7 @@ const ParametresPage = () => {
                           size="icon" 
                           variant="ghost" 
                           className="text-red-500"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </SectionBox>
-        </TabsContent>
-        
-        {/* Langues Content */}
-        <TabsContent value="langues">
-          <SectionBox 
-            title="Langues" 
-            onAdd={() => openModal("langue")}
-          >
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-left text-gray-600 border-b">
-                    <th className="p-2">Nom</th>
-                    <th className="p-2">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {langues.map((l) => (
-                    <tr key={l.id} className="border-t">
-                      <td className="p-2">{l.nom}</td>
-                      <td className="p-2 flex space-x-2">
-                        <Button 
-                          onClick={() => openModal("langue", true, l)} 
-                          size="icon" 
-                          variant="ghost"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button 
-                          onClick={() => handleDelete(l.id, "langue")} 
-                          size="icon" 
-                          variant="ghost" 
-                          className="text-red-500"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </SectionBox>
-        </TabsContent>
-        
-        {/* Utilisateurs Content */}
-        <TabsContent value="utilisateurs">
-          <SectionBox 
-            title="Utilisateurs" 
-            onAdd={() => openModal("utilisateur")}
-          >
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-left text-gray-600 border-b">
-                    <th className="p-2">Nom</th>
-                    <th className="p-2">Email</th>
-                    <th className="p-2">Rôle</th>
-                    <th className="p-2">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {utilisateurs.map((u) => (
-                    <tr key={u.id} className="border-t">
-                      <td className="p-2">{u.nom}</td>
-                      <td className="p-2">{u.email}</td>
-                      <td className="p-2">{u.role}</td>
-                      <td className="p-2 flex space-x-2">
-                        <Button 
-                          onClick={() => openModal("utilisateur", true, u)} 
-                          size="icon" 
-                          variant="ghost"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button 
-                          onClick={() => handleDelete(u.id, "utilisateur")} 
-                          size="icon" 
-                          variant="ghost" 
-                          className="text-red-500"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </SectionBox>
-        </TabsContent>
-        
-        {/* Périodes Content */}
-        <TabsContent value="periodes">
-          <SectionBox 
-            title="Périodes comptables" 
-            onAdd={() => openModal("periode")}
-          >
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-left text-gray-600 border-b">
-                    <th className="p-2">Début</th>
-                    <th className="p-2">Fin</th>
-                    <th className="p-2">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {periodes.map((p) => (
-                    <tr key={p.id} className="border-t">
-                      <td className="p-2">{p.debut}</td>
-                      <td className="p-2">{p.fin}</td>
-                      <td className="p-2 flex space-x-2">
-                        <Button 
-                          onClick={() => openModal("periode", true, p)} 
-                          size="icon" 
-                          variant="ghost"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button 
-                          onClick={() => handleDelete(p.id, "periode")} 
-                          size="icon" 
-                          variant="ghost" 
-                          className="text-red-500"
+                          disabled={d.is_default}
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
@@ -546,71 +209,24 @@ const ParametresPage = () => {
         
         {/* Permissions Content */}
         <TabsContent value="permissions">
-          <SectionBox 
-            title="Permissions" 
-            onAdd={() => openModal("permission")}
-          >
+          <SectionBox title="Permissions du système">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="text-left text-gray-600 border-b">
+                    <th className="p-2">Nom</th>
+                    <th className="p-2">Description</th>
                     <th className="p-2">Page</th>
-                    <th className="p-2 text-center">Admin</th>
-                    <th className="p-2 text-center">Éditeur</th>
-                    <th className="p-2 text-center">Collaborateur</th>
-                    <th className="p-2">Actions</th>
+                    <th className="p-2">Action</th>
                   </tr>
                 </thead>
                 <tbody>
                   {permissions.map((p) => (
                     <tr key={p.id} className="border-t">
-                      <td className="p-2">
-                        <div>
-                          <div>{p.page}</div>
-                          <div className="text-xs text-gray-500">{p.description}</div>
-                        </div>
-                      </td>
-                      <td className="p-2 text-center">
-                        <div className="flex justify-center">
-                          <Checkbox 
-                            checked={p.admin} 
-                            onCheckedChange={() => togglePermission(p.id, "admin")} 
-                          />
-                        </div>
-                      </td>
-                      <td className="p-2 text-center">
-                        <div className="flex justify-center">
-                          <Checkbox 
-                            checked={p.editeur} 
-                            onCheckedChange={() => togglePermission(p.id, "editeur")} 
-                          />
-                        </div>
-                      </td>
-                      <td className="p-2 text-center">
-                        <div className="flex justify-center">
-                          <Checkbox 
-                            checked={p.collaborateur} 
-                            onCheckedChange={() => togglePermission(p.id, "collaborateur")} 
-                          />
-                        </div>
-                      </td>
-                      <td className="p-2 flex space-x-2">
-                        <Button 
-                          onClick={() => openModal("permission", true, p)} 
-                          size="icon" 
-                          variant="ghost"
-                        >
-                          <Edit className="w-4 h-4" />
-                        </Button>
-                        <Button 
-                          onClick={() => handleDelete(p.id, "permission")} 
-                          size="icon" 
-                          variant="ghost" 
-                          className="text-red-500"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </Button>
-                      </td>
+                      <td className="p-2">{p.nom}</td>
+                      <td className="p-2">{p.description}</td>
+                      <td className="p-2">{p.page}</td>
+                      <td className="p-2">{p.action}</td>
                     </tr>
                   ))}
                 </tbody>
@@ -637,7 +253,10 @@ const ParametresPage = () => {
             <Button variant="outline" onClick={closeModal}>
               Annuler
             </Button>
-            <Button onClick={handleSave}>
+            <Button 
+              onClick={handleSave}
+              disabled={createDeviseMutation.isPending || updateDeviseMutation.isPending}
+            >
               {isEditing ? "Mettre à jour" : "Ajouter"}
             </Button>
           </DialogFooter>

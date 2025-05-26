@@ -30,7 +30,6 @@ export const useComptesBancaires = () => {
         .from('comptes_bancaires')
         .select('*')
         .eq('user_id', user.id)
-        .eq('is_active', true)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -52,8 +51,7 @@ export const useCreateCompteBancaire = () => {
         .from('comptes_bancaires')
         .insert({
           ...data,
-          user_id: user.id,
-          solde_actuel: data.solde_initial
+          user_id: user.id
         })
         .select()
         .single();
