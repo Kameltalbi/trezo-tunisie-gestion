@@ -1,8 +1,8 @@
+
 import React, { useState } from "react";
-import { Trash2, Edit, Plus, Check, UserPlus, Shield } from "lucide-react";
+import { Trash2, Edit, Plus, Check, UserPlus } from "lucide-react";
 import SectionBox from "@/components/SectionBox";
 import UserInvitationForm from "@/components/UserInvitationForm";
-import UserPermissionsManager from "@/components/UserPermissionsManager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -10,7 +10,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
 import { useDevises, useCreateDevise, useUpdateDevise, useDeleteDevise } from "@/hooks/useDevises";
-import { useUserRoles, usePermissions, useUpdateUserRole, UserRole } from "@/hooks/useUserRoles";
+import { useUserRoles, useUpdateUserRole, UserRole } from "@/hooks/useUserRoles";
 import { useUserPermissions } from "@/hooks/useUserPermissions";
 
 const ParametresPage = () => {
@@ -18,12 +18,10 @@ const ParametresPage = () => {
   const [form, setForm] = useState<any>({});
   const [isEditing, setIsEditing] = useState(false);
   const [currentItemId, setCurrentItemId] = useState<string | null>(null);
-  const [selectedUserForPermissions, setSelectedUserForPermissions] = useState<{ id: string; email: string } | null>(null);
   
   const { toast } = useToast();
   
   const { data: devises = [], isLoading: loadingDevises } = useDevises();
-  const { data: permissions = [], isLoading: loadingPermissions } = usePermissions();
   const { data: userRoles = [], isLoading: loadingRoles } = useUserRoles();
   const { data: userPermissions } = useUserPermissions();
 
@@ -169,24 +167,11 @@ const ParametresPage = () => {
     }
   };
 
-  if (loadingDevises || loadingPermissions || loadingRoles) {
+  if (loadingDevises || loadingRoles) {
     return (
       <div className="p-6 max-w-7xl mx-auto">
         <h1 className="text-2xl font-bold mb-6">Paramètres</h1>
         <div className="text-center py-8">Chargement...</div>
-      </div>
-    );
-  }
-
-  // Si un utilisateur est sélectionné pour la gestion des permissions
-  if (selectedUserForPermissions) {
-    return (
-      <div className="p-6 max-w-7xl mx-auto">
-        <UserPermissionsManager
-          userId={selectedUserForPermissions.id}
-          userEmail={selectedUserForPermissions.email}
-          onClose={() => setSelectedUserForPermissions(null)}
-        />
       </div>
     );
   }
@@ -196,9 +181,8 @@ const ParametresPage = () => {
       <h1 className="text-2xl font-bold mb-6">Paramètres</h1>
       
       <Tabs defaultValue="devises" className="w-full">
-        <TabsList className="w-full grid grid-cols-3 mb-6">
+        <TabsList className="w-full grid grid-cols-2 mb-6">
           <TabsTrigger value="devises">Devises</TabsTrigger>
-          <TabsTrigger value="permissions">Permissions</TabsTrigger>
           <TabsTrigger value="utilisateurs">Utilisateurs & Rôles</TabsTrigger>
         </TabsList>
         
@@ -278,39 +262,6 @@ const ParametresPage = () => {
           </SectionBox>
         </TabsContent>
         
-        <TabsContent value="permissions">
-          <SectionBox title="Permissions du système">
-            <div className="overflow-x-auto">
-              <table className="w-full text-sm">
-                <thead>
-                  <tr className="text-left text-gray-600 border-b">
-                    <th className="p-2">Nom</th>
-                    <th className="p-2">Description</th>
-                    <th className="p-2">Page</th>
-                    <th className="p-2">Action</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {permissions.length > 0 ? permissions.map((p) => (
-                    <tr key={p.id} className="border-t">
-                      <td className="p-2">{p.nom}</td>
-                      <td className="p-2">{p.description}</td>
-                      <td className="p-2">{p.page}</td>
-                      <td className="p-2">{p.action}</td>
-                    </tr>
-                  )) : (
-                    <tr>
-                      <td colSpan={4} className="p-4 text-center text-gray-500">
-                        Aucune permission configurée
-                      </td>
-                    </tr>
-                  )}
-                </tbody>
-              </table>
-            </div>
-          </SectionBox>
-        </TabsContent>
-        
         <TabsContent value="utilisateurs">
           <SectionBox 
             title="Utilisateurs & Rôles"
@@ -354,15 +305,6 @@ const ParametresPage = () => {
                         </Badge>
                       </td>
                       <td className="p-2 flex space-x-2">
-                        <Button
-                          onClick={() => setSelectedUserForPermissions({ id: u.user_id, email: u.email || 'Utilisateur' })}
-                          size="sm"
-                          variant="outline"
-                          className="text-blue-600 border-blue-600 hover:bg-blue-50"
-                        >
-                          <Shield className="w-4 h-4 mr-1" />
-                          Permissions
-                        </Button>
                         {userPermissions?.isAdmin && (
                           <Button 
                             onClick={() => openModal("user_role", true, u)} 
