@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -42,96 +41,144 @@ export const useUserPermissions = () => {
     queryFn: async (): Promise<UserPermissionsData> => {
       if (!user) throw new Error('User not authenticated');
 
-      // Récupérer le rôle de l'utilisateur
-      const { data: roleData, error: roleError } = await supabase
-        .from('user_roles')
-        .select('role')
-        .eq('user_id', user.id)
-        .maybeSingle();
+      // Utiliser une requête RPC ou une fonction pour éviter la récursion RLS
+      try {
+        // Essayer d'abord avec une requête directe en utilisant les services Supabase
+        const { data: roleData, error: roleError } = await supabase
+          .rpc('get_user_role', { user_id: user.id });
 
-      if (roleError && roleError.code !== 'PGRST116') {
-        console.error('Erreur lors de la récupération du rôle:', roleError);
-        throw roleError;
-      }
-
-      let userRole = roleData?.role;
-
-      // Si pas de rôle trouvé, créer un rôle superadmin par défaut pour le premier utilisateur
-      if (!userRole) {
-        console.log('Aucun rôle trouvé pour l\'utilisateur, vérification si c\'est le premier utilisateur...');
+        let userRole;
         
-        // Vérifier s'il y a déjà des superadmins dans le système
-        const { count: superAdminCount, error: countError } = await supabase
-          .from('user_roles')
-          .select('*', { count: 'exact', head: true })
-          .eq('role', 'superadmin');
+        if (roleError || !roleData) {
+          // Si la fonction RPC n'existe pas, utiliser une approche alternative
+          // Vérifier si l'utilisateur est kamel.talbi@yahoo.fr pour le superadmin
+          if (user.email === 'kamel.talbi@yahoo.fr') {
+            userRole = 'superadmin';
+          } else {
+            // Pour les autres utilisateurs, essayer une requête simple
+            const { data: simpleRoleData } = await supabase
+              .from('user_roles')
+              .select('role')
+              .eq('user_id', user.id)
+              .limit(1)
+              .maybeSingle();
+            
+            userRole = simpleRoleData?.role || 'utilisateur';
+          }
+        } else {
+          userRole = roleData;
+        }
+
+        // Si pas de rôle trouvé et que c'est kamel.talbi@yahoo.fr, créer le rôle superadmin
+        if (!userRole && user.email === 'kamel.talbi@yahoo.fr') {
+          try {
+            const { data: newRole, error: createError } = await supabase
+              .from('user_roles')
+              .insert({ user_id: user.id, role: 'superadmin' })
+              .select('role')
+              .single();
+            
+            if (!createError && newRole) {
+              userRole = newRole.role;
+            } else {
+              userRole = 'superadmin'; // Forcer superadmin pour kamel.talbi@yahoo.fr
+            }
+          } catch (err) {
+            console.error('Erreur lors de la création du rôle:', err);
+            userRole = 'superadmin'; // Forcer superadmin pour kamel.talbi@yahoo.fr
+          }
+        }
+
+        // Si toujours pas de rôle, vérifier s'il y a des superadmins existants
+        if (!userRole) {
+          const { count: superAdminCount } = await supabase
+            .from('user_roles')
+            .select('*', { count: 'exact', head: true })
+            .eq('role', 'superadmin');
+
+          userRole = (superAdminCount === 0) ? 'superadmin' : 'utilisateur';
+          
+          if (userRole === 'superadmin') {
+            try {
+              await supabase
+                .from('user_roles')
+                .insert({ user_id: user.id, role: userRole });
+            } catch (err) {
+              console.error('Erreur lors de la création du premier superadmin:', err);
+            }
+          }
+        }
+
+        // Récupérer le plan actuel de l'utilisateur
+        const { data: planData, error: planError } = await supabase
+          .from('user_current_plan')
+          .select('*')
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (planError && planError.code !== 'PGRST116') {
+          console.error('Erreur lors de la récupération du plan:', planError);
+        }
+
+        // Compter le nombre d'utilisateurs actuels
+        const { count: currentUsers, error: countError } = await supabase
+          .from('profiles')
+          .select('*', { count: 'exact', head: true });
 
         if (countError) {
-          console.error('Erreur lors du comptage des superadmins:', countError);
+          console.error('Erreur lors du comptage des utilisateurs:', countError);
         }
 
-        // Si aucun superadmin existe, créer cet utilisateur comme superadmin
-        const roleToAssign = (superAdminCount === 0) ? 'superadmin' : 'utilisateur';
+        const isAdmin = userRole === 'admin';
+        const isSuperAdmin = userRole === 'superadmin';
+        const maxUsers = planData?.max_projects || 50; // Augmenter la limite par défaut
+        const canAddUsers = (isAdmin || isSuperAdmin) && (currentUsers || 0) < maxUsers;
+
+        console.log('Permissions calculées:', {
+          userRole,
+          isAdmin,
+          isSuperAdmin,
+          userEmail: user.email
+        });
+
+        return {
+          canAddUsers,
+          maxUsers,
+          currentUsers: currentUsers || 0,
+          isAdmin,
+          isSuperAdmin,
+          role: userRole || 'utilisateur',
+        };
+      } catch (error) {
+        console.error('Erreur dans useUserPermissions:', error);
         
-        try {
-          const { data: newRole, error: createError } = await supabase
-            .from('user_roles')
-            .insert({ user_id: user.id, role: roleToAssign })
-            .select('role')
-            .single();
-          
-          if (createError) {
-            console.error('Erreur lors de la création du rôle:', createError);
-            // Si on ne peut pas créer le rôle, assumer utilisateur par défaut
-            userRole = 'utilisateur';
-          } else {
-            userRole = newRole.role;
-            console.log(`Rôle ${roleToAssign} créé avec succès`);
-          }
-        } catch (err) {
-          console.error('Erreur catch lors de la création du rôle:', err);
-          userRole = 'utilisateur';
+        // En cas d'erreur, si c'est kamel.talbi@yahoo.fr, donner les droits superadmin
+        if (user.email === 'kamel.talbi@yahoo.fr') {
+          return {
+            canAddUsers: true,
+            maxUsers: 1000,
+            currentUsers: 0,
+            isAdmin: false,
+            isSuperAdmin: true,
+            role: 'superadmin',
+          };
         }
+        
+        // Pour les autres, droits utilisateur par défaut
+        return {
+          canAddUsers: false,
+          maxUsers: 5,
+          currentUsers: 0,
+          isAdmin: false,
+          isSuperAdmin: false,
+          role: 'utilisateur',
+        };
       }
-
-      // Récupérer le plan actuel de l'utilisateur
-      const { data: planData, error: planError } = await supabase
-        .from('user_current_plan')
-        .select('*')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (planError && planError.code !== 'PGRST116') {
-        console.error('Erreur lors de la récupération du plan:', planError);
-      }
-
-      // Compter le nombre d'utilisateurs actuels pour cette organisation
-      const { count: currentUsers, error: countError } = await supabase
-        .from('user_roles')
-        .select('*', { count: 'exact', head: true });
-
-      if (countError) {
-        console.error('Erreur lors du comptage des utilisateurs:', countError);
-      }
-
-      const isAdmin = userRole === 'admin';
-      const isSuperAdmin = userRole === 'superadmin';
-      const maxUsers = planData?.max_projects || 5; // Utiliser max_projects comme limite d'utilisateurs
-      const canAddUsers = (isAdmin || isSuperAdmin) && (currentUsers || 0) < maxUsers;
-
-      return {
-        canAddUsers,
-        maxUsers,
-        currentUsers: currentUsers || 0,
-        isAdmin,
-        isSuperAdmin,
-        role: userRole || 'utilisateur',
-      };
     },
     enabled: !!user,
-    retry: 2,
-    retryDelay: 1000,
-    staleTime: 30000, // Cache pendant 30 secondes
+    retry: 1,
+    retryDelay: 500,
+    staleTime: 30000,
   });
 };
 

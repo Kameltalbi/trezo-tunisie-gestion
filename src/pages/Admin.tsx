@@ -10,7 +10,7 @@ import { Users, CreditCard, TrendingUp, Settings } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useAuth } from '@/contexts/AuthContext';
-import { useUserPermissions } from '@/hooks/useUserPermissions';
+import { useUserRoleCheck } from '@/hooks/useUserRoleCheck';
 
 interface AdminUser {
   id: string;
@@ -33,7 +33,17 @@ interface AdminStats {
 const Admin = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const { user } = useAuth();
-  const { data: permissions } = useUserPermissions();
+  const { data: roleCheck, isLoading: roleLoading } = useUserRoleCheck();
+
+  // Vérification spéciale pour kamel.talbi@yahoo.fr
+  const isSuperAdmin = user?.email === 'kamel.talbi@yahoo.fr' || roleCheck?.isSuperAdmin || false;
+
+  console.log('Vérifications Admin:', {
+    userEmail: user?.email,
+    roleCheck,
+    isSuperAdmin,
+    roleLoading
+  });
 
   // Move all hooks to the top before any conditional logic
   const { data: stats, isLoading: statsLoading } = useQuery({
@@ -74,7 +84,7 @@ const Admin = () => {
         revenue_this_month: revenueThisMonth,
       };
     },
-    enabled: !!user && permissions?.isSuperAdmin,
+    enabled: !!user && isSuperAdmin,
   });
 
   const { data: users, isLoading: usersLoading } = useQuery({
@@ -112,21 +122,39 @@ const Admin = () => {
         subscription_status: user.subscriptions?.[0]?.status,
         plan_name: user.subscriptions?.[0]?.plans?.name,
         trial_end_date: user.subscriptions?.[0]?.trial_end_date,
-        subscription_end_date: user.subscriptions?.[0]?.end_date,
         is_trial: user.subscriptions?.[0]?.is_trial,
       }));
     },
-    enabled: !!user && permissions?.isSuperAdmin,
+    enabled: !!user && isSuperAdmin,
   });
 
   // Now handle the permission check after all hooks are called
-  if (!permissions?.isSuperAdmin) {
+  if (roleLoading) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Chargement...</h2>
+          <p className="text-gray-600">
+            Vérification des permissions en cours...
+          </p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!isSuperAdmin) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Accès refusé</h2>
           <p className="text-gray-600">
             Cette page est réservée aux super-administrateurs uniquement.
+          </p>
+          <p className="text-sm text-gray-500 mt-2">
+            Utilisateur connecté: {user?.email}
+          </p>
+          <p className="text-sm text-gray-500">
+            Rôle détecté: {roleCheck?.role || 'non défini'}
           </p>
         </div>
       </div>
@@ -149,7 +177,12 @@ const Admin = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Administration (Super Admin)</h1>
+        <div>
+          <h1 className="text-3xl font-bold">Administration (Super Admin)</h1>
+          <p className="text-sm text-gray-600">
+            Connecté en tant que: {user?.email} - Rôle: {roleCheck?.role || 'superadmin'}
+          </p>
+        </div>
         <Button variant="outline">
           <Settings className="mr-2 h-4 w-4" />
           Paramètres
