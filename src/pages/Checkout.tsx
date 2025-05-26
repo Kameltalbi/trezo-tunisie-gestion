@@ -77,8 +77,8 @@ const Checkout = () => {
         notes: paymentData.notes,
       });
 
-      toast.success("Commande créée avec succès ! Vous recevrez un email de confirmation.");
-      navigate("/dashboard");
+      toast.success("Commande créée avec succès !");
+      navigate("/order-confirmation");
     } catch (error) {
       console.error("Erreur lors du paiement:", error);
       toast.error("Erreur lors de la création de la commande");

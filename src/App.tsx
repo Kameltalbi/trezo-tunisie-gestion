@@ -27,6 +27,7 @@ import Transactions from "./pages/Transactions";
 import Support from "./pages/Support";
 import Checkout from "./pages/Checkout";
 import Subscription from "./pages/Subscription";
+import OrderConfirmation from "./pages/OrderConfirmation";
 
 // Import i18n configuration
 import "./i18n";
@@ -46,6 +47,7 @@ const App = () => (
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/checkout" element={<Layout requireAuth={true}><Checkout /></Layout>} />
+              <Route path="/order-confirmation" element={<Layout requireAuth={true}><OrderConfirmation /></Layout>} />
               <Route path="/subscription" element={<Layout requireAuth={true}><Subscription /></Layout>} />
               <Route path="/parametres" element={<Layout requireAuth={true}><Parametres /></Layout>} />
               <Route path="/admin" element={<Layout requireAuth={true}><Admin /></Layout>} />
