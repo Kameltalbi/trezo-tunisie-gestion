@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { Trash2, Edit, Plus, Check, UserPlus } from "lucide-react";
+import { Trash2, Edit, Plus, Check, UserPlus, Shield } from "lucide-react";
 import SectionBox from "@/components/SectionBox";
 import UserInvitationForm from "@/components/UserInvitationForm";
+import UserPermissionsManager from "@/components/UserPermissionsManager";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -17,6 +18,7 @@ const ParametresPage = () => {
   const [form, setForm] = useState<any>({});
   const [isEditing, setIsEditing] = useState(false);
   const [currentItemId, setCurrentItemId] = useState<string | null>(null);
+  const [selectedUserForPermissions, setSelectedUserForPermissions] = useState<{ id: string; email: string } | null>(null);
   
   const { toast } = useToast();
   
@@ -176,6 +178,19 @@ const ParametresPage = () => {
     );
   }
 
+  // Si un utilisateur est sélectionné pour la gestion des permissions
+  if (selectedUserForPermissions) {
+    return (
+      <div className="p-6 max-w-7xl mx-auto">
+        <UserPermissionsManager
+          userId={selectedUserForPermissions.id}
+          userEmail={selectedUserForPermissions.email}
+          onClose={() => setSelectedUserForPermissions(null)}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="p-6 max-w-7xl mx-auto">
       <h1 className="text-2xl font-bold mb-6">Paramètres</h1>
@@ -295,7 +310,7 @@ const ParametresPage = () => {
             </div>
           </SectionBox>
         </TabsContent>
-
+        
         <TabsContent value="utilisateurs">
           <SectionBox 
             title="Utilisateurs & Rôles"
@@ -339,6 +354,15 @@ const ParametresPage = () => {
                         </Badge>
                       </td>
                       <td className="p-2 flex space-x-2">
+                        <Button
+                          onClick={() => setSelectedUserForPermissions({ id: u.user_id, email: u.email || 'Utilisateur' })}
+                          size="sm"
+                          variant="outline"
+                          className="text-blue-600 border-blue-600 hover:bg-blue-50"
+                        >
+                          <Shield className="w-4 h-4 mr-1" />
+                          Permissions
+                        </Button>
                         {userPermissions?.isAdmin && (
                           <Button 
                             onClick={() => openModal("user_role", true, u)} 

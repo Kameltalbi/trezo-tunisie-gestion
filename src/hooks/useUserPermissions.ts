@@ -1,14 +1,28 @@
 
-import { useQuery } from "@tanstack/react-query";
-import { useAuth } from "@/contexts/AuthContext";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { useAuth } from "@/contexts/AuthContext";
 
-export interface UserPermissions {
-  canAddUsers: boolean;
-  maxUsers: number;
-  currentUsers: number;
-  isAdmin: boolean;
-  role: string;
+export interface UserPermission {
+  id: string;
+  user_id: string;
+  permission_id: string;
+  granted: boolean;
+  created_at: string;
+  updated_at: string;
+  permission: {
+    id: string;
+    nom: string;
+    description: string | null;
+    page: string;
+    action: string;
+  };
+}
+
+export interface UserPermissionUpdate {
+  userId: string;
+  permissionId: string;
+  granted: boolean;
 }
 
 export const useUserPermissions = () => {
@@ -78,5 +92,52 @@ export const useUserPermissions = () => {
     enabled: !!user,
     retry: 3,
     retryDelay: 1000,
+  });
+};
+
+export const useAllUserPermissions = (userId?: string) => {
+  return useQuery({
+    queryKey: ['all-user-permissions', userId],
+    queryFn: async (): Promise<UserPermission[]> => {
+      if (!userId) return [];
+
+      const { data, error } = await supabase
+        .from('user_permissions')
+        .select(`
+          *,
+          permission:permissions(*)
+        `)
+        .eq('user_id', userId);
+
+      if (error) throw error;
+      return data as UserPermission[];
+    },
+    enabled: !!userId,
+  });
+};
+
+export const useUpdateUserPermission = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ userId, permissionId, granted }: UserPermissionUpdate) => {
+      const { data, error } = await supabase
+        .from('user_permissions')
+        .upsert({ 
+          user_id: userId, 
+          permission_id: permissionId, 
+          granted 
+        }, {
+          onConflict: 'user_id,permission_id'
+        })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['all-user-permissions'] });
+    },
   });
 };
