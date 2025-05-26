@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -29,6 +30,7 @@ export interface UserPermissionsData {
   maxUsers: number;
   currentUsers: number;
   isAdmin: boolean;
+  isSuperAdmin: boolean;
   role: string;
 }
 
@@ -54,22 +56,22 @@ export const useUserPermissions = () => {
 
       let userRole = roleData?.role;
 
-      // Si pas de rôle trouvé, créer un rôle admin par défaut pour le premier utilisateur
+      // Si pas de rôle trouvé, créer un rôle superadmin par défaut pour le premier utilisateur
       if (!userRole) {
         console.log('Aucun rôle trouvé pour l\'utilisateur, vérification si c\'est le premier utilisateur...');
         
-        // Vérifier s'il y a déjà des admins dans le système
-        const { count: adminCount, error: countError } = await supabase
+        // Vérifier s'il y a déjà des superadmins dans le système
+        const { count: superAdminCount, error: countError } = await supabase
           .from('user_roles')
           .select('*', { count: 'exact', head: true })
-          .eq('role', 'admin');
+          .eq('role', 'superadmin');
 
         if (countError) {
-          console.error('Erreur lors du comptage des admins:', countError);
+          console.error('Erreur lors du comptage des superadmins:', countError);
         }
 
-        // Si aucun admin existe, créer cet utilisateur comme admin
-        const roleToAssign = (adminCount === 0) ? 'admin' : 'utilisateur';
+        // Si aucun superadmin existe, créer cet utilisateur comme superadmin
+        const roleToAssign = (superAdminCount === 0) ? 'superadmin' : 'utilisateur';
         
         try {
           const { data: newRole, error: createError } = await supabase
@@ -113,14 +115,16 @@ export const useUserPermissions = () => {
       }
 
       const isAdmin = userRole === 'admin';
+      const isSuperAdmin = userRole === 'superadmin';
       const maxUsers = planData?.max_projects || 5; // Utiliser max_projects comme limite d'utilisateurs
-      const canAddUsers = isAdmin && (currentUsers || 0) < maxUsers;
+      const canAddUsers = (isAdmin || isSuperAdmin) && (currentUsers || 0) < maxUsers;
 
       return {
         canAddUsers,
         maxUsers,
         currentUsers: currentUsers || 0,
         isAdmin,
+        isSuperAdmin,
         role: userRole || 'utilisateur',
       };
     },

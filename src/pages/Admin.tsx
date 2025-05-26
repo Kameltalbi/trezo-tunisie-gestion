@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
@@ -75,7 +74,7 @@ const Admin = () => {
         revenue_this_month: revenueThisMonth,
       };
     },
-    enabled: !!user && permissions?.isAdmin,
+    enabled: !!user && permissions?.isSuperAdmin,
   });
 
   const { data: users, isLoading: usersLoading } = useQuery({
@@ -117,16 +116,18 @@ const Admin = () => {
         is_trial: user.subscriptions?.[0]?.is_trial,
       }));
     },
-    enabled: !!user && permissions?.isAdmin,
+    enabled: !!user && permissions?.isSuperAdmin,
   });
 
   // Now handle the permission check after all hooks are called
-  if (!permissions?.isAdmin) {
+  if (!permissions?.isSuperAdmin) {
     return (
       <div className="flex items-center justify-center h-64">
         <div className="text-center">
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Accès refusé</h2>
-          <p className="text-gray-600">Vous n'avez pas les permissions pour accéder à cette page.</p>
+          <p className="text-gray-600">
+            Cette page est réservée aux super-administrateurs uniquement.
+          </p>
         </div>
       </div>
     );
@@ -148,7 +149,7 @@ const Admin = () => {
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Administration</h1>
+        <h1 className="text-3xl font-bold">Administration (Super Admin)</h1>
         <Button variant="outline">
           <Settings className="mr-2 h-4 w-4" />
           Paramètres
