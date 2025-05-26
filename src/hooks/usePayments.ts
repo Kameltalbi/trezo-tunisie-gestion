@@ -40,6 +40,7 @@ export const usePayments = () => {
 
 export const useCreatePayment = () => {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   
   return useMutation({
     mutationFn: async (data: {
@@ -49,9 +50,12 @@ export const useCreatePayment = () => {
       bank_details?: any;
       notes?: string;
     }) => {
+      if (!user) throw new Error("User must be authenticated");
+
       const { data: payment, error } = await supabase
         .from('payments')
         .insert({
+          user_id: user.id,
           subscription_id: data.subscription_id,
           amount: data.amount,
           payment_method: data.payment_method,

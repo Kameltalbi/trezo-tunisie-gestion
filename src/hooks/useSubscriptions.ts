@@ -44,15 +44,19 @@ export const useSubscriptions = () => {
 
 export const useCreateSubscription = () => {
   const queryClient = useQueryClient();
+  const { user } = useAuth();
   
   return useMutation({
     mutationFn: async (data: {
       plan_id: string;
       end_date: string;
     }) => {
+      if (!user) throw new Error("User must be authenticated");
+
       const { data: subscription, error } = await supabase
         .from('subscriptions')
         .insert({
+          user_id: user.id,
           plan_id: data.plan_id,
           end_date: data.end_date,
           status: 'pending'
