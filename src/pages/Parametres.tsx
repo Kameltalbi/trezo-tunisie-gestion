@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Trash2, Edit, Plus } from "lucide-react";
 import SectionBox from "@/components/SectionBox";
@@ -209,7 +208,10 @@ const ParametresPage = () => {
         
         {/* Permissions Content */}
         <TabsContent value="permissions">
-          <SectionBox title="Permissions du système">
+          <SectionBox 
+            title="Permissions du système"
+            onAdd={() => {}} // Add empty function since permissions are read-only
+          >
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
