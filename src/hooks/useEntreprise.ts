@@ -7,7 +7,7 @@ import { toast } from "sonner";
 export interface Entreprise {
   id: string;
   user_id: string;
-  nom: string;
+  nom: string; // Requis selon la base de données
   adresse?: string;
   telephone?: string;
   email?: string;
@@ -30,10 +30,10 @@ export const useEntreprise = () => {
         .from('entreprises')
         .select('*')
         .eq('user_id', user?.id)
-        .single();
+        .maybeSingle(); // Utilise maybeSingle pour éviter les erreurs si aucune entreprise n'existe
 
       if (error) throw error;
-      return data as Entreprise;
+      return data as Entreprise | null;
     },
     enabled: !!user,
   });
@@ -44,8 +44,13 @@ export const useUpdateEntreprise = () => {
   const { user } = useAuth();
 
   return useMutation({
-    mutationFn: async (entreprise: Partial<Entreprise>) => {
+    mutationFn: async (entreprise: Partial<Entreprise> & { nom: string }) => {
       if (!user) throw new Error('Non authentifié');
+      
+      // S'assurer que nom est présent
+      if (!entreprise.nom) {
+        throw new Error('Le nom de l\'entreprise est requis');
+      }
 
       const { data, error } = await supabase
         .from('entreprises')

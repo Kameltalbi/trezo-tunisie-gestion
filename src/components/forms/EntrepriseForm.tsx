@@ -33,7 +33,17 @@ const EntrepriseForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await updateEntrepriseMutation.mutateAsync(formData);
+    
+    // Validation côté client
+    if (!formData.nom) {
+      toast("Le nom de l'entreprise est requis");
+      return;
+    }
+    
+    await updateEntrepriseMutation.mutateAsync({
+      ...formData,
+      nom: formData.nom, // S'assurer que nom est présent
+    });
   };
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -61,7 +71,7 @@ const EntrepriseForm = () => {
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="nom">Nom de l'entreprise</Label>
+              <Label htmlFor="nom">Nom de l'entreprise *</Label>
               <Input
                 id="nom"
                 name="nom"
@@ -157,7 +167,7 @@ const EntrepriseForm = () => {
           <div className="flex justify-end">
             <Button 
               type="submit" 
-              disabled={updateEntrepriseMutation.isPending}
+              disabled={updateEntrepriseMutation.isPending || !formData.nom}
             >
               {updateEntrepriseMutation.isPending ? (
                 <>
