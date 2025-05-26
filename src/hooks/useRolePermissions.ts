@@ -34,12 +34,12 @@ export const useRolePermissions = () => {
 
       if (error) throw error;
       
-      // Mapper les données en s'assurant que granted existe
+      // Mapper les données - si l'enregistrement existe, la permission est accordée
       return (data || []).map(item => ({
         id: item.id,
         role: item.role,
         permission_id: item.permission_id,
-        granted: item.granted ?? false,
+        granted: true, // Si l'enregistrement existe, la permission est accordée
         permission: item.permission as Permission
       })) as RolePermission[];
     },
@@ -68,20 +68,32 @@ export const useUpdateRolePermission = () => {
 
   return useMutation({
     mutationFn: async ({ role, permissionId, granted }: { role: string; permissionId: string; granted: boolean }) => {
-      const { data, error } = await supabase
-        .from('role_permissions')
-        .upsert({
-          role: role as any, // Cast explicite pour éviter l'erreur de type
-          permission_id: permissionId,
-          granted: granted
-        }, {
-          onConflict: 'role,permission_id'
-        })
-        .select()
-        .single();
+      if (granted) {
+        // Ajouter la permission (insérer l'enregistrement)
+        const { data, error } = await supabase
+          .from('role_permissions')
+          .insert({
+            role: role as any,
+            permission_id: permissionId
+          })
+          .select()
+          .single();
 
-      if (error) throw error;
-      return data;
+        if (error) throw error;
+        return data;
+      } else {
+        // Retirer la permission (supprimer l'enregistrement)
+        const { data, error } = await supabase
+          .from('role_permissions')
+          .delete()
+          .eq('role', role)
+          .eq('permission_id', permissionId)
+          .select()
+          .maybeSingle();
+
+        if (error) throw error;
+        return data;
+      }
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['role-permissions'] });
