@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { PlusCircle, Pencil, Trash2 } from "lucide-react";
@@ -41,18 +40,6 @@ import {
   Objectif
 } from "@/hooks/useObjectifs";
 
-// Type for the detail sheet objectif
-type ObjectifDetailType = {
-  id: string;
-  nom: string;
-  type: "encaissement" | "reduction_depense" | "epargne";
-  valeurActuelle: number;
-  valeurCible: number;
-  dateDebut: string;
-  dateFin: string;
-  progression: number;
-};
-
 const Objectifs = () => {
   const { t } = useTranslation();
   const { data: objectifs = [], isLoading } = useObjectifs();
@@ -64,7 +51,7 @@ const Objectifs = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState<boolean>(false);
   const [isDetailSheetOpen, setIsDetailSheetOpen] = useState<boolean>(false);
   const [currentObjectif, setCurrentObjectif] = useState<Objectif | null>(null);
-  const [selectedObjectif, setSelectedObjectif] = useState<ObjectifDetailType | null>(null);
+  const [selectedObjectif, setSelectedObjectif] = useState<Objectif | null>(null);
   const [formData, setFormData] = useState({
     nom: "",
     type: "encaissement" as "encaissement" | "reduction_depense" | "epargne",
@@ -181,20 +168,17 @@ const Objectifs = () => {
     setCurrentObjectif(null);
   };
 
-  const convertObjectifForDetailSheet = (objectif: Objectif): ObjectifDetailType => ({
-    id: objectif.id,
-    nom: objectif.nom,
-    type: objectif.type,
-    valeurActuelle: objectif.valeur_actuelle,
-    valeurCible: objectif.valeur_cible,
-    dateDebut: objectif.date_debut,
-    dateFin: objectif.date_fin,
-    progression: calculateProgression(objectif)
-  });
-
   const handleCardClick = (objectif: Objectif) => {
-    setSelectedObjectif(convertObjectifForDetailSheet(objectif));
+    setSelectedObjectif(objectif);
     setIsDetailSheetOpen(true);
+  };
+
+  const formatDate = (dateString: string) => {
+    return new Date(dateString).toLocaleDateString(undefined, { 
+      year: 'numeric', 
+      month: 'short', 
+      day: 'numeric' 
+    });
   };
 
   if (isLoading) {
@@ -294,7 +278,7 @@ const Objectifs = () => {
               </div>
             </div>
             <DialogFooter>
-              <Button type="submit" onClick={handleCreateSubmit}>
+              <Button type="button" onClick={handleCreateSubmit}>
                 {t("objectifs.create")}
               </Button>
             </DialogFooter>
@@ -351,7 +335,7 @@ const Objectifs = () => {
                 </div>
               </CardContent>
               <CardFooter className="text-sm text-muted-foreground">
-                {`${t("objectifs.end_date")}: ${new Date(objectif.date_fin).toLocaleDateString()}`}
+                {`${t("objectifs.end_date")}: ${formatDate(objectif.date_fin)}`}
               </CardFooter>
             </Card>
           ))}
@@ -433,7 +417,7 @@ const Objectifs = () => {
             </div>
           </div>
           <DialogFooter>
-            <Button type="submit" onClick={handleEditSubmit}>
+            <Button type="button" onClick={handleEditSubmit}>
               {t("objectifs.update")}
             </Button>
           </DialogFooter>
