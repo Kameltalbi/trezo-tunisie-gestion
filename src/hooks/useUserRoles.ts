@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -35,29 +34,47 @@ export const useUserRoles = () => {
   return useQuery({
     queryKey: ['user-roles-with-profiles'],
     queryFn: async () => {
-      const { data, error } = await supabase
+      // First get all user roles
+      const { data: userRoles, error: rolesError } = await supabase
         .from('user_roles')
-        .select(`
-          *,
-          profiles!inner(
-            email,
-            full_name,
-            company_name
-          )
-        `);
+        .select('*');
 
-      if (error) throw error;
-      
-      // Transform the data to flatten the profile information
-      return (data || []).map(item => ({
-        id: item.id,
-        user_id: item.user_id,
-        role: item.role,
-        created_at: item.created_at,
-        email: item.profiles?.email || null,
-        full_name: item.profiles?.full_name || null,
-        company_name: item.profiles?.company_name || null,
-      })) as UserWithRole[];
+      if (rolesError) throw rolesError;
+
+      if (!userRoles || userRoles.length === 0) {
+        return [];
+      }
+
+      // Get all user IDs from roles
+      const userIds = userRoles.map(role => role.user_id);
+
+      // Get profiles for these users
+      const { data: profiles, error: profilesError } = await supabase
+        .from('profiles')
+        .select('id, email, full_name, company_name')
+        .in('id', userIds);
+
+      if (profilesError) throw profilesError;
+
+      // Create a map of user profiles for easy lookup
+      const profileMap = new Map();
+      profiles?.forEach(profile => {
+        profileMap.set(profile.id, profile);
+      });
+
+      // Combine user roles with their profiles
+      return userRoles.map(role => {
+        const profile = profileMap.get(role.user_id);
+        return {
+          id: role.id,
+          user_id: role.user_id,
+          role: role.role,
+          created_at: role.created_at,
+          email: profile?.email || null,
+          full_name: profile?.full_name || null,
+          company_name: profile?.company_name || null,
+        };
+      }) as UserWithRole[];
     },
   });
 };
