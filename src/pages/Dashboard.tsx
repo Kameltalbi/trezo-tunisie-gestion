@@ -18,7 +18,7 @@ const DashboardPage: React.FC = () => {
       if (!acc[month]) {
         acc[month] = { month, encaissements: 0 };
       }
-      acc[month].encaissements += Number(item.montant);
+      acc[month].encaissements += Number(item.montant || 0);
       return acc;
     }, {});
     
@@ -34,7 +34,7 @@ const DashboardPage: React.FC = () => {
       if (!acc[month]) {
         acc[month] = { month, solde: 0 };
       }
-      acc[month].solde += Number(item.montant_realise || item.montant_prevu);
+      acc[month].solde += Number(item.montant_realise || item.montant_prevu || 0);
       return acc;
     }, {});
     
@@ -50,15 +50,15 @@ const DashboardPage: React.FC = () => {
       if (!acc[category]) {
         acc[category] = { name: category, amount: 0, color: getColorForCategory(category) };
       }
-      acc[category].amount += Number(item.montant);
+      acc[category].amount += Number(item.montant || 0);
       return acc;
     }, {});
     
-    const totalAmount = Object.values(categoryData).reduce((sum: number, item: any) => sum + Number(item.amount), 0);
+    const totalAmount = Object.values(categoryData).reduce((sum: number, item: any) => sum + Number(item.amount || 0), 0);
     
     return Object.values(categoryData).map((item: any) => ({
       ...item,
-      value: totalAmount > 0 ? Math.round((Number(item.amount) / totalAmount) * 100) : 0
+      value: totalAmount > 0 ? Math.round((Number(item.amount || 0) / totalAmount) * 100) : 0
     }));
   }, [depenses.data]);
 
@@ -71,19 +71,19 @@ const DashboardPage: React.FC = () => {
       if (!acc[source]) {
         acc[source] = { name: source, amount: 0, color: getColorForCategory(source) };
       }
-      acc[source].amount += Number(item.montant);
+      acc[source].amount += Number(item.montant || 0);
       return acc;
     }, {});
     
-    const totalAmount = Object.values(sourceData).reduce((sum: number, item: any) => sum + Number(item.amount), 0);
+    const totalAmount = Object.values(sourceData).reduce((sum: number, item: any) => sum + Number(item.amount || 0), 0);
     
     return Object.values(sourceData).map((item: any) => ({
       ...item,
-      value: totalAmount > 0 ? Math.round((Number(item.amount) / totalAmount) * 100) : 0
+      value: totalAmount > 0 ? Math.round((Number(item.amount || 0) / totalAmount) * 100) : 0
     }));
   }, [revenus.data]);
 
-  const totalExpenses = expensesData.reduce((sum, item) => sum + Number(item.amount), 0);
+  const totalExpenses = expensesData.reduce((sum, item) => sum + Number(item.amount || 0), 0);
 
   // Calculate dashboard summary cards from real data
   const dashboardSummary = React.useMemo(() => {
