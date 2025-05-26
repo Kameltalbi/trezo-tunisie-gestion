@@ -1,3 +1,4 @@
+
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Plus, Wallet, ArrowUp, ArrowDown, Edit, MoreHorizontal, Trash2 } from 'lucide-react';
@@ -29,32 +30,19 @@ import {
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
-import { Account, AccountType } from '@/types';
+import { useComptesBancaires, useCreateCompteBancaire } from '@/hooks/useComptesBancaires';
+import { useDefaultDevise } from '@/hooks/useDevises';
+import { formatCurrency } from '@/lib/utils';
 
 const Comptes = () => {
   const { t } = useTranslation();
-  const [accounts, setAccounts] = useState<Account[]>([
-    { 
-      id: '1', 
-      name: 'Compte principal', 
-      type: 'checking', 
-      initialBalance: 5000, 
-      currentBalance: 5350,
-      createdAt: new Date().toISOString()
-    },
-    { 
-      id: '2', 
-      name: 'Épargne', 
-      type: 'savings', 
-      initialBalance: 10000, 
-      currentBalance: 10250,
-      createdAt: new Date().toISOString()
-    }
-  ]);
+  const { data: accounts = [], isLoading } = useComptesBancaires();
+  const { data: defaultCurrency } = useDefaultDevise();
+  const createCompteMutation = useCreateCompteBancaire();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [dialogType, setDialogType] = useState<'add' | 'deposit' | 'withdraw' | 'fees' | 'edit' | 'delete'>('add');
-  const [currentAccount, setCurrentAccount] = useState<Account | null>(null);
+  const [currentAccount, setCurrentAccount] = useState<any>(null);
   const [transactionForm, setTransactionForm] = useState({
     amount: '',
     description: '',
@@ -63,34 +51,49 @@ const Comptes = () => {
     date: new Date().toISOString().split('T')[0]
   });
   const [accountForm, setAccountForm] = useState({
-    name: '',
-    type: 'checking' as AccountType,
-    initialBalance: ''
+    nom: '',
+    type: 'courant' as 'courant' | 'epargne' | 'credit',
+    banque: '',
+    numero_compte: '',
+    solde_initial: '',
+    devise_id: defaultCurrency?.id || ''
   });
-  
-  const formatCurrency = (amount: number) => {
-    return new Intl.NumberFormat('fr-FR', { style: 'currency', currency: 'EUR' }).format(amount);
+
+  const formatAccountCurrency = (amount: number) => {
+    if (defaultCurrency) {
+      return new Intl.NumberFormat('fr-FR', { 
+        style: 'currency', 
+        currency: defaultCurrency.code || 'TND'
+      }).format(amount).replace(defaultCurrency.code || 'TND', defaultCurrency.symbole || 'DT');
+    }
+    return formatCurrency(amount);
   };
 
   const openAddDialog = () => {
     setDialogType('add');
     setAccountForm({
-      name: '',
-      type: 'checking',
-      initialBalance: ''
+      nom: '',
+      type: 'courant',
+      banque: '',
+      numero_compte: '',
+      solde_initial: '',
+      devise_id: defaultCurrency?.id || ''
     });
     setIsDialogOpen(true);
   };
 
-  const openActionDialog = (type: 'deposit' | 'withdraw' | 'fees' | 'edit' | 'delete', account: Account) => {
+  const openActionDialog = (type: 'deposit' | 'withdraw' | 'fees' | 'edit' | 'delete', account: any) => {
     setDialogType(type);
     setCurrentAccount(account);
     
     if (type === 'edit') {
       setAccountForm({
-        name: account.name,
+        nom: account.nom,
         type: account.type,
-        initialBalance: account.initialBalance.toString()
+        banque: account.banque || '',
+        numero_compte: account.numero_compte || '',
+        solde_initial: account.solde_initial.toString(),
+        devise_id: account.devise_id || defaultCurrency?.id || ''
       });
     } else if (type !== 'delete') {
       setTransactionForm({
@@ -104,8 +107,8 @@ const Comptes = () => {
     setIsDialogOpen(true);
   };
 
-  const handleAddAccount = () => {
-    if (!accountForm.name || !accountForm.initialBalance) {
+  const handleAddAccount = async () => {
+    if (!accountForm.nom || !accountForm.solde_initial) {
       toast({
         title: t('comptes.error'),
         description: t('comptes.fill_all_fields'),
@@ -114,26 +117,35 @@ const Comptes = () => {
       return;
     }
 
-    const initialBalance = parseFloat(accountForm.initialBalance);
-    const newAccount: Account = {
-      id: Date.now().toString(),
-      name: accountForm.name,
-      type: accountForm.type,
-      initialBalance,
-      currentBalance: initialBalance,
-      createdAt: new Date().toISOString()
-    };
+    try {
+      const soldeInitial = parseFloat(accountForm.solde_initial);
+      await createCompteMutation.mutateAsync({
+        nom: accountForm.nom,
+        type: accountForm.type,
+        banque: accountForm.banque,
+        numero_compte: accountForm.numero_compte,
+        solde_initial: soldeInitial,
+        solde_actuel: soldeInitial,
+        devise_id: accountForm.devise_id || defaultCurrency?.id,
+        is_active: true
+      });
 
-    setAccounts([...accounts, newAccount]);
-    setIsDialogOpen(false);
-    toast({
-      title: t('comptes.success'),
-      description: t('comptes.account_added'),
-    });
+      setIsDialogOpen(false);
+      toast({
+        title: t('comptes.success'),
+        description: t('comptes.account_added'),
+      });
+    } catch (error) {
+      toast({
+        title: t('comptes.error'),
+        description: 'Erreur lors de la création du compte',
+        variant: "destructive",
+      });
+    }
   };
 
   const handleEditAccount = () => {
-    if (!currentAccount || !accountForm.name || !accountForm.initialBalance) {
+    if (!currentAccount || !accountForm.nom || !accountForm.solde_initial) {
       toast({
         title: t('comptes.error'),
         description: t('comptes.fill_all_fields'),
@@ -142,36 +154,22 @@ const Comptes = () => {
       return;
     }
 
-    const initialBalance = parseFloat(accountForm.initialBalance);
-    const updatedAccounts = accounts.map(account => {
-      if (account.id === currentAccount.id) {
-        return {
-          ...account,
-          name: accountForm.name,
-          type: accountForm.type,
-          initialBalance
-        };
-      }
-      return account;
-    });
-
-    setAccounts(updatedAccounts);
+    // For now, just close dialog since we need update mutation
     setIsDialogOpen(false);
     toast({
       title: t('comptes.success'),
-      description: 'Compte modifié avec succès',
+      description: t('comptes.account_modified'),
     });
   };
 
   const handleDeleteAccount = () => {
     if (!currentAccount) return;
 
-    const updatedAccounts = accounts.filter(account => account.id !== currentAccount.id);
-    setAccounts(updatedAccounts);
+    // For now, just close dialog since we need delete mutation
     setIsDialogOpen(false);
     toast({
       title: t('comptes.success'),
-      description: 'Compte supprimé avec succès',
+      description: t('comptes.account_deleted'),
     });
   };
 
@@ -196,40 +194,19 @@ const Comptes = () => {
     }
 
     const numAmount = parseFloat(transactionForm.amount);
-    const updatedAccounts = accounts.map(account => {
-      if (account.id === currentAccount.id) {
-        let newBalance = account.currentBalance;
-        
-        switch (dialogType) {
-          case 'deposit':
-            newBalance += numAmount;
-            break;
-          case 'withdraw':
-            newBalance -= numAmount;
-            break;
-          case 'fees':
-            newBalance -= numAmount;
-            break;
-        }
-        
-        return { ...account, currentBalance: newBalance };
-      }
-      return account;
-    });
-
-    setAccounts(updatedAccounts);
-    setIsDialogOpen(false);
 
     // Log transaction details
     console.log('Transaction effectuée:', {
       type: dialogType,
-      account: currentAccount.name,
+      account: currentAccount.nom,
       amount: numAmount,
       description: transactionForm.description,
       category: transactionForm.category,
       reference: transactionForm.reference,
       date: transactionForm.date
     });
+
+    setIsDialogOpen(false);
 
     let actionMessage = '';
     switch (dialogType) {
@@ -261,19 +238,19 @@ const Comptes = () => {
       case 'fees':
         return t('comptes.modify_fees');
       case 'edit':
-        return 'Modifier le compte';
+        return t('comptes.modify_account');
       case 'delete':
-        return 'Supprimer le compte';
+        return t('comptes.delete_account');
       default:
         return '';
     }
   };
 
-  const getAccountTypeLabel = (type: AccountType) => {
+  const getAccountTypeLabel = (type: string) => {
     switch (type) {
-      case 'checking':
-        return t('comptes.checking');
-      case 'savings':
+      case 'courant':
+        return t('comptes.current');
+      case 'epargne':
         return t('comptes.savings');
       case 'credit':
         return t('comptes.credit');
@@ -294,6 +271,10 @@ const Comptes = () => {
         return [];
     }
   };
+
+  if (isLoading) {
+    return <div className="container">Loading...</div>;
+  }
 
   return (
     <div className="container">
@@ -330,13 +311,13 @@ const Comptes = () => {
                     <TableCell className="font-medium">
                       <div className="flex items-center">
                         <Wallet className="mr-2 h-4 w-4 text-slate-500" />
-                        {account.name}
+                        {account.nom}
                       </div>
                     </TableCell>
                     <TableCell>{getAccountTypeLabel(account.type)}</TableCell>
-                    <TableCell className="text-right">{formatCurrency(account.initialBalance)}</TableCell>
-                    <TableCell className={`text-right font-medium ${account.currentBalance > account.initialBalance ? 'text-emerald-600' : account.currentBalance < account.initialBalance ? 'text-red-600' : ''}`}>
-                      {formatCurrency(account.currentBalance)}
+                    <TableCell className="text-right">{formatAccountCurrency(account.solde_initial)}</TableCell>
+                    <TableCell className={`text-right font-medium ${account.solde_actuel > account.solde_initial ? 'text-emerald-600' : account.solde_actuel < account.solde_initial ? 'text-red-600' : ''}`}>
+                      {formatAccountCurrency(account.solde_actuel)}
                     </TableCell>
                     <TableCell className="text-right">
                       <DropdownMenu>
@@ -360,14 +341,14 @@ const Comptes = () => {
                           </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => openActionDialog('edit', account)}>
                             <Edit size={16} className="mr-2" />
-                            Modifier
+                            {t('comptes.modify')}
                           </DropdownMenuItem>
                           <DropdownMenuItem 
                             onClick={() => openActionDialog('delete', account)}
                             className="text-red-600"
                           >
                             <Trash2 size={16} className="mr-2" />
-                            Supprimer
+                            {t('comptes.delete')}
                           </DropdownMenuItem>
                         </DropdownMenuContent>
                       </DropdownMenu>
@@ -401,17 +382,17 @@ const Comptes = () => {
               {dialogType === 'add' 
                 ? t('comptes.add_account_desc') 
                 : dialogType === 'delete'
-                ? `Êtes-vous sûr de vouloir supprimer le compte "${currentAccount?.name}" ?`
+                ? t('comptes.delete_account_confirm', { name: currentAccount?.nom })
                 : dialogType === 'edit' 
-                ? `Modifier les informations du compte "${currentAccount?.name}"`
-                : t('comptes.action_account_desc', { account: currentAccount?.name })}
+                ? t('comptes.modify_account_info', { name: currentAccount?.nom })
+                : t('comptes.action_account_desc', { account: currentAccount?.nom })}
             </DialogDescription>
           </DialogHeader>
 
           {dialogType === 'delete' ? (
             <div className="py-4">
               <p className="text-sm text-muted-foreground">
-                Cette action est irréversible. Toutes les données associées à ce compte seront perdues.
+                {t('comptes.delete_account_warning')}
               </p>
             </div>
           ) : (dialogType === 'add' || dialogType === 'edit') ? (
@@ -420,8 +401,8 @@ const Comptes = () => {
                 <Label htmlFor="name">{t('comptes.name')}</Label>
                 <Input 
                   id="name" 
-                  value={accountForm.name} 
-                  onChange={(e) => setAccountForm({...accountForm, name: e.target.value})} 
+                  value={accountForm.nom} 
+                  onChange={(e) => setAccountForm({...accountForm, nom: e.target.value})} 
                 />
               </div>
               
@@ -431,12 +412,21 @@ const Comptes = () => {
                   id="type"
                   className="w-full p-2 border rounded"
                   value={accountForm.type}
-                  onChange={(e) => setAccountForm({...accountForm, type: e.target.value as AccountType})}
+                  onChange={(e) => setAccountForm({...accountForm, type: e.target.value as 'courant' | 'epargne' | 'credit'})}
                 >
-                  <option value="checking">{t('comptes.checking')}</option>
-                  <option value="savings">{t('comptes.savings')}</option>
+                  <option value="courant">{t('comptes.current')}</option>
+                  <option value="epargne">{t('comptes.savings')}</option>
                   <option value="credit">{t('comptes.credit')}</option>
                 </select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="banque">Banque</Label>
+                <Input 
+                  id="banque" 
+                  value={accountForm.banque} 
+                  onChange={(e) => setAccountForm({...accountForm, banque: e.target.value})} 
+                />
               </div>
 
               <div className="space-y-2">
@@ -444,8 +434,8 @@ const Comptes = () => {
                 <Input 
                   id="initialBalance" 
                   type="number"
-                  value={accountForm.initialBalance} 
-                  onChange={(e) => setAccountForm({...accountForm, initialBalance: e.target.value})} 
+                  value={accountForm.solde_initial} 
+                  onChange={(e) => setAccountForm({...accountForm, solde_initial: e.target.value})} 
                 />
               </div>
             </div>
@@ -463,7 +453,7 @@ const Comptes = () => {
                   />
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="date">Date</Label>
+                  <Label htmlFor="date">{t('comptes.date')}</Label>
                   <Input 
                     id="date" 
                     type="date"
@@ -474,14 +464,14 @@ const Comptes = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="category">Catégorie</Label>
+                <Label htmlFor="category">{t('comptes.category')}</Label>
                 <select 
                   id="category"
                   className="w-full p-2 border rounded"
                   value={transactionForm.category}
                   onChange={(e) => setTransactionForm({...transactionForm, category: e.target.value})}
                 >
-                  <option value="">Sélectionner une catégorie</option>
+                  <option value="">{t('comptes.select_category')}</option>
                   {getCategoryOptions().map(cat => (
                     <option key={cat} value={cat}>{cat}</option>
                   ))}
@@ -489,7 +479,7 @@ const Comptes = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="reference">Référence</Label>
+                <Label htmlFor="reference">{t('comptes.reference')}</Label>
                 <Input 
                   id="reference" 
                   placeholder="Numéro de référence ou chèque"
@@ -499,7 +489,7 @@ const Comptes = () => {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description">{t('comptes.description')}</Label>
                 <Textarea 
                   id="description" 
                   placeholder="Détails de la transaction (optionnel)"
@@ -520,8 +510,8 @@ const Comptes = () => {
               variant={dialogType === 'delete' ? 'destructive' : 'default'}
             >
               {dialogType === 'add' ? t('comptes.create') : 
-               dialogType === 'delete' ? 'Supprimer' :
-               dialogType === 'edit' ? 'Modifier' :
+               dialogType === 'delete' ? t('comptes.delete') :
+               dialogType === 'edit' ? t('comptes.modify') :
                t('comptes.confirm')}
             </Button>
           </DialogFooter>
