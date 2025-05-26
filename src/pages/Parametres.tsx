@@ -1,4 +1,3 @@
-
 import React, { useState } from "react";
 import { Trash2, Edit, Plus, Check, UserPlus } from "lucide-react";
 import SectionBox from "@/components/SectionBox";
@@ -100,6 +99,30 @@ const ParametresPage = () => {
     }
   };
 
+  const handleSetDefault = async (id: string) => {
+    try {
+      // D'abord, désactiver la devise par défaut actuelle
+      const currentDefault = devises.find(d => d.is_default);
+      if (currentDefault && currentDefault.id !== id) {
+        await updateDeviseMutation.mutateAsync({ 
+          id: currentDefault.id, 
+          is_default: false 
+        });
+      }
+      
+      // Ensuite, définir la nouvelle devise par défaut
+      await updateDeviseMutation.mutateAsync({ 
+        id, 
+        is_default: true 
+      });
+      
+      toast({ description: "Devise définie par défaut avec succès" });
+    } catch (error) {
+      console.error('Erreur lors de la définition de la devise par défaut:', error);
+      toast({ description: "Erreur lors de la définition de la devise par défaut", variant: "destructive" });
+    }
+  };
+
   const renderFormFields = () => {
     switch (modalType) {
       case "devise":
@@ -190,8 +213,25 @@ const ParametresPage = () => {
                       <td className="p-2">{d.code}</td>
                       <td className="p-2">{d.decimales}</td>
                       <td className="p-2">{d.separateur}</td>
-                      <td className="p-2">{d.is_default ? "Oui" : "Non"}</td>
+                      <td className="p-2">
+                        {d.is_default ? (
+                          <Badge variant="default">Par défaut</Badge>
+                        ) : (
+                          <span className="text-gray-500">Non</span>
+                        )}
+                      </td>
                       <td className="p-2 flex space-x-2">
+                        {!d.is_default && (
+                          <Button 
+                            onClick={() => handleSetDefault(d.id)} 
+                            size="sm" 
+                            variant="outline"
+                            className="text-green-600 border-green-600 hover:bg-green-50"
+                          >
+                            <Check className="w-4 h-4 mr-1" />
+                            Définir par défaut
+                          </Button>
+                        )}
                         <Button 
                           onClick={() => openModal("devise", true, d)} 
                           size="icon" 
