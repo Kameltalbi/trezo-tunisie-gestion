@@ -47,7 +47,7 @@ const App = () => (
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/checkout" element={<Layout requireAuth={true}><Checkout /></Layout>} />
-              <Route path="/order-confirmation" element={<Layout requireAuth={true}><OrderConfirmation /></Layout>} />
+              <Route path="/order-confirmation" element={<OrderConfirmation />} />
               <Route path="/subscription" element={<Layout requireAuth={true}><Subscription /></Layout>} />
               <Route path="/parametres" element={<Layout requireAuth={true}><Parametres /></Layout>} />
               <Route path="/admin" element={<Layout requireAuth={true}><Admin /></Layout>} />
