@@ -8,37 +8,57 @@ import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Textarea } from '@/components/ui/textarea';
-
-interface Depense {
-  id: number;
-  intitule: string;
-  categorie: string;
-  montant: number;
-  dateEcheance: string;
-  statut: 'prévue' | 'réglée' | 'en retard';
-  notes?: string;
-}
+import { format } from 'date-fns';
+import { formatCurrency } from '@/lib/utils';
+import { useDecaissements, useCreateDecaissement, type Decaissement } from '@/hooks/useDecaissements';
+import { useComptesBancaires } from '@/hooks/useComptesBancaires';
+import { useProjets } from '@/hooks/useProjets';
+import { toast } from 'sonner';
 
 const DepensesPage: React.FC = () => {
-  const [depenses, setDepenses] = useState<Depense[]>([]);
+  const { data: decaissements = [], isLoading } = useDecaissements();
+  const { data: comptes = [] } = useComptesBancaires();
+  const { data: projets = [] } = useProjets();
+  const createDecaissement = useCreateDecaissement();
   const [open, setOpen] = useState(false);
-  const [nouvelleDepense, setNouvelleDepense] = useState<Partial<Depense>>({});
+  const [nouvelleDepense, setNouvelleDepense] = useState<Partial<Decaissement>>({
+    recurrence: 'aucune',
+    statut: 'confirme'
+  });
 
-  const ajouterDepense = () => {
-    if (!nouvelleDepense.intitule || !nouvelleDepense.montant || !nouvelleDepense.dateEcheance || !nouvelleDepense.categorie) return;
-    const nouvelle: Depense = {
-      id: depenses.length + 1,
-      intitule: nouvelleDepense.intitule,
-      categorie: nouvelleDepense.categorie,
-      montant: nouvelleDepense.montant,
-      dateEcheance: nouvelleDepense.dateEcheance,
-      statut: 'prévue',
-      notes: nouvelleDepense.notes || '',
-    };
-    setDepenses([...depenses, nouvelle]);
-    setNouvelleDepense({});
-    setOpen(false);
+  const ajouterDepense = async () => {
+    if (!nouvelleDepense.titre || !nouvelleDepense.montant || !nouvelleDepense.date_transaction || !nouvelleDepense.categorie) {
+      toast.error("Veuillez remplir tous les champs obligatoires");
+      return;
+    }
+
+    try {
+      await createDecaissement.mutateAsync({
+        titre: nouvelleDepense.titre,
+        montant: nouvelleDepense.montant,
+        date_transaction: nouvelleDepense.date_transaction,
+        categorie: nouvelleDepense.categorie,
+        sous_categorie: nouvelleDepense.sous_categorie,
+        description: nouvelleDepense.description,
+        compte_id: nouvelleDepense.compte_id,
+        projet_id: nouvelleDepense.projet_id,
+        reference: nouvelleDepense.reference,
+        recurrence: nouvelleDepense.recurrence || 'aucune',
+        statut: nouvelleDepense.statut || 'confirme'
+      });
+      
+      setNouvelleDepense({ recurrence: 'aucune', statut: 'confirme' });
+      setOpen(false);
+      toast.success("Décaissement ajouté avec succès");
+    } catch (error) {
+      console.error("Erreur lors de l'ajout:", error);
+      toast.error("Erreur lors de l'ajout du décaissement");
+    }
   };
+
+  if (isLoading) {
+    return <div className="p-6">Chargement...</div>;
+  }
 
   return (
     <div className="p-6 space-y-6">
@@ -48,12 +68,16 @@ const DepensesPage: React.FC = () => {
           <DialogTrigger asChild>
             <Button>+ Ajouter un décaissement</Button>
           </DialogTrigger>
-          <DialogContent>
+          <DialogContent className="max-w-2xl">
             <div className="grid gap-4">
-              <Label>Intitulé</Label>
-              <Input value={nouvelleDepense.intitule || ''} onChange={e => setNouvelleDepense({ ...nouvelleDepense, intitule: e.target.value })} />
+              <Label>Intitulé *</Label>
+              <Input 
+                value={nouvelleDepense.titre || ''} 
+                onChange={e => setNouvelleDepense({ ...nouvelleDepense, titre: e.target.value })} 
+                placeholder="Description du décaissement"
+              />
 
-              <Label>Catégorie</Label>
+              <Label>Catégorie *</Label>
               <Select onValueChange={val => setNouvelleDepense({ ...nouvelleDepense, categorie: val })}>
                 <SelectTrigger><SelectValue placeholder="Choisir une catégorie" /></SelectTrigger>
                 <SelectContent>
@@ -61,20 +85,83 @@ const DepensesPage: React.FC = () => {
                   <SelectItem value="Salaires">Salaires</SelectItem>
                   <SelectItem value="Services">Services</SelectItem>
                   <SelectItem value="Achats">Achats</SelectItem>
+                  <SelectItem value="Marketing">Marketing</SelectItem>
+                  <SelectItem value="Formation">Formation</SelectItem>
                   <SelectItem value="Autres">Autres</SelectItem>
                 </SelectContent>
               </Select>
 
-              <Label>Montant (DT)</Label>
-              <Input type="number" value={nouvelleDepense.montant || ''} onChange={e => setNouvelleDepense({ ...nouvelleDepense, montant: parseFloat(e.target.value) })} />
+              <Label>Sous-catégorie</Label>
+              <Input 
+                value={nouvelleDepense.sous_categorie || ''} 
+                onChange={e => setNouvelleDepense({ ...nouvelleDepense, sous_categorie: e.target.value })} 
+                placeholder="Précision sur la catégorie"
+              />
 
-              <Label>Date d'échéance</Label>
-              <Input type="date" value={nouvelleDepense.dateEcheance || ''} onChange={e => setNouvelleDepense({ ...nouvelleDepense, dateEcheance: e.target.value })} />
+              <Label>Montant (DT) *</Label>
+              <Input 
+                type="number" 
+                step="0.001"
+                value={nouvelleDepense.montant || ''} 
+                onChange={e => setNouvelleDepense({ ...nouvelleDepense, montant: parseFloat(e.target.value) })} 
+                placeholder="0.000"
+              />
+
+              <Label>Date de transaction *</Label>
+              <Input 
+                type="date" 
+                value={nouvelleDepense.date_transaction || ''} 
+                onChange={e => setNouvelleDepense({ ...nouvelleDepense, date_transaction: e.target.value })} 
+              />
+
+              <Label>Compte bancaire</Label>
+              <Select onValueChange={val => setNouvelleDepense({ ...nouvelleDepense, compte_id: val })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionner un compte" />
+                </SelectTrigger>
+                <SelectContent>
+                  {comptes.map(compte => (
+                    <SelectItem key={compte.id} value={compte.id}>
+                      {compte.nom} - {compte.banque}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Label>Projet associé</Label>
+              <Select onValueChange={val => setNouvelleDepense({ ...nouvelleDepense, projet_id: val })}>
+                <SelectTrigger>
+                  <SelectValue placeholder="Sélectionner un projet" />
+                </SelectTrigger>
+                <SelectContent>
+                  {projets.map(projet => (
+                    <SelectItem key={projet.id} value={projet.id}>
+                      {projet.nom}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+
+              <Label>Référence</Label>
+              <Input 
+                value={nouvelleDepense.reference || ''} 
+                onChange={e => setNouvelleDepense({ ...nouvelleDepense, reference: e.target.value })} 
+                placeholder="Numéro de facture, référence..."
+              />
 
               <Label>Notes</Label>
-              <Textarea value={nouvelleDepense.notes || ''} onChange={e => setNouvelleDepense({ ...nouvelleDepense, notes: e.target.value })} />
+              <Textarea 
+                value={nouvelleDepense.description || ''} 
+                onChange={e => setNouvelleDepense({ ...nouvelleDepense, description: e.target.value })} 
+                placeholder="Détails supplémentaires..."
+              />
 
-              <Button onClick={ajouterDepense}>Ajouter</Button>
+              <Button 
+                onClick={ajouterDepense}
+                disabled={createDecaissement.isPending}
+              >
+                {createDecaissement.isPending ? "Ajout..." : "Ajouter"}
+              </Button>
             </div>
           </DialogContent>
         </Dialog>
@@ -88,20 +175,23 @@ const DepensesPage: React.FC = () => {
                 <TableHead>Intitulé</TableHead>
                 <TableHead>Catégorie</TableHead>
                 <TableHead>Montant</TableHead>
-                <TableHead>Échéance</TableHead>
+                <TableHead>Date</TableHead>
                 <TableHead>Statut</TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
-              {depenses.map(dep => (
+              {decaissements.map(dep => (
                 <TableRow key={dep.id}>
-                  <TableCell>{dep.intitule}</TableCell>
-                  <TableCell>{dep.categorie}</TableCell>
-                  <TableCell>{dep.montant.toFixed(3)} DT</TableCell>
-                  <TableCell>{dep.dateEcheance}</TableCell>
+                  <TableCell>{dep.titre}</TableCell>
+                  <TableCell>
+                    {dep.categorie}
+                    {dep.sous_categorie && ` - ${dep.sous_categorie}`}
+                  </TableCell>
+                  <TableCell>{formatCurrency(dep.montant)}</TableCell>
+                  <TableCell>{format(new Date(dep.date_transaction), 'dd/MM/yyyy')}</TableCell>
                   <TableCell className={
-                    dep.statut === 'en retard' ? 'text-red-500' :
-                    dep.statut === 'prévue' ? 'text-orange-500' :
+                    dep.statut === 'annule' ? 'text-red-500' :
+                    dep.statut === 'en_attente' ? 'text-orange-500' :
                     'text-green-600'}>{dep.statut}</TableCell>
                 </TableRow>
               ))}

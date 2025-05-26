@@ -9,6 +9,373 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      comptes_bancaires: {
+        Row: {
+          banque: string
+          created_at: string
+          devise_id: string | null
+          id: string
+          is_active: boolean | null
+          nom: string
+          numero_compte: string | null
+          solde_actuel: number
+          solde_initial: number
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          banque: string
+          created_at?: string
+          devise_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          nom: string
+          numero_compte?: string | null
+          solde_actuel?: number
+          solde_initial?: number
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          banque?: string
+          created_at?: string
+          devise_id?: string | null
+          id?: string
+          is_active?: boolean | null
+          nom?: string
+          numero_compte?: string | null
+          solde_actuel?: number
+          solde_initial?: number
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "comptes_bancaires_devise_id_fkey"
+            columns: ["devise_id"]
+            isOneToOne: false
+            referencedRelation: "devises"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      decaissements: {
+        Row: {
+          categorie: string
+          compte_id: string | null
+          created_at: string
+          date_transaction: string
+          description: string | null
+          id: string
+          montant: number
+          projet_id: string | null
+          recurrence: string | null
+          reference: string | null
+          sous_categorie: string | null
+          statut: string
+          titre: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          categorie: string
+          compte_id?: string | null
+          created_at?: string
+          date_transaction: string
+          description?: string | null
+          id?: string
+          montant: number
+          projet_id?: string | null
+          recurrence?: string | null
+          reference?: string | null
+          sous_categorie?: string | null
+          statut?: string
+          titre: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          categorie?: string
+          compte_id?: string | null
+          created_at?: string
+          date_transaction?: string
+          description?: string | null
+          id?: string
+          montant?: number
+          projet_id?: string | null
+          recurrence?: string | null
+          reference?: string | null
+          sous_categorie?: string | null
+          statut?: string
+          titre?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "decaissements_compte_id_fkey"
+            columns: ["compte_id"]
+            isOneToOne: false
+            referencedRelation: "comptes_bancaires"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "decaissements_projet_id_fkey"
+            columns: ["projet_id"]
+            isOneToOne: false
+            referencedRelation: "projets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      devises: {
+        Row: {
+          code: string
+          created_at: string
+          decimales: number
+          id: string
+          is_default: boolean | null
+          nom: string
+          separateur: string
+          symbole: string
+          updated_at: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          decimales?: number
+          id?: string
+          is_default?: boolean | null
+          nom: string
+          separateur?: string
+          symbole: string
+          updated_at?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          decimales?: number
+          id?: string
+          is_default?: boolean | null
+          nom?: string
+          separateur?: string
+          symbole?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      encaissements: {
+        Row: {
+          categorie: string
+          compte_id: string | null
+          created_at: string
+          date_transaction: string
+          description: string | null
+          id: string
+          montant: number
+          projet_id: string | null
+          recurrence: string | null
+          reference: string | null
+          sous_categorie: string | null
+          statut: string
+          titre: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          categorie: string
+          compte_id?: string | null
+          created_at?: string
+          date_transaction: string
+          description?: string | null
+          id?: string
+          montant: number
+          projet_id?: string | null
+          recurrence?: string | null
+          reference?: string | null
+          sous_categorie?: string | null
+          statut?: string
+          titre: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          categorie?: string
+          compte_id?: string | null
+          created_at?: string
+          date_transaction?: string
+          description?: string | null
+          id?: string
+          montant?: number
+          projet_id?: string | null
+          recurrence?: string | null
+          reference?: string | null
+          sous_categorie?: string | null
+          statut?: string
+          titre?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "encaissements_compte_id_fkey"
+            columns: ["compte_id"]
+            isOneToOne: false
+            referencedRelation: "comptes_bancaires"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "encaissements_projet_id_fkey"
+            columns: ["projet_id"]
+            isOneToOne: false
+            referencedRelation: "projets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      flux_tresorerie: {
+        Row: {
+          categorie: string | null
+          compte_id: string | null
+          created_at: string
+          date_prevision: string
+          description: string | null
+          id: string
+          montant_prevu: number
+          montant_realise: number | null
+          statut: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          categorie?: string | null
+          compte_id?: string | null
+          created_at?: string
+          date_prevision: string
+          description?: string | null
+          id?: string
+          montant_prevu: number
+          montant_realise?: number | null
+          statut?: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          categorie?: string | null
+          compte_id?: string | null
+          created_at?: string
+          date_prevision?: string
+          description?: string | null
+          id?: string
+          montant_prevu?: number
+          montant_realise?: number | null
+          statut?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "flux_tresorerie_compte_id_fkey"
+            columns: ["compte_id"]
+            isOneToOne: false
+            referencedRelation: "comptes_bancaires"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      gestion_dettes: {
+        Row: {
+          created_at: string
+          date_echeance: string | null
+          description: string | null
+          id: string
+          montant_initial: number
+          montant_restant: number
+          nom_tiers: string
+          statut: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date_echeance?: string | null
+          description?: string | null
+          id?: string
+          montant_initial: number
+          montant_restant: number
+          nom_tiers: string
+          statut?: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date_echeance?: string | null
+          description?: string | null
+          id?: string
+          montant_initial?: number
+          montant_restant?: number
+          nom_tiers?: string
+          statut?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      objectifs: {
+        Row: {
+          created_at: string
+          date_debut: string
+          date_fin: string
+          description: string | null
+          id: string
+          nom: string
+          statut: string
+          type: string
+          updated_at: string
+          user_id: string
+          valeur_actuelle: number
+          valeur_cible: number
+        }
+        Insert: {
+          created_at?: string
+          date_debut: string
+          date_fin: string
+          description?: string | null
+          id?: string
+          nom: string
+          statut?: string
+          type: string
+          updated_at?: string
+          user_id: string
+          valeur_actuelle?: number
+          valeur_cible: number
+        }
+        Update: {
+          created_at?: string
+          date_debut?: string
+          date_fin?: string
+          description?: string | null
+          id?: string
+          nom?: string
+          statut?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+          valeur_actuelle?: number
+          valeur_cible?: number
+        }
+        Relationships: []
+      }
       payments: {
         Row: {
           amount: number
@@ -61,6 +428,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      permissions: {
+        Row: {
+          action: string
+          created_at: string
+          description: string | null
+          id: string
+          nom: string
+          page: string
+        }
+        Insert: {
+          action: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          nom: string
+          page: string
+        }
+        Update: {
+          action?: string
+          created_at?: string
+          description?: string | null
+          id?: string
+          nom?: string
+          page?: string
+        }
+        Relationships: []
       }
       plans: {
         Row: {
@@ -134,6 +528,122 @@ export type Database = {
         }
         Relationships: []
       }
+      projets: {
+        Row: {
+          budget_consomme: number
+          budget_prevu: number
+          created_at: string
+          date_debut: string
+          date_fin: string | null
+          description: string | null
+          id: string
+          nom: string
+          statut: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          budget_consomme?: number
+          budget_prevu?: number
+          created_at?: string
+          date_debut: string
+          date_fin?: string | null
+          description?: string | null
+          id?: string
+          nom: string
+          statut?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          budget_consomme?: number
+          budget_prevu?: number
+          created_at?: string
+          date_debut?: string
+          date_fin?: string | null
+          description?: string | null
+          id?: string
+          nom?: string
+          statut?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      rapports: {
+        Row: {
+          created_at: string
+          date_debut: string
+          date_fin: string
+          filtres: Json | null
+          format: string
+          id: string
+          nom: string
+          statut: string
+          type: string
+          updated_at: string
+          url_fichier: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          date_debut: string
+          date_fin: string
+          filtres?: Json | null
+          format?: string
+          id?: string
+          nom: string
+          statut?: string
+          type: string
+          updated_at?: string
+          url_fichier?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          date_debut?: string
+          date_fin?: string
+          filtres?: Json | null
+          format?: string
+          id?: string
+          nom?: string
+          statut?: string
+          type?: string
+          updated_at?: string
+          url_fichier?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      role_permissions: {
+        Row: {
+          created_at: string
+          id: string
+          permission_id: string
+          role: Database["public"]["Enums"]["user_role"]
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          permission_id: string
+          role: Database["public"]["Enums"]["user_role"]
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          permission_id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "role_permissions_permission_id_fkey"
+            columns: ["permission_id"]
+            isOneToOne: false
+            referencedRelation: "permissions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscriptions: {
         Row: {
           auto_renew: boolean | null
@@ -178,6 +688,99 @@ export type Database = {
           },
         ]
       }
+      transactions: {
+        Row: {
+          categorie: string
+          compte_id: string | null
+          created_at: string
+          date_transaction: string
+          description: string | null
+          id: string
+          montant: number
+          projet_id: string | null
+          reference: string | null
+          source: string
+          sous_categorie: string | null
+          statut: string
+          titre: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          categorie: string
+          compte_id?: string | null
+          created_at?: string
+          date_transaction: string
+          description?: string | null
+          id?: string
+          montant: number
+          projet_id?: string | null
+          reference?: string | null
+          source?: string
+          sous_categorie?: string | null
+          statut?: string
+          titre: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          categorie?: string
+          compte_id?: string | null
+          created_at?: string
+          date_transaction?: string
+          description?: string | null
+          id?: string
+          montant?: number
+          projet_id?: string | null
+          reference?: string | null
+          source?: string
+          sous_categorie?: string | null
+          statut?: string
+          titre?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "transactions_compte_id_fkey"
+            columns: ["compte_id"]
+            isOneToOne: false
+            referencedRelation: "comptes_bancaires"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "transactions_projet_id_fkey"
+            columns: ["projet_id"]
+            isOneToOne: false
+            referencedRelation: "projets"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      user_roles: {
+        Row: {
+          created_at: string
+          id: string
+          role: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          role?: Database["public"]["Enums"]["user_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
@@ -186,7 +789,7 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      user_role: "admin" | "editeur" | "collaborateur" | "utilisateur"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -301,6 +904,8 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      user_role: ["admin", "editeur", "collaborateur", "utilisateur"],
+    },
   },
 } as const
