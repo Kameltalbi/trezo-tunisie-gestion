@@ -4,9 +4,10 @@ import { Trash2, Edit, Plus, Check, UserPlus } from "lucide-react";
 import SectionBox from "@/components/SectionBox";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
+import { Badge } from "@/components/ui/badge";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { useToast } from "@/components/ui/use-toast";
+import { useToast } from "@/hooks/use-toast";
 import { useDevises, useCreateDevise, useUpdateDevise, useDeleteDevise } from "@/hooks/useDevises";
 import { useUserRoles, usePermissions, useUpdateUserRole, UserRole } from "@/hooks/useUserRoles";
 import { useUserPermissions } from "@/hooks/useUserPermissions";
@@ -105,10 +106,21 @@ const ParametresPage = () => {
 
   const handleSetDefault = async (id: string) => {
     try {
+      // D'abord, désactiver toutes les autres devises par défaut
+      const currentDefault = devises.find(d => d.is_default);
+      if (currentDefault && currentDefault.id !== id) {
+        await updateDeviseMutation.mutateAsync({ 
+          id: currentDefault.id, 
+          is_default: false 
+        });
+      }
+      
+      // Ensuite, définir la nouvelle devise par défaut
       await updateDeviseMutation.mutateAsync({ 
         id, 
         is_default: true 
       });
+      
       toast({ description: "Devise définie par défaut avec succès" });
     } catch (error) {
       console.error('Erreur lors de la définition de la devise par défaut:', error);
@@ -281,9 +293,7 @@ const ParametresPage = () => {
         
         {/* Permissions Content */}
         <TabsContent value="permissions">
-          <SectionBox 
-            title="Permissions du système"
-          >
+          <SectionBox title="Permissions du système">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
