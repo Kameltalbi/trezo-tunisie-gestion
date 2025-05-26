@@ -1,18 +1,21 @@
 
 import React, { useState, useEffect } from 'react';
-import { Sun, Moon, Monitor } from 'lucide-react';
+import { Sun, Moon, Monitor, LogOut, User } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
+import { useAuth } from '../contexts/AuthContext';
 import { Switch } from './ui/switch';
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSeparator,
 } from './ui/dropdown-menu';
 import { Button } from './ui/button';
 
 const Header = () => {
   const { theme, setTheme } = useTheme();
+  const { user, signOut } = useAuth();
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
@@ -40,14 +43,33 @@ const Header = () => {
     });
   };
 
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+    } catch (error) {
+      console.error('Erreur lors de la déconnexion:', error);
+    }
+  };
+
   const isDarkMode = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+  // Get user display name
+  const getUserDisplayName = () => {
+    if (user?.user_metadata?.full_name) {
+      return user.user_metadata.full_name;
+    }
+    if (user?.email) {
+      return user.email.split('@')[0];
+    }
+    return 'Utilisateur';
+  };
 
   return (
     <header className="bg-background border-b border-border shadow-sm">
       <div className="container mx-auto px-4 py-3">
         <div className="flex items-center justify-end">
-          {/* Date, heure et thème */}
           <div className="flex items-center space-x-6">
+            {/* Date et heure */}
             <div className="flex flex-col text-sm">
               <span className="font-medium text-foreground">
                 {formatDate(currentTime)}
@@ -57,7 +79,7 @@ const Header = () => {
               </span>
             </div>
 
-            {/* Menu mode clair/sombre */}
+            {/* Contrôles de thème */}
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
                 <Sun className="h-4 w-4" />
@@ -95,6 +117,31 @@ const Header = () => {
                 </DropdownMenuContent>
               </DropdownMenu>
             </div>
+
+            {/* Menu utilisateur */}
+            {user && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" size="sm" className="flex items-center space-x-2">
+                    <User className="h-4 w-4" />
+                    <span className="hidden sm:inline">{getUserDisplayName()}</span>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end">
+                  <div className="px-2 py-1.5 text-sm font-medium">
+                    {getUserDisplayName()}
+                  </div>
+                  <div className="px-2 py-1.5 text-xs text-muted-foreground">
+                    {user.email}
+                  </div>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={handleSignOut}>
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Se déconnecter</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
           </div>
         </div>
       </div>
