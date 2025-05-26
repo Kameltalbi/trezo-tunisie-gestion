@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -32,7 +33,7 @@ const Home = () => {
               <Link to="/login">
                 <Button variant="ghost">{t('auth.login')}</Button>
               </Link>
-              <Link to="/checkout">
+              <Link to="/register">
                 <Button>{t('home.try_free')}</Button>
               </Link>
             </div>
@@ -52,7 +53,7 @@ const Home = () => {
                 {t('home.hero_subtitle')}
               </p>
               <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start">
-                <Link to="/checkout">
+                <Link to="/register">
                   <Button size="lg" className="w-full sm:w-auto">
                     {t('home.start_free')} <ArrowRight className="ml-2" />
                   </Button>
