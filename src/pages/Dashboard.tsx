@@ -1,19 +1,27 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
 import { PieChart, Pie, Cell, ResponsiveContainer, BarChart, Bar, XAxis, YAxis, LineChart, Line } from 'recharts';
 import { useDashboardData } from '@/hooks/useDashboardData';
 import { Loader2 } from 'lucide-react';
+import type { 
+  DashboardEncaissement, 
+  DashboardDecaissement, 
+  DashboardFluxTresorerie, 
+  DashboardRevenu,
+  ProcessedChartData,
+  MonthlyBarData,
+  MonthlyLineData
+} from '@/types/dashboard';
 
 const DashboardPage: React.FC = () => {
   const { encaissements, soldes, depenses, revenus } = useDashboardData();
 
-  // Transform encaissements data for bar chart
-  const barData = React.useMemo(() => {
+  // Transform encaissements data for bar chart with proper typing
+  const barData: MonthlyBarData[] = React.useMemo(() => {
     if (!encaissements.data) return [];
     
-    const monthlyData = encaissements.data.reduce((acc: any, item: any) => {
+    const monthlyData = (encaissements.data as DashboardEncaissement[]).reduce((acc: Record<string, MonthlyBarData>, item) => {
       const month = new Date(item.date_transaction).toLocaleDateString('fr-FR', { month: 'short' });
       if (!acc[month]) {
         acc[month] = { month, encaissements: 0 };
@@ -25,11 +33,11 @@ const DashboardPage: React.FC = () => {
     return Object.values(monthlyData);
   }, [encaissements.data]);
 
-  // Transform soldes data for line chart
-  const lineData = React.useMemo(() => {
+  // Transform soldes data for line chart with proper typing
+  const lineData: MonthlyLineData[] = React.useMemo(() => {
     if (!soldes.data) return [];
     
-    const monthlyData = soldes.data.reduce((acc: any, item: any) => {
+    const monthlyData = (soldes.data as DashboardFluxTresorerie[]).reduce((acc: Record<string, MonthlyLineData>, item) => {
       const month = new Date(item.date_prevision).toLocaleDateString('fr-FR', { month: 'short' });
       if (!acc[month]) {
         acc[month] = { month, solde: 0 };
@@ -41,11 +49,11 @@ const DashboardPage: React.FC = () => {
     return Object.values(monthlyData);
   }, [soldes.data]);
 
-  // Transform depenses data for pie chart
-  const expensesData = React.useMemo(() => {
+  // Transform depenses data for pie chart with proper typing
+  const expensesData: ProcessedChartData[] = React.useMemo(() => {
     if (!depenses.data) return [];
     
-    const categoryData = depenses.data.reduce((acc: any, item: any) => {
+    const categoryData = (depenses.data as DashboardDecaissement[]).reduce((acc: Record<string, { name: string; amount: number; color: string }>, item) => {
       const category = item.categorie || 'Autres';
       if (!acc[category]) {
         acc[category] = { name: category, amount: 0, color: getColorForCategory(category) };
@@ -54,20 +62,20 @@ const DashboardPage: React.FC = () => {
       return acc;
     }, {});
     
-    const totalAmount = Object.values(categoryData).reduce((sum: number, item: any) => sum + Number(item.amount || 0), 0);
+    const totalAmount = Object.values(categoryData).reduce((sum: number, item) => sum + Number(item.amount || 0), 0);
     
-    return Object.values(categoryData).map((item: any) => ({
+    return Object.values(categoryData).map((item): ProcessedChartData => ({
       ...item,
       amount: Number(item.amount || 0),
       value: totalAmount > 0 ? Math.round((Number(item.amount || 0) / totalAmount) * 100) : 0
     }));
   }, [depenses.data]);
 
-  // Transform revenus data for pie chart
-  const revenueData = React.useMemo(() => {
+  // Transform revenus data for pie chart with proper typing
+  const revenueData: ProcessedChartData[] = React.useMemo(() => {
     if (!revenus.data) return [];
     
-    const sourceData = revenus.data.reduce((acc: any, item: any) => {
+    const sourceData = (revenus.data as DashboardRevenu[]).reduce((acc: Record<string, { name: string; amount: number; color: string }>, item) => {
       const source = item.categorie || 'Autres';
       if (!acc[source]) {
         acc[source] = { name: source, amount: 0, color: getColorForCategory(source) };
@@ -76,9 +84,9 @@ const DashboardPage: React.FC = () => {
       return acc;
     }, {});
     
-    const totalAmount = Object.values(sourceData).reduce((sum: number, item: any) => sum + Number(item.amount || 0), 0);
+    const totalAmount = Object.values(sourceData).reduce((sum: number, item) => sum + Number(item.amount || 0), 0);
     
-    return Object.values(sourceData).map((item: any) => ({
+    return Object.values(sourceData).map((item): ProcessedChartData => ({
       ...item,
       amount: Number(item.amount || 0),
       value: totalAmount > 0 ? Math.round((Number(item.amount || 0) / totalAmount) * 100) : 0
@@ -87,17 +95,20 @@ const DashboardPage: React.FC = () => {
 
   const totalExpenses = expensesData.reduce((sum, item) => sum + Number(item.amount || 0), 0);
 
-  // Calculate dashboard summary cards from real data
+  // Calculate dashboard summary cards from real data with proper typing
   const dashboardSummary = React.useMemo(() => {
-    const totalEncaissements = encaissements.data?.reduce((sum: number, item: any) => sum + Number(item.montant || 0), 0) || 0;
-    const totalDepenses = depenses.data?.reduce((sum: number, item: any) => sum + Number(item.montant || 0), 0) || 0;
+    const encaissementsTyped = encaissements.data as DashboardEncaissement[] || [];
+    const depensesTyped = depenses.data as DashboardDecaissement[] || [];
+    
+    const totalEncaissements = encaissementsTyped.reduce((sum: number, item) => sum + Number(item.montant || 0), 0);
+    const totalDepenses = depensesTyped.reduce((sum: number, item) => sum + Number(item.montant || 0), 0);
     const soldeGlobal = totalEncaissements - totalDepenses;
     
     return {
       soldeGlobal,
       encaissementsPrevus: totalEncaissements,
       depensesAVenir: totalDepenses,
-      facturesEnRetard: depenses.data?.filter((d: any) => String(d.statut) === 'en_retard').length || 0
+      facturesEnRetard: depensesTyped.filter((d) => String(d.statut) === 'en_retard').length
     };
   }, [encaissements.data, depenses.data]);
 
