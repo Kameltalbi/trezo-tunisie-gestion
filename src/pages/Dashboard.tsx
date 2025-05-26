@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { ChartContainer, ChartTooltip, ChartTooltipContent } from '@/components/ui/chart';
@@ -58,6 +57,7 @@ const DashboardPage: React.FC = () => {
     
     return Object.values(categoryData).map((item: any) => ({
       ...item,
+      amount: Number(item.amount || 0), // Ensure amount is a number
       value: totalAmount > 0 ? Math.round((Number(item.amount || 0) / totalAmount) * 100) : 0
     }));
   }, [depenses.data]);
@@ -79,11 +79,12 @@ const DashboardPage: React.FC = () => {
     
     return Object.values(sourceData).map((item: any) => ({
       ...item,
+      amount: Number(item.amount || 0), // Ensure amount is a number
       value: totalAmount > 0 ? Math.round((Number(item.amount || 0) / totalAmount) * 100) : 0
     }));
   }, [revenus.data]);
 
-  const totalExpenses = expensesData.reduce((sum, item) => sum + Number(item.amount || 0), 0);
+  const totalExpenses = expensesData.reduce((sum, item) => sum + (item.amount as number), 0);
 
   // Calculate dashboard summary cards from real data
   const dashboardSummary = React.useMemo(() => {
