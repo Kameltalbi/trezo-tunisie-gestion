@@ -13,6 +13,18 @@ import { formatCurrency } from "@/lib/utils";
 import { ObjectifDetailSheet } from "@/components/ObjectifDetailSheet";
 import { useObjectifs, useCreateObjectif, useUpdateObjectif, useDeleteObjectif, Objectif } from "@/hooks/useObjectifs";
 
+// Type for the detail sheet objectif
+type ObjectifDetailType = {
+  id: string;
+  nom: string;
+  type: 'encaissement' | 'reduction_depense' | 'epargne';
+  valeurActuelle: number;
+  valeurCible: number;
+  dateDebut: string;
+  dateFin: string;
+  progression: number;
+};
+
 const Objectifs = () => {
   const { t } = useTranslation();
   const { data: objectifs = [], isLoading } = useObjectifs();
@@ -24,7 +36,7 @@ const Objectifs = () => {
   const [isEditDialogOpen, setIsEditDialogOpen] = useState(false);
   const [isDetailSheetOpen, setIsDetailSheetOpen] = useState(false);
   const [currentObjectif, setCurrentObjectif] = useState<Objectif | null>(null);
-  const [selectedObjectif, setSelectedObjectif] = useState<Objectif | null>(null);
+  const [selectedObjectif, setSelectedObjectif] = useState<ObjectifDetailType | null>(null);
   const [formData, setFormData] = useState({
     nom: "",
     type: "encaissement" as "encaissement" | "reduction_depense" | "epargne",
@@ -160,7 +172,7 @@ const Objectifs = () => {
   };
 
   // Convert Objectif from hook to match ObjectifDetailSheet expected type
-  const convertObjectifForDetailSheet = (objectif: Objectif) => {
+  const convertObjectifForDetailSheet = (objectif: Objectif): ObjectifDetailType => {
     return {
       id: objectif.id,
       nom: objectif.nom,
@@ -403,55 +415,52 @@ const Objectifs = () => {
       {/* Objectives list */}
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-3">
         {objectifs.length > 0 ? (
-          objectifs.map((objectif) => {
-            const progression = calculateProgression(objectif);
-            return (
-              <Card key={objectif.id} className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleCardClick(objectif)}>
-                <CardHeader>
-                  <CardTitle className="flex justify-between items-start">
-                    <span>{objectif.nom}</span>
-                    <div className="flex space-x-2" onClick={(e) => e.stopPropagation()}>
-                      <Button variant="ghost" size="sm" onClick={() => startEdit(objectif)}>
-                        <Pencil className="h-4 w-4" />
-                      </Button>
-                      <Button variant="ghost" size="sm" onClick={() => handleDelete(objectif.id)}>
-                        <Trash2 className="h-4 w-4 text-red-500" />
-                      </Button>
-                    </div>
-                  </CardTitle>
-                  <CardDescription>
-                    {objectif.type === "encaissement" 
-                      ? t("objectifs.income_target")
-                      : objectif.type === "reduction_depense"
-                      ? t("objectifs.expense_reduction")
-                      : t("objectifs.savings")}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="space-y-2">
-                    <div>
-                      <div className="text-sm text-muted-foreground">{t("objectifs.current_value")}</div>
-                      <div className="font-medium">{formatCurrency(objectif.valeur_actuelle)}</div>
-                    </div>
-                    <div>
-                      <div className="text-sm text-muted-foreground">{t("objectifs.target_value")}</div>
-                      <div className="font-medium">{formatCurrency(objectif.valeur_cible)}</div>
-                    </div>
-                    <div>
-                      <div className="text-sm text-muted-foreground">{t("objectifs.progress")}</div>
-                      <div className="flex items-center space-x-2 mt-1">
-                        <Progress value={progression} className="h-2" />
-                        <span className="text-sm font-medium">{progression}%</span>
-                      </div>
+          objectifs.map((objectif) => (
+            <Card key={objectif.id} className="cursor-pointer hover:shadow-lg transition-shadow" onClick={() => handleCardClick(objectif)}>
+              <CardHeader>
+                <CardTitle className="flex justify-between items-start">
+                  <span>{objectif.nom}</span>
+                  <div className="flex space-x-2" onClick={(e) => e.stopPropagation()}>
+                    <Button variant="ghost" size="sm" onClick={() => startEdit(objectif)}>
+                      <Pencil className="h-4 w-4" />
+                    </Button>
+                    <Button variant="ghost" size="sm" onClick={() => handleDelete(objectif.id)}>
+                      <Trash2 className="h-4 w-4 text-red-500" />
+                    </Button>
+                  </div>
+                </CardTitle>
+                <CardDescription>
+                  {objectif.type === "encaissement" 
+                    ? t("objectifs.income_target")
+                    : objectif.type === "reduction_depense"
+                    ? t("objectifs.expense_reduction")
+                    : t("objectifs.savings")}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-2">
+                  <div>
+                    <div className="text-sm text-muted-foreground">{t("objectifs.current_value")}</div>
+                    <div className="font-medium">{formatCurrency(objectif.valeur_actuelle)}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-muted-foreground">{t("objectifs.target_value")}</div>
+                    <div className="font-medium">{formatCurrency(objectif.valeur_cible)}</div>
+                  </div>
+                  <div>
+                    <div className="text-sm text-muted-foreground">{t("objectifs.progress")}</div>
+                    <div className="flex items-center space-x-2 mt-1">
+                      <Progress value={calculateProgression(objectif)} className="h-2" />
+                      <span className="text-sm font-medium">{calculateProgression(objectif)}%</span>
                     </div>
                   </div>
-                </CardContent>
-                <CardFooter className="text-sm text-muted-foreground">
-                  {`${t("objectifs.end_date")}: ${new Date(objectif.date_fin).toLocaleDateString()}`}
-                </CardFooter>
-              </Card>
-            );
-          })
+                </div>
+              </CardContent>
+              <CardFooter className="text-sm text-muted-foreground">
+                {`${t("objectifs.end_date")}: ${new Date(objectif.date_fin).toLocaleDateString()}`}
+              </CardFooter>
+            </Card>
+          ))
         ) : (
           <div className="md:col-span-2 lg:col-span-3 text-center py-10">
             <h3 className="text-lg font-medium">{t("objectifs.no_objectives")}</h3>
