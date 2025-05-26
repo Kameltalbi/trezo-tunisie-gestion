@@ -51,8 +51,6 @@ const Header = () => {
     }
   };
 
-  const isDarkMode = theme === 'dark' || (theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
-
   // Get user display name
   const getUserDisplayName = () => {
     if (user?.user_metadata?.full_name) {
@@ -84,7 +82,7 @@ const Header = () => {
               <div className="flex items-center space-x-2">
                 <Sun className="h-4 w-4" />
                 <Switch
-                  checked={isDarkMode}
+                  checked={theme === 'dark'}
                   onCheckedChange={(checked) => {
                     setTheme(checked ? 'dark' : 'light');
                   }}
