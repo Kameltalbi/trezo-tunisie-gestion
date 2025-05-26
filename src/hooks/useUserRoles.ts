@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -31,10 +32,14 @@ export interface Permission {
 }
 
 export const useUserRoles = () => {
+  const { user } = useAuth();
+  
   return useQuery({
-    queryKey: ['user-roles-with-profiles'],
+    queryKey: ['user-roles-with-profiles', user?.id],
     queryFn: async () => {
-      // First get all user roles
+      if (!user) return [];
+
+      // Récupérer tous les rôles d'utilisateurs (pour les admins)
       const { data: userRoles, error: rolesError } = await supabase
         .from('user_roles')
         .select('*');
@@ -45,10 +50,8 @@ export const useUserRoles = () => {
         return [];
       }
 
-      // Get all user IDs from roles
+      // Récupérer les profils pour ces utilisateurs
       const userIds = userRoles.map(role => role.user_id);
-
-      // Get profiles for these users
       const { data: profiles, error: profilesError } = await supabase
         .from('profiles')
         .select('id, email, full_name, company_name')
@@ -56,13 +59,13 @@ export const useUserRoles = () => {
 
       if (profilesError) throw profilesError;
 
-      // Create a map of user profiles for easy lookup
+      // Créer une map des profils pour une recherche facile
       const profileMap = new Map();
       profiles?.forEach(profile => {
         profileMap.set(profile.id, profile);
       });
 
-      // Combine user roles with their profiles
+      // Combiner les rôles avec leurs profils
       return userRoles.map(role => {
         const profile = profileMap.get(role.user_id);
         return {
@@ -76,6 +79,7 @@ export const useUserRoles = () => {
         };
       }) as UserWithRole[];
     },
+    enabled: !!user,
   });
 };
 
@@ -112,5 +116,48 @@ export const useRolePermissions = (role?: UserRole) => {
       return data;
     },
     enabled: !!role,
+  });
+};
+
+export const useUpdateUserRole = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ userId, role }: { userId: string; role: UserRole }) => {
+      const { data, error } = await supabase
+        .from('user_roles')
+        .update({ role })
+        .eq('user_id', userId)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-roles-with-profiles'] });
+      queryClient.invalidateQueries({ queryKey: ['user-permissions'] });
+    },
+  });
+};
+
+export const useCreateUserRole = () => {
+  const queryClient = useQueryClient();
+  
+  return useMutation({
+    mutationFn: async ({ userId, role }: { userId: string; role: UserRole }) => {
+      const { data, error } = await supabase
+        .from('user_roles')
+        .insert({ user_id: userId, role })
+        .select()
+        .single();
+
+      if (error) throw error;
+      return data;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['user-roles-with-profiles'] });
+      queryClient.invalidateQueries({ queryKey: ['user-permissions'] });
+    },
   });
 };

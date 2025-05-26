@@ -8,7 +8,7 @@ interface AuthContextType {
   session: Session | null;
   isLoading: boolean;
   error: string | null;
-  signUp: (email: string, password: string, userData?: { full_name?: string }) => Promise<void>;
+  signUp: (email: string, password: string, userData?: { full_name?: string; company_name?: string }) => Promise<void>;
   signIn: (email: string, password: string) => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -29,6 +29,33 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setUser(session?.user ?? null);
         setIsLoading(false);
         setError(null);
+
+        // Si un utilisateur se connecte, s'assurer que son profil existe
+        if (event === 'SIGNED_IN' && session?.user) {
+          setTimeout(async () => {
+            try {
+              const { data: existingProfile } = await supabase
+                .from('profiles')
+                .select('id')
+                .eq('id', session.user.id)
+                .single();
+
+              if (!existingProfile) {
+                // Créer le profil s'il n'existe pas
+                await supabase
+                  .from('profiles')
+                  .insert({
+                    id: session.user.id,
+                    email: session.user.email,
+                    full_name: session.user.user_metadata?.full_name || null,
+                    company_name: session.user.user_metadata?.company_name || null,
+                  });
+              }
+            } catch (error) {
+              console.error('Erreur lors de la création du profil:', error);
+            }
+          }, 0);
+        }
       }
     );
 
@@ -42,7 +69,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     return () => subscription.unsubscribe();
   }, []);
 
-  const signUp = async (email: string, password: string, userData?: { full_name?: string }) => {
+  const signUp = async (email: string, password: string, userData?: { full_name?: string; company_name?: string }) => {
     setIsLoading(true);
     setError(null);
 
@@ -51,7 +78,10 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         email,
         password,
         options: {
-          data: userData
+          data: {
+            full_name: userData?.full_name,
+            company_name: userData?.company_name,
+          }
         }
       });
 

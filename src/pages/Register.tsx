@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
@@ -62,7 +61,8 @@ const Register = () => {
 
     try {
       await signUp(formData.email, formData.password, {
-        full_name: formData.nom
+        full_name: formData.nom,
+        company_name: formData.company
       });
       
       toast.success("Compte créé avec succès ! Vérifiez votre email si nécessaire.");

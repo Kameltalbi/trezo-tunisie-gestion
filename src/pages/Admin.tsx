@@ -10,6 +10,8 @@ import { Input } from '@/components/ui/input';
 import { Users, CreditCard, TrendingUp, Settings } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
+import { useAuth } from '@/contexts/AuthContext';
+import { useUserPermissions } from '@/hooks/useUserPermissions';
 
 interface AdminUser {
   id: string;
@@ -31,10 +33,24 @@ interface AdminStats {
 
 const Admin = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const { user } = useAuth();
+  const { data: permissions } = useUserPermissions();
+
+  // Vérifier que l'utilisateur est admin
+  if (!permissions?.isAdmin) {
+    return (
+      <div className="flex items-center justify-center h-64">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Accès refusé</h2>
+          <p className="text-gray-600">Vous n'avez pas les permissions pour accéder à cette page.</p>
+        </div>
+      </div>
+    );
+  }
 
   // Récupérer les statistiques administrateur
   const { data: stats, isLoading: statsLoading } = useQuery({
-    queryKey: ['admin-stats'],
+    queryKey: ['admin-stats', user?.id],
     queryFn: async (): Promise<AdminStats> => {
       // Statistiques des utilisateurs
       const { count: totalUsers } = await supabase
@@ -53,7 +69,7 @@ const Admin = () => {
         .select('*', { count: 'exact', head: true })
         .eq('is_trial', true);
 
-      // Revenus du mois (approximation)
+      // Revenus du mois
       const currentMonth = new Date().toISOString().slice(0, 7);
       const { data: payments } = await supabase
         .from('payments')
@@ -71,11 +87,12 @@ const Admin = () => {
         revenue_this_month: revenueThisMonth,
       };
     },
+    enabled: !!user && permissions?.isAdmin,
   });
 
   // Récupérer la liste des utilisateurs
   const { data: users, isLoading: usersLoading } = useQuery({
-    queryKey: ['admin-users', searchTerm],
+    queryKey: ['admin-users', searchTerm, user?.id],
     queryFn: async (): Promise<AdminUser[]> => {
       let query = supabase
         .from('profiles')
@@ -113,6 +130,7 @@ const Admin = () => {
         is_trial: user.subscriptions?.[0]?.is_trial,
       }));
     },
+    enabled: !!user && permissions?.isAdmin,
   });
 
   const getStatusBadge = (user: AdminUser) => {
@@ -230,8 +248,8 @@ const Admin = () => {
                       <tr>
                         <td colSpan={5} className="p-4 text-center">Chargement...</td>
                       </tr>
-                    ) : (
-                      users?.map((user) => (
+                    ) : users && users.length > 0 ? (
+                      users.map((user) => (
                         <tr key={user.id} className="border-t">
                           <td className="p-2">{user.email}</td>
                           <td className="p-2">
@@ -248,6 +266,12 @@ const Admin = () => {
                           </td>
                         </tr>
                       ))
+                    ) : (
+                      <tr>
+                        <td colSpan={5} className="p-4 text-center text-gray-500">
+                          Aucun utilisateur trouvé
+                        </td>
+                      </tr>
                     )}
                   </tbody>
                 </table>
@@ -260,7 +284,7 @@ const Admin = () => {
           <Card>
             <CardContent className="p-6">
               <p className="text-center text-gray-500">
-                Gestion des abonnements - À implémenter
+                Gestion des abonnements - Les données réelles seront affichées ici
               </p>
             </CardContent>
           </Card>
@@ -270,7 +294,7 @@ const Admin = () => {
           <Card>
             <CardContent className="p-6">
               <p className="text-center text-gray-500">
-                Historique des paiements - À implémenter
+                Historique des paiements - Les données réelles seront affichées ici
               </p>
             </CardContent>
           </Card>
