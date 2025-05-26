@@ -34,10 +34,12 @@ export const useRolePermissions = () => {
 
       if (error) throw error;
       
-      // Mapper les données pour ajouter la propriété granted qui peut être manquante
+      // Mapper les données en s'assurant que granted existe
       return (data || []).map(item => ({
-        ...item,
-        granted: item.granted ?? false, // Valeur par défaut si manquante
+        id: item.id,
+        role: item.role,
+        permission_id: item.permission_id,
+        granted: item.granted ?? false,
         permission: item.permission as Permission
       })) as RolePermission[];
     },
@@ -69,7 +71,7 @@ export const useUpdateRolePermission = () => {
       const { data, error } = await supabase
         .from('role_permissions')
         .upsert({
-          role: role,
+          role: role as any, // Cast explicite pour éviter l'erreur de type
           permission_id: permissionId,
           granted: granted
         }, {
