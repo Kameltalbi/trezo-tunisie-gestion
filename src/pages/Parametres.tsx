@@ -3,6 +3,7 @@ import { Trash2, Edit, Plus, Check, UserPlus } from "lucide-react";
 import SectionBox from "@/components/SectionBox";
 import UserInvitationForm from "@/components/UserInvitationForm";
 import UserPermissionsManager from "@/components/UserPermissionsManager";
+import RolePermissionsTable from "@/components/RolePermissionsTable";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -35,7 +36,6 @@ const ParametresPage = () => {
   const updateUserRoleMutation = useUpdateUserRole();
   const togglePermissionMutation = useToggleDeletePermission();
 
-  // Liste des pages du système avec noms d'affichage
   const getPageDisplayName = (page: string) => {
     const pageNames: Record<string, string> = {
       'dashboard': 'Tableau de bord',
@@ -233,10 +233,11 @@ const ParametresPage = () => {
       <h1 className="text-2xl font-bold mb-6">Paramètres</h1>
       
       <Tabs defaultValue="devises" className="w-full">
-        <TabsList className="w-full grid grid-cols-3 mb-6">
+        <TabsList className="w-full grid grid-cols-4 mb-6">
           <TabsTrigger value="devises">Devises</TabsTrigger>
           <TabsTrigger value="utilisateurs">Utilisateurs & Rôles</TabsTrigger>
-          <TabsTrigger value="permissions">Permissions de suppression</TabsTrigger>
+          <TabsTrigger value="permissions">Permissions utilisateur</TabsTrigger>
+          <TabsTrigger value="role-permissions">Permissions par rôle</TabsTrigger>
         </TabsList>
         
         <TabsContent value="devises">
@@ -415,6 +416,12 @@ const ParametresPage = () => {
                 </div>
               )}
             </div>
+          </SectionBox>
+        </TabsContent>
+
+        <TabsContent value="role-permissions">
+          <SectionBox title="Gestion des permissions par rôle">
+            <RolePermissionsTable />
           </SectionBox>
         </TabsContent>
       </Tabs>
