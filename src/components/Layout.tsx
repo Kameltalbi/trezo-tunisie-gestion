@@ -22,11 +22,11 @@ const Layout = ({ children, requireAuth = false }: LayoutProps) => {
 
   // Si l'utilisateur n'est pas connecté, afficher seulement le contenu
   if (!user) {
-    return <div>{children}</div>;
+    return <div className="bg-background text-foreground">{children}</div>;
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-background text-foreground">
       <Header />
       <div className="flex">
         <Sidebar onExpandedChange={setIsSidebarExpanded} />
