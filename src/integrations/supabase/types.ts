@@ -60,6 +60,13 @@ export type Database = {
             referencedRelation: "devises"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "comptes_bancaires_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_current_plan"
+            referencedColumns: ["user_id"]
+          },
         ]
       }
       decaissements: {
@@ -128,6 +135,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "projets"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "decaissements_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_current_plan"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -234,6 +248,13 @@ export type Database = {
             referencedRelation: "projets"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "encaissements_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_current_plan"
+            referencedColumns: ["user_id"]
+          },
         ]
       }
       flux_tresorerie: {
@@ -287,6 +308,13 @@ export type Database = {
             referencedRelation: "comptes_bancaires"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "flux_tresorerie_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_current_plan"
+            referencedColumns: ["user_id"]
+          },
         ]
       }
       gestion_dettes: {
@@ -329,7 +357,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "gestion_dettes_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_current_plan"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       objectifs: {
         Row: {
@@ -374,7 +410,15 @@ export type Database = {
           valeur_actuelle?: number
           valeur_cible?: number
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "objectifs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_current_plan"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       payments: {
         Row: {
@@ -427,6 +471,20 @@ export type Database = {
             referencedRelation: "subscriptions"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "payments_subscription_id_fkey"
+            columns: ["subscription_id"]
+            isOneToOne: false
+            referencedRelation: "user_current_plan"
+            referencedColumns: ["subscription_id"]
+          },
+          {
+            foreignKeyName: "payments_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_current_plan"
+            referencedColumns: ["user_id"]
+          },
         ]
       }
       permissions: {
@@ -458,6 +516,7 @@ export type Database = {
       }
       plans: {
         Row: {
+          advanced_features: Json | null
           created_at: string
           currency: string
           duration_months: number
@@ -466,11 +525,16 @@ export type Database = {
           is_active: boolean | null
           max_bank_accounts: number | null
           max_projects: number | null
+          max_reports_per_month: number | null
+          max_transactions_per_month: number | null
           name: string
           price: number
+          trial_days: number | null
+          trial_enabled: boolean | null
           updated_at: string
         }
         Insert: {
+          advanced_features?: Json | null
           created_at?: string
           currency?: string
           duration_months?: number
@@ -479,11 +543,16 @@ export type Database = {
           is_active?: boolean | null
           max_bank_accounts?: number | null
           max_projects?: number | null
+          max_reports_per_month?: number | null
+          max_transactions_per_month?: number | null
           name: string
           price: number
+          trial_days?: number | null
+          trial_enabled?: boolean | null
           updated_at?: string
         }
         Update: {
+          advanced_features?: Json | null
           created_at?: string
           currency?: string
           duration_months?: number
@@ -492,8 +561,12 @@ export type Database = {
           is_active?: boolean | null
           max_bank_accounts?: number | null
           max_projects?: number | null
+          max_reports_per_month?: number | null
+          max_transactions_per_month?: number | null
           name?: string
           price?: number
+          trial_days?: number | null
+          trial_enabled?: boolean | null
           updated_at?: string
         }
         Relationships: []
@@ -526,7 +599,15 @@ export type Database = {
           phone?: string | null
           updated_at?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "profiles_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "user_current_plan"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       projets: {
         Row: {
@@ -568,7 +649,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "projets_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_current_plan"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       rapports: {
         Row: {
@@ -613,7 +702,15 @@ export type Database = {
           url_fichier?: string | null
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "rapports_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_current_plan"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
       role_permissions: {
         Row: {
@@ -650,9 +747,12 @@ export type Database = {
           created_at: string
           end_date: string
           id: string
+          is_trial: boolean | null
           plan_id: string
           start_date: string
           status: string
+          trial_end_date: string | null
+          trial_start_date: string | null
           updated_at: string
           user_id: string
         }
@@ -661,9 +761,12 @@ export type Database = {
           created_at?: string
           end_date: string
           id?: string
+          is_trial?: boolean | null
           plan_id: string
           start_date?: string
           status: string
+          trial_end_date?: string | null
+          trial_start_date?: string | null
           updated_at?: string
           user_id: string
         }
@@ -672,9 +775,12 @@ export type Database = {
           created_at?: string
           end_date?: string
           id?: string
+          is_trial?: boolean | null
           plan_id?: string
           start_date?: string
           status?: string
+          trial_end_date?: string | null
+          trial_start_date?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -685,6 +791,13 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "plans"
             referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "subscriptions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_current_plan"
+            referencedColumns: ["user_id"]
           },
         ]
       }
@@ -758,6 +871,13 @@ export type Database = {
             referencedRelation: "projets"
             referencedColumns: ["id"]
           },
+          {
+            foreignKeyName: "transactions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_current_plan"
+            referencedColumns: ["user_id"]
+          },
         ]
       }
       user_roles: {
@@ -779,14 +899,85 @@ export type Database = {
           role?: Database["public"]["Enums"]["user_role"]
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "user_roles_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_current_plan"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      user_usage: {
+        Row: {
+          created_at: string | null
+          id: string
+          month_year: string
+          reports_generated: number | null
+          transactions_count: number | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string | null
+          id?: string
+          month_year: string
+          reports_generated?: number | null
+          transactions_count?: number | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string | null
+          id?: string
+          month_year?: string
+          reports_generated?: number | null
+          transactions_count?: number | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_usage_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_current_plan"
+            referencedColumns: ["user_id"]
+          },
+        ]
       }
     }
     Views: {
-      [_ in never]: never
+      user_current_plan: {
+        Row: {
+          advanced_features: Json | null
+          is_trial: boolean | null
+          max_bank_accounts: number | null
+          max_projects: number | null
+          max_reports_per_month: number | null
+          max_transactions_per_month: number | null
+          plan_name: string | null
+          subscription_end_date: string | null
+          subscription_id: string | null
+          subscription_status: string | null
+          trial_days: number | null
+          trial_enabled: boolean | null
+          trial_end_date: string | null
+          user_id: string | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
-      [_ in never]: never
+      check_user_limits: {
+        Args: { _user_id: string; _limit_type: string }
+        Returns: Json
+      }
+      increment_usage: {
+        Args: { _user_id: string; _usage_type: string }
+        Returns: undefined
+      }
     }
     Enums: {
       user_role: "admin" | "editeur" | "collaborateur" | "utilisateur"
