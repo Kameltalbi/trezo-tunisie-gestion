@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { 
@@ -32,6 +32,10 @@ interface SidebarSectionProps {
   label: string;
 }
 
+interface SidebarProps {
+  onExpandedChange?: (expanded: boolean) => void;
+}
+
 const SidebarSection = ({ label }: SidebarSectionProps) => {
   return (
     <div className="px-4 py-1">
@@ -40,11 +44,15 @@ const SidebarSection = ({ label }: SidebarSectionProps) => {
   );
 };
 
-const Sidebar = () => {
+const Sidebar = ({ onExpandedChange }: SidebarProps) => {
   const { t } = useTranslation();
   const location = useLocation();
   const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
+
+  useEffect(() => {
+    onExpandedChange?.(isExpanded);
+  }, [isExpanded, onExpandedChange]);
 
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -78,7 +86,6 @@ const Sidebar = () => {
     }
   ];
   
-  // PRÉVISIONS section
   const forecastItems: SidebarItemProps[] = [
     {
       icon: <ArrowUpCircle size={24} />,
@@ -94,7 +101,6 @@ const Sidebar = () => {
     }
   ];
 
-  // TRANSACTIONS section
   const transactionsItems: SidebarItemProps[] = [
     {
       icon: <FileText size={24} />,
@@ -110,7 +116,6 @@ const Sidebar = () => {
     }
   ];
 
-  // SUIVI PAR PROJET section
   const projectTrackingItems: SidebarItemProps[] = [
     {
       icon: <FolderKanban size={24} />,
@@ -126,7 +131,6 @@ const Sidebar = () => {
     }
   ];
 
-  // RAPPORTS & CONFIGURATION section
   const reportsConfigItems: SidebarItemProps[] = [
     {
       icon: <FileSpreadsheet size={24} />,

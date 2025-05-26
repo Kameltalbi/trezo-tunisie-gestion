@@ -1,6 +1,7 @@
 
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate } from "react-router-dom";
+import { useState } from "react";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import TrialBanner from "./TrialBanner";
@@ -12,6 +13,7 @@ interface LayoutProps {
 
 const Layout = ({ children, requireAuth = false }: LayoutProps) => {
   const { user, isLoading } = useAuth();
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
 
   // Si l'authentification est requise et que l'utilisateur n'est pas connecté
   if (requireAuth && !isLoading && !user) {
@@ -27,8 +29,12 @@ const Layout = ({ children, requireAuth = false }: LayoutProps) => {
     <div className="min-h-screen bg-gray-50">
       <Header />
       <div className="flex">
-        <Sidebar />
-        <main className="flex-1 p-6 ml-64">
+        <Sidebar onExpandedChange={setIsSidebarExpanded} />
+        <main 
+          className={`flex-1 p-6 transition-all duration-300 ${
+            isSidebarExpanded ? 'ml-60' : 'ml-16'
+          }`}
+        >
           <TrialBanner />
           {children}
         </main>
