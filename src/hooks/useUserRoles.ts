@@ -12,6 +12,16 @@ export interface UserRoleRecord {
   created_at: string;
 }
 
+export interface UserWithRole {
+  id: string;
+  user_id: string;
+  role: UserRole;
+  email: string | null;
+  full_name: string | null;
+  company_name: string | null;
+  created_at: string;
+}
+
 export interface Permission {
   id: string;
   nom: string;
@@ -22,22 +32,33 @@ export interface Permission {
 }
 
 export const useUserRoles = () => {
-  const { user } = useAuth();
-  
   return useQuery({
-    queryKey: ['user-roles', user?.id],
+    queryKey: ['user-roles-with-profiles'],
     queryFn: async () => {
-      if (!user) return [];
-      
       const { data, error } = await supabase
         .from('user_roles')
-        .select('*')
-        .eq('user_id', user.id);
+        .select(`
+          *,
+          profiles!inner(
+            email,
+            full_name,
+            company_name
+          )
+        `);
 
       if (error) throw error;
-      return data as UserRoleRecord[];
+      
+      // Transform the data to flatten the profile information
+      return (data || []).map(item => ({
+        id: item.id,
+        user_id: item.user_id,
+        role: item.role,
+        created_at: item.created_at,
+        email: item.profiles?.email || null,
+        full_name: item.profiles?.full_name || null,
+        company_name: item.profiles?.company_name || null,
+      })) as UserWithRole[];
     },
-    enabled: !!user,
   });
 };
 

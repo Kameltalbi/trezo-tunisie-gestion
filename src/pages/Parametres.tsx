@@ -284,9 +284,9 @@ const ParametresPage = () => {
                 <tbody>
                   {userRoles.map((u) => (
                     <tr key={u.id} className="border-t">
-                      <td className="p-2">{u.email}</td>
-                      <td className="p-2">{u.full_name}</td>
-                      <td className="p-2">{u.company_name}</td>
+                      <td className="p-2">{u.email || '-'}</td>
+                      <td className="p-2">{u.full_name || '-'}</td>
+                      <td className="p-2">{u.company_name || '-'}</td>
                       <td className="p-2">{u.role}</td>
                       <td className="p-2 flex space-x-2">
                         <Button 
