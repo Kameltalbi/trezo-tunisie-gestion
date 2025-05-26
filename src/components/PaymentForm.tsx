@@ -1,5 +1,5 @@
-
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
@@ -21,6 +21,15 @@ interface PaymentFormProps {
 const PaymentForm = ({ plan, onSubmit, isLoading }: PaymentFormProps) => {
   const [paymentMethod, setPaymentMethod] = useState<'bank_transfer' | 'card' | 'cash'>('bank_transfer');
   const [notes, setNotes] = useState('');
+  const navigate = useNavigate();
+
+  const handlePaymentMethodChange = (value: string) => {
+    if (value === 'card') {
+      navigate('/payment-unavailable');
+      return;
+    }
+    setPaymentMethod(value as 'bank_transfer' | 'cash');
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,7 +63,7 @@ const PaymentForm = ({ plan, onSubmit, isLoading }: PaymentFormProps) => {
             <Label className="text-base font-medium">Mode de paiement</Label>
             <RadioGroup 
               value={paymentMethod} 
-              onValueChange={(value) => setPaymentMethod(value as any)}
+              onValueChange={handlePaymentMethodChange}
               className="mt-3"
             >
               <div className="flex items-center space-x-3 p-3 border rounded-lg">
@@ -71,7 +80,7 @@ const PaymentForm = ({ plan, onSubmit, isLoading }: PaymentFormProps) => {
                 <CreditCard className="h-5 w-5 text-gray-500" />
                 <Label htmlFor="card" className="flex-1 cursor-pointer">
                   <div className="font-medium">Carte bancaire</div>
-                  <div className="text-sm text-gray-500">Paiement sécurisé en ligne</div>
+                  <div className="text-sm text-gray-500">Bientôt disponible</div>
                 </Label>
               </div>
 

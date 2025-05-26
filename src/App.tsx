@@ -30,6 +30,7 @@ import OrderConfirmation from "./pages/OrderConfirmation";
 
 // Import i18n configuration
 import "./i18n";
+import PaymentUnavailable from "./pages/PaymentUnavailable";
 
 const queryClient = new QueryClient();
 
@@ -46,6 +47,7 @@ const App = () => (
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
               <Route path="/checkout" element={<Checkout />} />
+              <Route path="/payment-unavailable" element={<PaymentUnavailable />} />
               <Route path="/order-confirmation" element={<OrderConfirmation />} />
               <Route path="/subscription" element={<Layout requireAuth={true}><Subscription /></Layout>} />
               <Route path="/parametres" element={<Layout requireAuth={true}><Parametres /></Layout>} />
