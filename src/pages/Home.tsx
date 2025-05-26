@@ -26,12 +26,6 @@ const Home = () => {
             </nav>
             <div className="flex items-center space-x-4">
               <LanguageSwitcher />
-              <Link to="/dashboard">
-                <Button variant="ghost">
-                  <LayoutDashboard className="mr-2 h-4 w-4" />
-                  Dashboard
-                </Button>
-              </Link>
               <Link to="/login">
                 <Button variant="ghost">Connexion</Button>
               </Link>
@@ -58,12 +52,6 @@ const Home = () => {
                 <Link to="/checkout">
                   <Button size="lg" className="w-full sm:w-auto">
                     Commencer gratuitement <ArrowRight className="ml-2" />
-                  </Button>
-                </Link>
-                <Link to="/dashboard">
-                  <Button variant="outline" size="lg" className="w-full sm:w-auto">
-                    <LayoutDashboard className="mr-2 h-4 w-4" />
-                    Voir le dashboard
                   </Button>
                 </Link>
                 <a href="#features">
