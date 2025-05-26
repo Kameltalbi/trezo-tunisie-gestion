@@ -8,7 +8,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Globe } from "lucide-react";
+import { Flag } from "lucide-react";
 
 const LanguageSwitcher = () => {
   const { i18n } = useTranslation();
@@ -24,7 +24,7 @@ const LanguageSwitcher = () => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline" size="icon" className="h-9 w-9">
-          <Globe className="h-4 w-4" />
+          <Flag className="h-4 w-4" />
           <span className="sr-only">Toggle language</span>
         </Button>
       </DropdownMenuTrigger>
