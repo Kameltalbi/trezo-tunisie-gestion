@@ -69,7 +69,7 @@ const Layout = ({ children, requireAuth = false }: LayoutProps) => {
   }
 
   // Rediriger vers checkout si pas d'abonnement actif et pas déjà sur les pages autorisées
-  const allowedPagesWithoutSubscription = ['/checkout', '/subscription', '/parametres'];
+  const allowedPagesWithoutSubscription = ['/checkout', '/subscription', '/parametres', '/order-confirmation'];
   if (!hasActiveSubscription && !allowedPagesWithoutSubscription.includes(location.pathname)) {
     return <Navigate to="/checkout" replace />;
   }
