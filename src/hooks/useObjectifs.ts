@@ -64,3 +64,50 @@ export const useCreateObjectif = () => {
     },
   });
 };
+
+export const useUpdateObjectif = () => {
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+  
+  return useMutation({
+    mutationFn: async ({ id, ...data }: Partial<Objectif> & { id: string }) => {
+      if (!user) throw new Error("User must be authenticated");
+
+      const { data: objectif, error } = await supabase
+        .from('objectifs')
+        .update(data)
+        .eq('id', id)
+        .eq('user_id', user.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return objectif;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['objectifs'] });
+    },
+  });
+};
+
+export const useDeleteObjectif = () => {
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+  
+  return useMutation({
+    mutationFn: async (id: string) => {
+      if (!user) throw new Error("User must be authenticated");
+
+      const { error } = await supabase
+        .from('objectifs')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['objectifs'] });
+    },
+  });
+};
