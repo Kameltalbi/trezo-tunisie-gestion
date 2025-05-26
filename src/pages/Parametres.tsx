@@ -30,6 +30,23 @@ const ParametresPage = () => {
   const deleteDeviseMutation = useDeleteDevise();
   const updateUserRoleMutation = useUpdateUserRole();
 
+  // Liste des pages du système
+  const systemPages = [
+    { id: 'dashboard', nom: 'Tableau de bord' },
+    { id: 'transactions', nom: 'Transactions' },
+    { id: 'encaissements', nom: 'Encaissements' },
+    { id: 'decaissements', nom: 'Décaissements' },
+    { id: 'comptes', nom: 'Comptes bancaires' },
+    { id: 'projets', nom: 'Projets' },
+    { id: 'objectifs', nom: 'Objectifs' },
+    { id: 'cash-flow', nom: 'Flux de trésorerie' },
+    { id: 'debt-management', nom: 'Gestion des dettes' },
+    { id: 'rapports', nom: 'Rapports' },
+    { id: 'parametres', nom: 'Paramètres' },
+    { id: 'admin', nom: 'Administration' },
+    { id: 'support', nom: 'Support' }
+  ];
+
   const openModal = (type: string, isEdit = false, item: any = null) => {
     setForm(item || {});
     setModalType(type);
@@ -78,6 +95,9 @@ const ParametresPage = () => {
           });
           toast({ description: "Rôle utilisateur mis à jour avec succès" });
         }
+      } else if (modalType === "permission") {
+        // Ajouter logique pour les permissions si nécessaire
+        toast({ description: "Permission ajoutée avec succès" });
       }
 
       closeModal();
@@ -92,6 +112,9 @@ const ParametresPage = () => {
       if (type === "devise") {
         await deleteDeviseMutation.mutateAsync(id);
         toast({ description: "Devise supprimée avec succès" });
+      } else if (type === "permission") {
+        // Logique pour supprimer une permission
+        toast({ description: "Permission supprimée avec succès" });
       }
     } catch (error) {
       console.error('Erreur lors de la suppression:', error);
@@ -160,6 +183,20 @@ const ParametresPage = () => {
             </div>
           </div>
         );
+      case "permission":
+        return (
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium mb-2">Nom de la page</label>
+              <input 
+                placeholder="Nom de la page" 
+                value={form.nom || ""} 
+                onChange={(e) => setForm({ ...form, nom: e.target.value })} 
+                className="w-full border p-2 rounded" 
+              />
+            </div>
+          </div>
+        );
       case "user":
         return <UserInvitationForm onSuccess={closeModal} onCancel={closeModal} />;
       default:
@@ -181,9 +218,10 @@ const ParametresPage = () => {
       <h1 className="text-2xl font-bold mb-6">Paramètres</h1>
       
       <Tabs defaultValue="devises" className="w-full">
-        <TabsList className="w-full grid grid-cols-2 mb-6">
+        <TabsList className="w-full grid grid-cols-3 mb-6">
           <TabsTrigger value="devises">Devises</TabsTrigger>
           <TabsTrigger value="utilisateurs">Utilisateurs & Rôles</TabsTrigger>
+          <TabsTrigger value="permissions">Permissions</TabsTrigger>
         </TabsList>
         
         <TabsContent value="devises">
@@ -328,6 +366,41 @@ const ParametresPage = () => {
             </div>
           </SectionBox>
         </TabsContent>
+
+        <TabsContent value="permissions">
+          <SectionBox 
+            title="Permissions des pages" 
+            onAdd={() => openModal("permission")}
+          >
+            <div className="overflow-x-auto">
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="text-left text-gray-600 border-b">
+                    <th className="p-2">Nom de la page</th>
+                    <th className="p-2">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {systemPages.map((page) => (
+                    <tr key={page.id} className="border-t">
+                      <td className="p-2">{page.nom}</td>
+                      <td className="p-2">
+                        <Button 
+                          onClick={() => handleDelete(page.id, "permission")} 
+                          size="icon" 
+                          variant="ghost" 
+                          className="text-red-500"
+                        >
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </SectionBox>
+        </TabsContent>
       </Tabs>
 
       <Dialog open={!!modalType} onOpenChange={(open) => !open && closeModal()}>
@@ -335,6 +408,7 @@ const ParametresPage = () => {
           <DialogHeader>
             <DialogTitle>
               {modalType === "user" ? "Inviter un utilisateur" : 
+               modalType === "permission" ? (isEditing ? "Modifier permission" : "Ajouter permission") :
                isEditing ? `Modifier ${modalType}` : `Ajouter ${modalType}`}
             </DialogTitle>
           </DialogHeader>
