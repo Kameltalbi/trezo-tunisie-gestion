@@ -2,6 +2,7 @@
 import React, { useState } from "react";
 import { Trash2, Edit, Plus, Check, UserPlus } from "lucide-react";
 import SectionBox from "@/components/SectionBox";
+import UserInvitationForm from "@/components/UserInvitationForm";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -106,7 +107,7 @@ const ParametresPage = () => {
 
   const handleSetDefault = async (id: string) => {
     try {
-      // D'abord, désactiver toutes les autres devises par défaut
+      // D'abord, récupérer toutes les devises et désactiver celle qui est par défaut
       const currentDefault = devises.find(d => d.is_default);
       if (currentDefault && currentDefault.id !== id) {
         await updateDeviseMutation.mutateAsync({ 
@@ -196,6 +197,8 @@ const ParametresPage = () => {
             </div>
           </div>
         );
+      case "user":
+        return <UserInvitationForm onSuccess={closeModal} onCancel={closeModal} />;
       default:
         return null;
     }
@@ -399,7 +402,8 @@ const ParametresPage = () => {
         <DialogContent className="sm:max-w-md">
           <DialogHeader>
             <DialogTitle>
-              {isEditing ? `Modifier ${modalType}` : `Ajouter ${modalType}`}
+              {modalType === "user" ? "Inviter un utilisateur" : 
+               isEditing ? `Modifier ${modalType}` : `Ajouter ${modalType}`}
             </DialogTitle>
           </DialogHeader>
           
@@ -407,17 +411,19 @@ const ParametresPage = () => {
             {renderFormFields()}
           </div>
           
-          <DialogFooter>
-            <Button variant="outline" onClick={closeModal}>
-              Annuler
-            </Button>
-            <Button 
-              onClick={handleSave}
-              disabled={createDeviseMutation.isPending || updateDeviseMutation.isPending || updateUserRoleMutation.isPending}
-            >
-              {isEditing ? "Mettre à jour" : "Ajouter"}
-            </Button>
-          </DialogFooter>
+          {modalType !== "user" && (
+            <DialogFooter>
+              <Button variant="outline" onClick={closeModal}>
+                Annuler
+              </Button>
+              <Button 
+                onClick={handleSave}
+                disabled={createDeviseMutation.isPending || updateDeviseMutation.isPending || updateUserRoleMutation.isPending}
+              >
+                {isEditing ? "Mettre à jour" : "Ajouter"}
+              </Button>
+            </DialogFooter>
+          )}
         </DialogContent>
       </Dialog>
     </div>
