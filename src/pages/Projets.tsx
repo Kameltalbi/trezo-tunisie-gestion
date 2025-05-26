@@ -1,10 +1,10 @@
-import React, { useState } from 'react';
+
+import React, { useState, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { PlusCircle, Edit, Trash2, CheckCircle, Clock, PauseCircle, List } from 'lucide-react';
+import { PlusCircle, Edit, Trash2, CheckCircle, Clock, PauseCircle, List, XCircle } from 'lucide-react';
 import { format } from 'date-fns';
 
-import { Projet } from '@/types/parametres';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
@@ -17,76 +17,40 @@ import { Table, TableHeader, TableBody, TableRow, TableHead, TableCell } from '@
 import { Progress } from '@/components/ui/progress';
 import { toast } from 'sonner';
 import { formatCurrency } from '@/lib/utils';
-
-const mockProjets: Projet[] = [
-  {
-    id: '1',
-    nom: 'Construction Immeuble A',
-    description: 'Construction d\'un immeuble de bureaux',
-    budgetPrevu: 500000,
-    budgetConsomme: 320000,
-    dateDebut: '2023-01-15',
-    dateFin: null,
-    statut: 'actif',
-    encaissements: ['e1', 'e2'],
-    decaissements: ['d1', 'd2', 'd3']
-  },
-  {
-    id: '2',
-    nom: 'Rénovation Bâtiment B',
-    description: 'Rénovation complète d\'un bâtiment existant',
-    budgetPrevu: 250000,
-    budgetConsomme: 250000,
-    dateDebut: '2022-06-10',
-    dateFin: '2023-05-30',
-    statut: 'termine',
-    encaissements: ['e3', 'e4', 'e5'],
-    decaissements: ['d4', 'd5', 'd6', 'd7']
-  },
-  {
-    id: '3',
-    nom: 'Lotissement Les Roses',
-    description: 'Création d\'un lotissement résidentiel',
-    budgetPrevu: 750000,
-    budgetConsomme: 0,
-    dateDebut: '2024-07-01',
-    dateFin: null,
-    statut: 'en_attente',
-    encaissements: [],
-    decaissements: []
-  }
-];
-
-// Mocked linked transactions data
-const mockMouvements = [
-  { id: 'd1', date: '2023-02-10', description: 'Achat matériaux', montant: 120000, type: 'décaissement' },
-  { id: 'd2', date: '2023-04-15', description: 'Main d\'oeuvre', montant: 150000, type: 'décaissement' },
-  { id: 'd3', date: '2023-06-20', description: 'Finitions', montant: 50000, type: 'décaissement' },
-  { id: 'e1', date: '2023-03-01', description: 'Acompte client', montant: 200000, type: 'encaissement' },
-  { id: 'e2', date: '2023-07-15', description: 'Paiement intermédiaire', montant: 150000, type: 'encaissement' },
-];
+import { useProjets, useCreateProjet, Projet } from '@/hooks/useProjets';
+import { useEncaissements } from '@/hooks/useEncaissements';
+import { useDecaissements } from '@/hooks/useDecaissements';
 
 const ProjetStatusBadge: React.FC<{ status: string }> = ({ status }) => {
+  const { t } = useTranslation();
+  
   switch (status) {
     case 'actif':
       return (
         <div className="flex items-center">
           <CheckCircle className="w-4 h-4 mr-1 text-green-500" />
-          <span className="text-green-500 font-medium">Actif</span>
+          <span className="text-green-500 font-medium">{t('projets.active')}</span>
         </div>
       );
     case 'termine':
       return (
         <div className="flex items-center">
           <Clock className="w-4 h-4 mr-1 text-blue-500" />
-          <span className="text-blue-500 font-medium">Terminé</span>
+          <span className="text-blue-500 font-medium">{t('projets.completed')}</span>
         </div>
       );
     case 'en_attente':
       return (
         <div className="flex items-center">
           <PauseCircle className="w-4 h-4 mr-1 text-amber-500" />
-          <span className="text-amber-500 font-medium">En attente</span>
+          <span className="text-amber-500 font-medium">{t('projets.pending')}</span>
+        </div>
+      );
+    case 'annule':
+      return (
+        <div className="flex items-center">
+          <XCircle className="w-4 h-4 mr-1 text-red-500" />
+          <span className="text-red-500 font-medium">{t('projets.cancelled')}</span>
         </div>
       );
     default:
@@ -95,46 +59,71 @@ const ProjetStatusBadge: React.FC<{ status: string }> = ({ status }) => {
 };
 
 const ProjetDetailsDialog: React.FC<{ projet: Projet }> = ({ projet }) => {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
-  const resteAConsommer = projet.budgetPrevu - projet.budgetConsomme;
+  const { data: encaissements = [] } = useEncaissements();
+  const { data: decaissements = [] } = useDecaissements();
+  
+  const resteAConsommer = projet.budget_prevu - projet.budget_consomme;
   
   // Filter movements linked to this project
-  const mouvementsLies = mockMouvements.filter(m => 
-    projet.encaissements.includes(m.id) || projet.decaissements.includes(m.id)
-  );
+  const mouvementsLies = useMemo(() => {
+    const encaissementsLies = encaissements
+      .filter(enc => enc.projet_id === projet.id && enc.statut === 'confirme')
+      .map(enc => ({
+        id: enc.id,
+        date: enc.date_transaction,
+        description: enc.titre,
+        montant: enc.montant,
+        type: 'encaissement' as const
+      }));
+    
+    const decaissementsLies = decaissements
+      .filter(dec => dec.projet_id === projet.id && dec.statut === 'confirme')
+      .map(dec => ({
+        id: dec.id,
+        date: dec.date_transaction,
+        description: dec.titre,
+        montant: dec.montant,
+        type: 'décaissement' as const
+      }));
+    
+    return [...encaissementsLies, ...decaissementsLies]
+      .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+  }, [encaissements, decaissements, projet.id]);
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="ghost" size="sm">
           <List className="h-4 w-4 mr-1" />
-          Détails
+          {t('projets.details')}
         </Button>
       </DialogTrigger>
       <DialogContent className="sm:max-w-[700px]">
         <DialogHeader>
-          <DialogTitle>Détails du projet: {projet.nom}</DialogTitle>
+          <DialogTitle>{t('projets.details')}: {projet.nom}</DialogTitle>
         </DialogHeader>
         <div className="space-y-6 py-4">
           <div className="grid grid-cols-3 gap-4">
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Budget prévu</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">{t('projets.budget_planned')}</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{formatCurrency(projet.budgetPrevu)}</div>
+                <div className="text-2xl font-bold">{formatCurrency(projet.budget_prevu)}</div>
               </CardContent>
             </Card>
             
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Consommé à date</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">{t('projets.budget_consumed')}</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="text-2xl font-bold">{formatCurrency(projet.budgetConsomme)}</div>
+                <div className="text-2xl font-bold">{formatCurrency(projet.budget_consomme)}</div>
                 <div className="mt-2">
                   <Progress 
-                    value={Math.round((projet.budgetConsomme / projet.budgetPrevu) * 100)} 
+                    value={Math.round((projet.budget_consomme / projet.budget_prevu) * 100)} 
                     className="h-2" 
                   />
                 </div>
@@ -143,7 +132,9 @@ const ProjetDetailsDialog: React.FC<{ projet: Projet }> = ({ projet }) => {
             
             <Card>
               <CardHeader className="pb-2">
-                <CardTitle className="text-sm font-medium text-muted-foreground">Reste à consommer</CardTitle>
+                <CardTitle className="text-sm font-medium text-muted-foreground">
+                  {resteAConsommer < 0 ? t('projets.budget_overrun') : t('projets.remaining_budget')}
+                </CardTitle>
               </CardHeader>
               <CardContent>
                 <div className={`text-2xl font-bold ${resteAConsommer < 0 ? 'text-red-500' : ''}`}>
@@ -154,17 +145,17 @@ const ProjetDetailsDialog: React.FC<{ projet: Projet }> = ({ projet }) => {
           </div>
           
           <div>
-            <h3 className="text-lg font-semibold mb-3">Liste des mouvements liés</h3>
+            <h3 className="text-lg font-semibold mb-3">{t('projets.movements')}</h3>
             {mouvementsLies.length === 0 ? (
-              <p className="text-muted-foreground">Aucun mouvement lié à ce projet</p>
+              <p className="text-muted-foreground">{t('projets.no_movements')}</p>
             ) : (
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Date</TableHead>
-                    <TableHead>Description</TableHead>
-                    <TableHead>Type</TableHead>
-                    <TableHead className="text-right">Montant</TableHead>
+                    <TableHead>{t('transactions.date')}</TableHead>
+                    <TableHead>{t('projets.description')}</TableHead>
+                    <TableHead>{t('transactions.type')}</TableHead>
+                    <TableHead className="text-right">{t('transactions.amount')}</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
@@ -193,52 +184,39 @@ const ProjetDetailsDialog: React.FC<{ projet: Projet }> = ({ projet }) => {
 const ProjetsPage: React.FC = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
-  const [projects, setProjects] = useState<Projet[]>(mockProjets);
+  const { data: projects = [], isLoading } = useProjets();
+  const createProjet = useCreateProjet();
+  
   const [isNewProjectDialogOpen, setIsNewProjectDialogOpen] = useState(false);
   const [isEditProjectDialogOpen, setIsEditProjectDialogOpen] = useState(false);
   const [newProject, setNewProject] = useState<Partial<Projet>>({ statut: 'en_attente' });
   const [currentProject, setCurrentProject] = useState<Projet | null>(null);
   const [activeTab, setActiveTab] = useState('tous');
 
-  const handleCreateProject = () => {
-    if (!newProject.nom || !newProject.budgetPrevu || !newProject.dateDebut) {
-      toast.error('Veuillez remplir tous les champs obligatoires');
+  const handleCreateProject = async () => {
+    if (!newProject.nom || !newProject.budget_prevu || !newProject.date_debut) {
+      toast.error(t('projets.fill_required'));
       return;
     }
 
-    const createdProject: Projet = {
-      id: `p${projects.length + 1}`,
-      nom: newProject.nom,
-      description: newProject.description || '',
-      budgetPrevu: Number(newProject.budgetPrevu),
-      budgetConsomme: 0,
-      dateDebut: newProject.dateDebut,
-      dateFin: null,
-      statut: newProject.statut as 'actif' | 'termine' | 'en_attente',
-      encaissements: [],
-      decaissements: []
-    };
+    try {
+      await createProjet.mutateAsync({
+        nom: newProject.nom,
+        description: newProject.description || '',
+        budget_prevu: Number(newProject.budget_prevu),
+        budget_consomme: 0,
+        date_debut: newProject.date_debut,
+        date_fin: newProject.date_fin || undefined,
+        statut: newProject.statut as 'actif' | 'termine' | 'en_attente' | 'annule'
+      });
 
-    setProjects([...projects, createdProject]);
-    setNewProject({ statut: 'en_attente' });
-    setIsNewProjectDialogOpen(false);
-    toast.success('Projet créé avec succès');
-  };
-
-  const handleUpdateProject = () => {
-    if (!currentProject) return;
-    
-    setProjects(projects.map(p => 
-      p.id === currentProject.id ? currentProject : p
-    ));
-    setIsEditProjectDialogOpen(false);
-    setCurrentProject(null);
-    toast.success('Projet mis à jour avec succès');
-  };
-
-  const handleDeleteProject = (id: string) => {
-    setProjects(projects.filter(p => p.id !== id));
-    toast.success('Projet supprimé avec succès');
+      setNewProject({ statut: 'en_attente' });
+      setIsNewProjectDialogOpen(false);
+      toast.success(t('projets.created_success'));
+    } catch (error) {
+      console.error('Erreur lors de la création:', error);
+      toast.error('Erreur lors de la création du projet');
+    }
   };
 
   const handleNavigateToDetail = (id: string) => {
@@ -250,11 +228,11 @@ const ProjetsPage: React.FC = () => {
     : projects.filter(p => p.statut === activeTab);
 
   const getTotalBudget = () => {
-    return projects.reduce((acc, proj) => acc + proj.budgetPrevu, 0);
+    return projects.reduce((acc, proj) => acc + proj.budget_prevu, 0);
   };
 
   const getConsumedBudget = () => {
-    return projects.reduce((acc, proj) => acc + proj.budgetConsomme, 0);
+    return projects.reduce((acc, proj) => acc + proj.budget_consomme, 0);
   };
 
   const getRemainingBudget = () => {
@@ -266,25 +244,29 @@ const ProjetsPage: React.FC = () => {
     return Math.round((consumed / total) * 100);
   };
 
+  if (isLoading) {
+    return <div className="p-6">{t('projets.loading')}</div>;
+  }
+
   return (
     <div className="container mx-auto p-6 space-y-6">
       <div className="flex justify-between items-center">
-        <h1 className="text-3xl font-bold">Projets</h1>
+        <h1 className="text-3xl font-bold">{t('projets.title')}</h1>
         
         <Dialog open={isNewProjectDialogOpen} onOpenChange={setIsNewProjectDialogOpen}>
           <DialogTrigger asChild>
             <Button>
               <PlusCircle className="mr-2 h-4 w-4" />
-              Nouveau Projet
+              {t('projets.new_project')}
             </Button>
           </DialogTrigger>
           <DialogContent className="sm:max-w-[500px]">
             <DialogHeader>
-              <DialogTitle>Créer un nouveau projet</DialogTitle>
+              <DialogTitle>{t('projets.new_project')}</DialogTitle>
             </DialogHeader>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
-                <Label htmlFor="nom">Nom du projet*</Label>
+                <Label htmlFor="nom">{t('projets.name')} *</Label>
                 <Input 
                   id="nom" 
                   value={newProject.nom || ''} 
@@ -292,7 +274,7 @@ const ProjetsPage: React.FC = () => {
                 />
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="description">Description</Label>
+                <Label htmlFor="description">{t('projets.description')}</Label>
                 <Textarea 
                   id="description" 
                   value={newProject.description || ''} 
@@ -301,45 +283,50 @@ const ProjetsPage: React.FC = () => {
               </div>
               <div className="grid grid-cols-2 gap-4">
                 <div className="grid gap-2">
-                  <Label htmlFor="budgetPrevu">Budget prévu (DT)*</Label>
+                  <Label htmlFor="budgetPrevu">{t('projets.budget_planned')} (DT) *</Label>
                   <Input 
                     id="budgetPrevu"
                     type="number"
-                    value={newProject.budgetPrevu || ''} 
-                    onChange={(e) => setNewProject({...newProject, budgetPrevu: Number(e.target.value)})}
+                    value={newProject.budget_prevu || ''} 
+                    onChange={(e) => setNewProject({...newProject, budget_prevu: Number(e.target.value)})}
                   />
                 </div>
                 <div className="grid gap-2">
-                  <Label htmlFor="dateDebut">Date de début*</Label>
+                  <Label htmlFor="dateDebut">{t('projets.start_date')} *</Label>
                   <Input 
                     id="dateDebut"
                     type="date" 
-                    value={newProject.dateDebut || ''} 
-                    onChange={(e) => setNewProject({...newProject, dateDebut: e.target.value})}
+                    value={newProject.date_debut || ''} 
+                    onChange={(e) => setNewProject({...newProject, date_debut: e.target.value})}
                   />
                 </div>
               </div>
               <div className="grid gap-2">
-                <Label htmlFor="statut">Statut</Label>
+                <Label htmlFor="statut">{t('projets.status')}</Label>
                 <Select 
                   value={newProject.statut}
-                  onValueChange={(value) => setNewProject({...newProject, statut: value as 'actif' | 'termine' | 'en_attente'})}
+                  onValueChange={(value) => setNewProject({...newProject, statut: value as 'actif' | 'termine' | 'en_attente' | 'annule'})}
                 >
                   <SelectTrigger>
-                    <SelectValue placeholder="Sélectionner un statut" />
+                    <SelectValue placeholder={t('projets.status')} />
                   </SelectTrigger>
                   <SelectContent>
                     <SelectGroup>
-                      <SelectItem value="actif">Actif</SelectItem>
-                      <SelectItem value="en_attente">En attente</SelectItem>
-                      <SelectItem value="termine">Terminé</SelectItem>
+                      <SelectItem value="actif">{t('projets.active')}</SelectItem>
+                      <SelectItem value="en_attente">{t('projets.pending')}</SelectItem>
+                      <SelectItem value="termine">{t('projets.completed')}</SelectItem>
+                      <SelectItem value="annule">{t('projets.cancelled')}</SelectItem>
                     </SelectGroup>
                   </SelectContent>
                 </Select>
               </div>
               <div className="flex justify-end gap-2 pt-2">
-                <Button variant="outline" onClick={() => setIsNewProjectDialogOpen(false)}>Annuler</Button>
-                <Button onClick={handleCreateProject}>Créer le projet</Button>
+                <Button variant="outline" onClick={() => setIsNewProjectDialogOpen(false)}>
+                  {t('projets.cancel')}
+                </Button>
+                <Button onClick={handleCreateProject} disabled={createProjet.isPending}>
+                  {createProjet.isPending ? t('projets.loading') : t('projets.create')}
+                </Button>
               </div>
             </div>
           </DialogContent>
@@ -349,7 +336,7 @@ const ProjetsPage: React.FC = () => {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Budget Total</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">{t('projets.total_budget')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-1">
             <div className="text-lg lg:text-xl font-bold">{formatCurrency(getTotalBudget())}</div>
@@ -358,7 +345,7 @@ const ProjetsPage: React.FC = () => {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Consommé à date</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">{t('projets.budget_consumed')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-1">
             <div className="text-lg lg:text-xl font-bold">{formatCurrency(getConsumedBudget())}</div>
@@ -372,20 +359,22 @@ const ProjetsPage: React.FC = () => {
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Reste à consommer</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">
+              {getRemainingBudget() < 0 ? t('projets.budget_overrun') : t('projets.remaining_budget')}
+            </CardTitle>
           </CardHeader>
           <CardContent className="space-y-1">
             <div className={`text-lg lg:text-xl font-bold ${getRemainingBudget() < 0 ? 'text-red-500' : ''}`}>
               {formatCurrency(getRemainingBudget())}
             </div>
             <p className="text-xs text-muted-foreground">
-              {getRemainingBudget() < 0 ? 'Dépassement budgétaire' : 'Budget restant'}
+              {getRemainingBudget() < 0 ? t('projets.budget_overrun') : 'Budget restant'}
             </p>
           </CardContent>
         </Card>
         <Card>
           <CardHeader className="pb-2">
-            <CardTitle className="text-sm font-medium text-muted-foreground">Projets Actifs</CardTitle>
+            <CardTitle className="text-sm font-medium text-muted-foreground">{t('projets.active_projects')}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-1">
             <div className="text-lg lg:text-xl font-bold">{projects.filter(p => p.statut === 'actif').length}</div>
@@ -396,10 +385,11 @@ const ProjetsPage: React.FC = () => {
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
         <TabsList className="mb-6">
-          <TabsTrigger value="tous">Tous</TabsTrigger>
-          <TabsTrigger value="actif">Actifs</TabsTrigger>
-          <TabsTrigger value="en_attente">En attente</TabsTrigger>
-          <TabsTrigger value="termine">Terminés</TabsTrigger>
+          <TabsTrigger value="tous">{t('projets.all')}</TabsTrigger>
+          <TabsTrigger value="actif">{t('projets.actifs')}</TabsTrigger>
+          <TabsTrigger value="en_attente">{t('projets.en_attente')}</TabsTrigger>
+          <TabsTrigger value="termine">{t('projets.termines')}</TabsTrigger>
+          <TabsTrigger value="annule">{t('projets.annule')}</TabsTrigger>
         </TabsList>
         
         <TabsContent value={activeTab} className="mt-0">
@@ -408,19 +398,19 @@ const ProjetsPage: React.FC = () => {
               <Table>
                 <TableHeader>
                   <TableRow>
-                    <TableHead>Nom du projet</TableHead>
-                    <TableHead>Budget prévu</TableHead>
-                    <TableHead>Consommé à date</TableHead>
-                    <TableHead>Reste à consommer</TableHead>
-                    <TableHead>Progression</TableHead>
-                    <TableHead>Date de début</TableHead>
-                    <TableHead>Statut</TableHead>
+                    <TableHead>{t('projets.name')}</TableHead>
+                    <TableHead>{t('projets.budget_planned')}</TableHead>
+                    <TableHead>{t('projets.budget_consumed')}</TableHead>
+                    <TableHead>{t('projets.remaining_budget')}</TableHead>
+                    <TableHead>{t('projets.progress')}</TableHead>
+                    <TableHead>{t('projets.start_date')}</TableHead>
+                    <TableHead>{t('projets.status')}</TableHead>
                     <TableHead>Actions</TableHead>
                   </TableRow>
                 </TableHeader>
                 <TableBody>
                   {filteredProjects.map((projet) => {
-                    const resteAConsommer = projet.budgetPrevu - projet.budgetConsomme;
+                    const resteAConsommer = projet.budget_prevu - projet.budget_consomme;
                     return (
                       <TableRow key={projet.id}>
                         <TableCell className="font-medium">
@@ -432,46 +422,29 @@ const ProjetsPage: React.FC = () => {
                             {projet.nom}
                           </Button>
                         </TableCell>
-                        <TableCell>{formatCurrency(projet.budgetPrevu)}</TableCell>
-                        <TableCell>{formatCurrency(projet.budgetConsomme)}</TableCell>
+                        <TableCell>{formatCurrency(projet.budget_prevu)}</TableCell>
+                        <TableCell>{formatCurrency(projet.budget_consomme)}</TableCell>
                         <TableCell className={resteAConsommer < 0 ? 'text-red-500' : ''}>
                           {formatCurrency(resteAConsommer)}
                         </TableCell>
                         <TableCell>
                           <div className="w-full max-w-[100px] flex items-center gap-2">
                             <Progress 
-                              value={getProgressPercentage(projet.budgetConsomme, projet.budgetPrevu)} 
+                              value={getProgressPercentage(projet.budget_consomme, projet.budget_prevu)} 
                               className="h-2"
                             />
                             <span className="text-xs font-medium">
-                              {getProgressPercentage(projet.budgetConsomme, projet.budgetPrevu)}%
+                              {getProgressPercentage(projet.budget_consomme, projet.budget_prevu)}%
                             </span>
                           </div>
                         </TableCell>
-                        <TableCell>{format(new Date(projet.dateDebut), 'dd/MM/yyyy')}</TableCell>
+                        <TableCell>{format(new Date(projet.date_debut), 'dd/MM/yyyy')}</TableCell>
                         <TableCell>
                           <ProjetStatusBadge status={projet.statut} />
                         </TableCell>
                         <TableCell>
                           <div className="flex items-center gap-2">
                             <ProjetDetailsDialog projet={projet} />
-                            <Button 
-                              variant="ghost" 
-                              size="icon"
-                              onClick={() => {
-                                setCurrentProject(projet);
-                                setIsEditProjectDialogOpen(true);
-                              }}
-                            >
-                              <Edit className="h-4 w-4" />
-                            </Button>
-                            <Button 
-                              variant="ghost" 
-                              size="icon"
-                              onClick={() => handleDeleteProject(projet.id)}
-                            >
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
                           </div>
                         </TableCell>
                       </TableRow>
@@ -480,7 +453,7 @@ const ProjetsPage: React.FC = () => {
                   {filteredProjects.length === 0 && (
                     <TableRow>
                       <TableCell colSpan={8} className="text-center py-8 text-muted-foreground">
-                        Aucun projet trouvé
+                        {t('projets.no_projects')}
                       </TableCell>
                     </TableRow>
                   )}
@@ -490,97 +463,6 @@ const ProjetsPage: React.FC = () => {
           </Card>
         </TabsContent>
       </Tabs>
-
-      {/* Edit Project Dialog */}
-      <Dialog open={isEditProjectDialogOpen} onOpenChange={setIsEditProjectDialogOpen}>
-        <DialogContent className="sm:max-w-[500px]">
-          <DialogHeader>
-            <DialogTitle>Modifier le projet</DialogTitle>
-          </DialogHeader>
-          {currentProject && (
-            <div className="grid gap-4 py-4">
-              <div className="grid gap-2">
-                <Label htmlFor="edit-nom">Nom du projet</Label>
-                <Input 
-                  id="edit-nom" 
-                  value={currentProject.nom}
-                  onChange={(e) => setCurrentProject({...currentProject, nom: e.target.value})}
-                />
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="edit-description">Description</Label>
-                <Textarea 
-                  id="edit-description" 
-                  value={currentProject.description}
-                  onChange={(e) => setCurrentProject({...currentProject, description: e.target.value})}
-                />
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="edit-budgetPrevu">Budget prévu (DT)</Label>
-                  <Input 
-                    id="edit-budgetPrevu"
-                    type="number"
-                    value={currentProject.budgetPrevu}
-                    onChange={(e) => setCurrentProject({...currentProject, budgetPrevu: Number(e.target.value)})}
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="edit-budgetConsomme">Budget consommé (DT)</Label>
-                  <Input 
-                    id="edit-budgetConsomme"
-                    type="number"
-                    value={currentProject.budgetConsomme}
-                    onChange={(e) => setCurrentProject({...currentProject, budgetConsomme: Number(e.target.value)})}
-                  />
-                </div>
-              </div>
-              <div className="grid grid-cols-2 gap-4">
-                <div className="grid gap-2">
-                  <Label htmlFor="edit-dateDebut">Date de début</Label>
-                  <Input 
-                    id="edit-dateDebut"
-                    type="date" 
-                    value={currentProject.dateDebut}
-                    onChange={(e) => setCurrentProject({...currentProject, dateDebut: e.target.value})}
-                  />
-                </div>
-                <div className="grid gap-2">
-                  <Label htmlFor="edit-dateFin">Date de fin</Label>
-                  <Input 
-                    id="edit-dateFin"
-                    type="date" 
-                    value={currentProject.dateFin || ''}
-                    onChange={(e) => setCurrentProject({...currentProject, dateFin: e.target.value || null})}
-                  />
-                </div>
-              </div>
-              <div className="grid gap-2">
-                <Label htmlFor="edit-statut">Statut</Label>
-                <Select 
-                  value={currentProject.statut}
-                  onValueChange={(value) => setCurrentProject({...currentProject, statut: value as 'actif' | 'termine' | 'en_attente'})}
-                >
-                  <SelectTrigger id="edit-statut">
-                    <SelectValue placeholder="Sélectionner un statut" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      <SelectItem value="actif">Actif</SelectItem>
-                      <SelectItem value="en_attente">En attente</SelectItem>
-                      <SelectItem value="termine">Terminé</SelectItem>
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
-              </div>
-              <div className="flex justify-end gap-2 pt-2">
-                <Button variant="outline" onClick={() => setIsEditProjectDialogOpen(false)}>Annuler</Button>
-                <Button onClick={handleUpdateProject}>Mettre à jour</Button>
-              </div>
-            </div>
-          )}
-        </DialogContent>
-      </Dialog>
     </div>
   );
 };

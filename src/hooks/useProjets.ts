@@ -63,3 +63,50 @@ export const useCreateProjet = () => {
     },
   });
 };
+
+export const useUpdateProjet = () => {
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+  
+  return useMutation({
+    mutationFn: async ({ id, ...data }: Partial<Projet> & { id: string }) => {
+      if (!user) throw new Error("User must be authenticated");
+
+      const { data: projet, error } = await supabase
+        .from('projets')
+        .update(data)
+        .eq('id', id)
+        .eq('user_id', user.id)
+        .select()
+        .single();
+
+      if (error) throw error;
+      return projet;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projets'] });
+    },
+  });
+};
+
+export const useDeleteProjet = () => {
+  const queryClient = useQueryClient();
+  const { user } = useAuth();
+  
+  return useMutation({
+    mutationFn: async (id: string) => {
+      if (!user) throw new Error("User must be authenticated");
+
+      const { error } = await supabase
+        .from('projets')
+        .delete()
+        .eq('id', id)
+        .eq('user_id', user.id);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['projets'] });
+    },
+  });
+};
