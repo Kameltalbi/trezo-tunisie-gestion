@@ -22,20 +22,15 @@ export const useAdminUsers = (searchTerm: string, isSuperAdmin: boolean) => {
   return useQuery({
     queryKey: ['admin-users', searchTerm, user?.id],
     queryFn: async (): Promise<AdminUser[]> => {
-      console.log('Récupération des utilisateurs admin avec politiques RLS mises à jour...');
+      console.log('=== DEBUT useAdminUsers ===');
+      console.log('isSuperAdmin passé:', isSuperAdmin);
+      console.log('user actuel:', user);
       
       try {
-        // Récupérer tous les profils avec leurs rôles
+        // Étape 1: Récupérer tous les profils
         let profileQuery = supabase
           .from('profiles')
-          .select(`
-            id, 
-            email, 
-            created_at,
-            user_roles (
-              role
-            )
-          `)
+          .select('id, email, created_at')
           .order('created_at', { ascending: false });
 
         if (searchTerm) {
@@ -45,19 +40,30 @@ export const useAdminUsers = (searchTerm: string, isSuperAdmin: boolean) => {
         const { data: profiles, error: profileError } = await profileQuery;
         
         if (profileError) {
-          console.error('Erreur lors de la récupération des profils:', profileError);
+          console.error('Erreur profiles:', profileError);
           throw profileError;
         }
 
-        console.log('Profils récupérés avec nouvelles politiques:', profiles?.length || 0, profiles);
+        console.log('Profils récupérés:', profiles?.length, profiles);
 
         if (!profiles || profiles.length === 0) {
-          console.log('Aucun profil trouvé - vérifiez les politiques RLS');
           return [];
         }
 
-        // Récupérer les abonnements pour ces utilisateurs
+        // Étape 2: Récupérer les rôles séparément pour chaque utilisateur
         const userIds = profiles.map(p => p.id);
+        const { data: userRoles, error: rolesError } = await supabase
+          .from('user_roles')
+          .select('user_id, role')
+          .in('user_id', userIds);
+
+        if (rolesError) {
+          console.warn('Erreur rôles (non bloquante):', rolesError);
+        }
+
+        console.log('Rôles récupérés:', userRoles?.length, userRoles);
+
+        // Étape 3: Récupérer les abonnements
         const { data: subscriptions, error: subError } = await supabase
           .from('subscriptions')
           .select(`
@@ -76,18 +82,23 @@ export const useAdminUsers = (searchTerm: string, isSuperAdmin: boolean) => {
           console.warn('Erreur abonnements (non bloquante):', subError);
         }
 
-        console.log('Abonnements récupérés:', subscriptions?.length || 0);
+        console.log('Abonnements récupérés:', subscriptions?.length);
 
-        // Mapper les données avec une meilleure gestion des rôles
+        // Étape 4: Combiner les données
         const result = profiles.map((profile: any) => {
+          const userRole = userRoles?.find(ur => ur.user_id === profile.id);
           const subscription = subscriptions?.find((sub: any) => sub.user_id === profile.id);
-          const userRole = profile.user_roles?.[0]?.role;
           
           // Vérification spéciale pour kamel.talbi@yahoo.fr
-          const isSuperAdmin = profile.email === 'kamel.talbi@yahoo.fr' || userRole === 'superadmin';
-          const isAdmin = userRole === 'admin';
+          const isSuperAdmin = profile.email === 'kamel.talbi@yahoo.fr' || userRole?.role === 'superadmin';
+          const isAdmin = userRole?.role === 'admin';
           
-          console.log(`Utilisateur ${profile.email}: rôle=${userRole}, isSuperAdmin=${isSuperAdmin}, isAdmin=${isAdmin}`);
+          console.log(`=== UTILISATEUR ${profile.email} ===`);
+          console.log('- Email:', profile.email);
+          console.log('- Rôle trouvé:', userRole?.role || 'aucun');
+          console.log('- Est kamel.talbi@yahoo.fr:', profile.email === 'kamel.talbi@yahoo.fr');
+          console.log('- isSuperAdmin final:', isSuperAdmin);
+          console.log('- isAdmin final:', isAdmin);
           
           return {
             id: profile.id,
@@ -99,20 +110,24 @@ export const useAdminUsers = (searchTerm: string, isSuperAdmin: boolean) => {
             is_trial: subscription?.is_trial,
             subscription_end_date: subscription?.end_date,
             is_superadmin: isSuperAdmin,
-            role: userRole || 'utilisateur',
+            role: userRole?.role || 'utilisateur',
           };
         });
 
-        console.log('Utilisateurs finaux avec nouvelles politiques:', result.length, result);
+        console.log('=== RESULTAT FINAL ===');
+        console.log('Nombre d\'utilisateurs:', result.length);
+        console.log('Utilisateurs:', result);
+        console.log('=== FIN useAdminUsers ===');
+        
         return result;
 
       } catch (error) {
-        console.error('Erreur dans la récupération des utilisateurs:', error);
+        console.error('=== ERREUR DANS useAdminUsers ===', error);
         throw error;
       }
     },
-    enabled: !!user && isSuperAdmin,
+    enabled: !!user,
     retry: 2,
-    refetchInterval: 15000, // Rafraîchir toutes les 15 secondes
+    refetchInterval: 30000,
   });
 };

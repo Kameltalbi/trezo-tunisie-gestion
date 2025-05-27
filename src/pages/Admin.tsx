@@ -24,15 +24,13 @@ const Admin = () => {
   const roleCheckIsSuperAdmin = roleCheck?.isSuperAdmin === true;
   const isSuperAdmin = isKamelEmail || roleCheckIsSuperAdmin;
 
-  // Debug logs détaillés
-  console.log('=== ADMIN PAGE DEBUG ===');
-  console.log('User object:', user);
-  console.log('User email:', user?.email);
+  console.log('=== ADMIN PAGE - RENDU ===');
+  console.log('User:', user);
+  console.log('Email:', user?.email);
   console.log('isKamelEmail:', isKamelEmail);
-  console.log('roleCheck object:', roleCheck);
-  console.log('roleCheckIsSuperAdmin:', roleCheckIsSuperAdmin);
+  console.log('roleCheck:', roleCheck);
   console.log('roleLoading:', roleLoading);
-  console.log('Final isSuperAdmin:', isSuperAdmin);
+  console.log('isSuperAdmin FINAL:', isSuperAdmin);
   console.log('showAddAdminForm:', showAddAdminForm);
 
   const handleAddAdminSuccess = () => {
@@ -64,22 +62,22 @@ const Admin = () => {
           </p>
         </div>
         <div className="flex gap-2">
-          {/* Bouton toujours visible avec condition explicite */}
+          {/* BOUTON TOUJOURS VISIBLE POUR DEBUGGER */}
           <Button 
             variant="default" 
             onClick={() => {
-              console.log('=== BOUTON AJOUTER ADMIN CLIQUÉ ===');
+              console.log('=== CLIC BOUTON AJOUTER ADMIN ===');
               console.log('isSuperAdmin au moment du clic:', isSuperAdmin);
               console.log('isKamelEmail au moment du clic:', isKamelEmail);
-              console.log('Setting showAddAdminForm to true');
+              console.log('roleCheck au moment du clic:', roleCheck);
               setShowAddAdminForm(true);
             }}
-            className="bg-green-600 hover:bg-green-700"
-            style={{ display: 'flex' }} // Force l'affichage
+            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded flex items-center gap-2"
           >
-            <UserPlus className="mr-2 h-4 w-4" />
+            <UserPlus className="h-4 w-4" />
             Ajouter Admin
           </Button>
+          
           <Button variant="outline">
             <Settings className="mr-2 h-4 w-4" />
             Paramètres
@@ -87,29 +85,36 @@ const Admin = () => {
         </div>
       </div>
 
-      {/* Section de debug visible */}
-      <div className="bg-blue-50 border border-blue-200 p-4 rounded">
-        <h3 className="font-bold text-blue-800 mb-2">Informations de Debug (Toujours visible):</h3>
-        <div className="space-y-1 text-sm text-blue-700">
-          <p><strong>Email utilisateur:</strong> {user?.email || 'Non connecté'}</p>
-          <p><strong>Est Kamel (isKamelEmail):</strong> {isKamelEmail ? 'OUI' : 'NON'}</p>
-          <p><strong>RoleCheck isSuperAdmin:</strong> {roleCheckIsSuperAdmin ? 'OUI' : 'NON'}</p>
-          <p><strong>RoleCheck loading:</strong> {roleLoading ? 'OUI' : 'NON'}</p>
-          <p><strong>Final isSuperAdmin:</strong> {isSuperAdmin ? 'OUI' : 'NON'}</p>
-          <p><strong>showAddAdminForm:</strong> {showAddAdminForm ? 'OUI' : 'NON'}</p>
-        </div>
-      </div>
-
-      {/* Test bouton simple pour vérifier l'affichage */}
-      <div className="bg-yellow-50 border border-yellow-200 p-4 rounded">
-        <h3 className="font-bold text-yellow-800 mb-2">Test d'affichage bouton:</h3>
-        <Button 
-          onClick={() => alert('Test bouton fonctionne!')}
-          className="bg-red-500 hover:bg-red-600 text-white"
-        >
-          🔴 BOUTON TEST - Si vous voyez ceci, les boutons fonctionnent
-        </Button>
-      </div>
+      {/* SECTION DEBUG DÉTAILLÉE */}
+      <Card className="bg-yellow-50 border-yellow-200">
+        <CardContent className="p-4">
+          <h3 className="font-bold text-yellow-800 mb-3">🔍 Informations de Debug</h3>
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div>
+              <h4 className="font-semibold text-yellow-700 mb-2">Utilisateur connecté:</h4>
+              <div className="space-y-1 text-yellow-600">
+                <p><strong>ID:</strong> {user?.id || 'Non défini'}</p>
+                <p><strong>Email:</strong> {user?.email || 'Non défini'}</p>
+                <p><strong>Est kamel.talbi@yahoo.fr:</strong> {isKamelEmail ? '✅ OUI' : '❌ NON'}</p>
+              </div>
+            </div>
+            <div>
+              <h4 className="font-semibold text-yellow-700 mb-2">Vérification des rôles:</h4>
+              <div className="space-y-1 text-yellow-600">
+                <p><strong>RoleCheck loading:</strong> {roleLoading ? '⏳ OUI' : '✅ NON'}</p>
+                <p><strong>RoleCheck data:</strong> {roleCheck ? JSON.stringify(roleCheck) : '❌ Aucune'}</p>
+                <p><strong>isSuperAdmin roleCheck:</strong> {roleCheckIsSuperAdmin ? '✅ OUI' : '❌ NON'}</p>
+                <p><strong>isSuperAdmin FINAL:</strong> {isSuperAdmin ? '✅ OUI' : '❌ NON'}</p>
+              </div>
+            </div>
+          </div>
+          <div className="mt-3 p-2 bg-yellow-100 rounded">
+            <p className="text-yellow-800 text-xs">
+              <strong>État formulaire:</strong> showAddAdminForm = {showAddAdminForm ? 'OUVERT' : 'FERMÉ'}
+            </p>
+          </div>
+        </CardContent>
+      </Card>
 
       {/* Statistiques */}
       <AdminStatsCards isSuperAdmin={true} />
@@ -148,7 +153,6 @@ const Admin = () => {
         open={showAddAdminForm}
         onClose={() => {
           console.log('=== FERMETURE FORMULAIRE ===');
-          console.log('Setting showAddAdminForm to false');
           setShowAddAdminForm(false);
         }}
         onSuccess={handleAddAdminSuccess}
