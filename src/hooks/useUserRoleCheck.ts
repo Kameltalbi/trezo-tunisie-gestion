@@ -33,7 +33,7 @@ export const useUserRoleCheck = () => {
 
         if (error) {
           console.error('Erreur lors de la vérification du rôle:', error);
-          return { role: 'admin', isSuperAdmin: false }; // Changé de 'utilisateur' à 'admin'
+          return { role: 'admin', isSuperAdmin: false };
         }
 
         let role = data?.role;
@@ -70,7 +70,7 @@ export const useUserRoleCheck = () => {
         };
       } catch (error) {
         console.error('Erreur catch dans useUserRoleCheck:', error);
-        return { role: 'admin', isSuperAdmin: false }; // Changé de 'utilisateur' à 'admin'
+        return { role: 'admin', isSuperAdmin: false };
       }
     },
     enabled: !!user,

@@ -58,7 +58,7 @@ export const useAdminUsers = (searchTerm: string, isSuperAdmin: boolean) => {
           
           // Vérification spéciale pour kamel.talbi@yahoo.fr
           const isKamelUser = profile.email === 'kamel.talbi@yahoo.fr';
-          let userRole = 'admin'; // Changé de 'utilisateur' à 'admin'
+          let userRole = 'admin';
           let isSuperAdmin = isKamelUser;
           
           if (isKamelUser) {
