@@ -19,22 +19,23 @@ const Admin = () => {
   const { data: roleCheck, isLoading: roleLoading } = useUserRoleCheck();
   const queryClient = useQueryClient();
 
-  // Vérification spéciale pour kamel.talbi@yahoo.fr - toujours considéré comme super admin
-  const isSuperAdmin = user?.email === 'kamel.talbi@yahoo.fr' || roleCheck?.isSuperAdmin || false;
+  // Logique simplifiée pour déterminer si l'utilisateur est super admin
+  const isKamelEmail = user?.email === 'kamel.talbi@yahoo.fr';
+  const roleCheckIsSuperAdmin = roleCheck?.isSuperAdmin === true;
+  const isSuperAdmin = isKamelEmail || roleCheckIsSuperAdmin;
 
-  console.log('=== DEBUG ADMIN PAGE ===');
-  console.log('User:', user);
+  // Debug logs détaillés
+  console.log('=== ADMIN PAGE DEBUG ===');
+  console.log('User object:', user);
   console.log('User email:', user?.email);
-  console.log('RoleCheck data:', roleCheck);
-  console.log('RoleCheck loading:', roleLoading);
-  console.log('isSuperAdmin calculation:', {
-    isKamelEmail: user?.email === 'kamel.talbi@yahoo.fr',
-    roleCheckIsSuperAdmin: roleCheck?.isSuperAdmin,
-    finalIsSuperAdmin: isSuperAdmin
-  });
+  console.log('isKamelEmail:', isKamelEmail);
+  console.log('roleCheck object:', roleCheck);
+  console.log('roleCheckIsSuperAdmin:', roleCheckIsSuperAdmin);
+  console.log('roleLoading:', roleLoading);
+  console.log('Final isSuperAdmin:', isSuperAdmin);
+  console.log('showAddAdminForm:', showAddAdminForm);
 
   const handleAddAdminSuccess = () => {
-    // Rafraîchir toutes les données admin après l'ajout réussi
     queryClient.invalidateQueries({ queryKey: ['admin-users'] });
     queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
     console.log('Données admin rafraîchies après ajout d\'utilisateur');
@@ -53,46 +54,31 @@ const Admin = () => {
     );
   }
 
-  // Pour le debug, on va temporairement permettre l'accès même si pas super admin
-  // if (!isSuperAdmin) {
-  //   return (
-  //     <div className="flex items-center justify-center h-64">
-  //       <div className="text-center">
-  //         <h2 className="text-2xl font-bold text-gray-900 mb-2">Accès refusé</h2>
-  //         <p className="text-gray-600">
-  //           Cette page est réservée aux super-administrateurs uniquement.
-  //         </p>
-  //         <p className="text-sm text-gray-500 mt-2">
-  //           Utilisateur connecté: {user?.email}
-  //         </p>
-  //         <p className="text-sm text-gray-500">
-  //           Rôle détecté: {roleCheck?.role || 'non défini'}
-  //         </p>
-  //       </div>
-  //     );
-  //   }
-
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Administration (Debug Mode)</h1>
+          <h1 className="text-3xl font-bold">Administration</h1>
           <p className="text-sm text-gray-600">
-            Connecté en tant que: {user?.email} - Rôle: {roleCheck?.role || 'non défini'}
+            Connecté en tant que: {user?.email || 'Non connecté'}
           </p>
         </div>
         <div className="flex gap-2">
-          {/* Bouton toujours visible pour le debug */}
+          {/* Bouton toujours visible avec condition explicite */}
           <Button 
             variant="default" 
             onClick={() => {
-              console.log('Bouton Ajouter Admin cliqué - Mode Debug');
+              console.log('=== BOUTON AJOUTER ADMIN CLIQUÉ ===');
+              console.log('isSuperAdmin au moment du clic:', isSuperAdmin);
+              console.log('isKamelEmail au moment du clic:', isKamelEmail);
+              console.log('Setting showAddAdminForm to true');
               setShowAddAdminForm(true);
             }}
             className="bg-green-600 hover:bg-green-700"
+            style={{ display: 'flex' }} // Force l'affichage
           >
             <UserPlus className="mr-2 h-4 w-4" />
-            Ajouter Admin (Debug)
+            Ajouter Admin
           </Button>
           <Button variant="outline">
             <Settings className="mr-2 h-4 w-4" />
@@ -101,17 +87,28 @@ const Admin = () => {
         </div>
       </div>
 
-      {/* Section de debug détaillée */}
-      <div className="bg-yellow-50 border border-yellow-200 p-4 rounded">
-        <h3 className="font-bold text-yellow-800 mb-2">Informations de Debug:</h3>
-        <div className="space-y-1 text-sm text-yellow-700">
+      {/* Section de debug visible */}
+      <div className="bg-blue-50 border border-blue-200 p-4 rounded">
+        <h3 className="font-bold text-blue-800 mb-2">Informations de Debug (Toujours visible):</h3>
+        <div className="space-y-1 text-sm text-blue-700">
           <p><strong>Email utilisateur:</strong> {user?.email || 'Non connecté'}</p>
-          <p><strong>Est Kamel:</strong> {user?.email === 'kamel.talbi@yahoo.fr' ? 'OUI' : 'NON'}</p>
-          <p><strong>RoleCheck data:</strong> {JSON.stringify(roleCheck)}</p>
+          <p><strong>Est Kamel (isKamelEmail):</strong> {isKamelEmail ? 'OUI' : 'NON'}</p>
+          <p><strong>RoleCheck isSuperAdmin:</strong> {roleCheckIsSuperAdmin ? 'OUI' : 'NON'}</p>
           <p><strong>RoleCheck loading:</strong> {roleLoading ? 'OUI' : 'NON'}</p>
-          <p><strong>isSuperAdmin final:</strong> {isSuperAdmin ? 'OUI' : 'NON'}</p>
+          <p><strong>Final isSuperAdmin:</strong> {isSuperAdmin ? 'OUI' : 'NON'}</p>
           <p><strong>showAddAdminForm:</strong> {showAddAdminForm ? 'OUI' : 'NON'}</p>
         </div>
+      </div>
+
+      {/* Test bouton simple pour vérifier l'affichage */}
+      <div className="bg-yellow-50 border border-yellow-200 p-4 rounded">
+        <h3 className="font-bold text-yellow-800 mb-2">Test d'affichage bouton:</h3>
+        <Button 
+          onClick={() => alert('Test bouton fonctionne!')}
+          className="bg-red-500 hover:bg-red-600 text-white"
+        >
+          🔴 BOUTON TEST - Si vous voyez ceci, les boutons fonctionnent
+        </Button>
       </div>
 
       {/* Statistiques */}
@@ -150,7 +147,8 @@ const Admin = () => {
       <AddAdminForm
         open={showAddAdminForm}
         onClose={() => {
-          console.log('Fermeture du formulaire AddAdmin');
+          console.log('=== FERMETURE FORMULAIRE ===');
+          console.log('Setting showAddAdminForm to false');
           setShowAddAdminForm(false);
         }}
         onSuccess={handleAddAdminSuccess}
