@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -57,7 +56,7 @@ export const useUserPermissions = () => {
             .limit(1)
             .maybeSingle();
           
-          userRole = simpleRoleData?.role || 'utilisateur';
+          userRole = simpleRoleData?.role || 'admin'; // Changé de 'utilisateur' à 'admin'
         }
 
         // Si pas de rôle trouvé et que c'est kamel.talbi@yahoo.fr, créer le rôle superadmin
@@ -80,23 +79,22 @@ export const useUserPermissions = () => {
           }
         }
 
-        // Si toujours pas de rôle, vérifier s'il y a des superadmins existants
+        // Si toujours pas de rôle, créer un rôle admin par défaut pour les nouveaux utilisateurs
         if (!userRole) {
           const { count: superAdminCount } = await supabase
             .from('user_roles')
             .select('*', { count: 'exact', head: true })
             .eq('role', 'superadmin');
 
-          userRole = (superAdminCount === 0) ? 'superadmin' : 'utilisateur';
+          // Nouveau comportement : tous les nouveaux utilisateurs sont admin
+          userRole = 'admin';
           
-          if (userRole === 'superadmin') {
-            try {
-              await supabase
-                .from('user_roles')
-                .insert({ user_id: user.id, role: userRole });
-            } catch (err) {
-              console.error('Erreur lors de la création du premier superadmin:', err);
-            }
+          try {
+            await supabase
+              .from('user_roles')
+              .insert({ user_id: user.id, role: userRole });
+          } catch (err) {
+            console.error('Erreur lors de la création du rôle admin pour le nouvel utilisateur:', err);
           }
         }
 
@@ -154,7 +152,7 @@ export const useUserPermissions = () => {
           currentUsers: currentUsers || 0,
           isAdmin,
           isSuperAdmin,
-          role: userRole || 'utilisateur',
+          role: userRole || 'admin', // Changé de 'utilisateur' à 'admin'
         };
       } catch (error) {
         console.error('Erreur dans useUserPermissions:', error);
@@ -171,14 +169,14 @@ export const useUserPermissions = () => {
           };
         }
         
-        // Pour les autres, droits utilisateur par défaut avec limite réelle
+        // Pour les autres, droits admin par défaut (changé de utilisateur)
         return {
-          canAddUsers: false,
+          canAddUsers: true, // Changé de false à true car admin
           maxUsers: 1, // Limite réelle pour les comptes gratuits
           currentUsers: 0,
-          isAdmin: false,
+          isAdmin: true, // Changé de false à true
           isSuperAdmin: false,
-          role: 'utilisateur',
+          role: 'admin', // Changé de 'utilisateur' à 'admin'
         };
       }
     },
