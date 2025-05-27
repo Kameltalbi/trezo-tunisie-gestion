@@ -3,6 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
+import { useUserRoleCheck } from "@/hooks/useUserRoleCheck";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import TrialBanner from "./TrialBanner";
@@ -14,6 +15,7 @@ interface LayoutProps {
 
 const Layout = ({ children, requireAuth = false }: LayoutProps) => {
   const { user, isLoading } = useAuth();
+  const { data: roleData, isLoading: isRoleLoading } = useUserRoleCheck();
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const [hasActiveSubscription, setHasActiveSubscription] = useState<boolean | null>(null);
   const [isCheckingSubscription, setIsCheckingSubscription] = useState(true);
@@ -24,10 +26,17 @@ const Layout = ({ children, requireAuth = false }: LayoutProps) => {
     return <Navigate to="/login" replace />;
   }
 
-  // Vérifier si l'utilisateur a un abonnement actif
+  // Vérifier si l'utilisateur a un abonnement actif (sauf pour les super admins)
   useEffect(() => {
     const checkSubscription = async () => {
       if (!user) {
+        setIsCheckingSubscription(false);
+        return;
+      }
+
+      // Si l'utilisateur est super admin, pas besoin de vérifier l'abonnement
+      if (roleData?.isSuperAdmin) {
+        setHasActiveSubscription(true);
         setIsCheckingSubscription(false);
         return;
       }
@@ -49,18 +58,18 @@ const Layout = ({ children, requireAuth = false }: LayoutProps) => {
       }
     };
 
-    if (user) {
+    if (user && !isRoleLoading) {
       checkSubscription();
     }
-  }, [user]);
+  }, [user, roleData?.isSuperAdmin, isRoleLoading]);
 
   // Si l'utilisateur n'est pas connecté, afficher seulement le contenu
   if (!user) {
     return <div className="bg-background text-foreground">{children}</div>;
   }
 
-  // Si on vérifie encore l'abonnement, afficher un loader
-  if (isCheckingSubscription) {
+  // Si on vérifie encore l'abonnement ou le rôle, afficher un loader
+  if (isCheckingSubscription || isRoleLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-pulse">Chargement...</div>
@@ -68,9 +77,9 @@ const Layout = ({ children, requireAuth = false }: LayoutProps) => {
     );
   }
 
-  // Rediriger vers checkout si pas d'abonnement actif et pas déjà sur les pages autorisées
+  // Rediriger vers checkout si pas d'abonnement actif et pas super admin et pas déjà sur les pages autorisées
   const allowedPagesWithoutSubscription = ['/checkout', '/subscription', '/parametres', '/order-confirmation'];
-  if (!hasActiveSubscription && !allowedPagesWithoutSubscription.includes(location.pathname)) {
+  if (!hasActiveSubscription && !roleData?.isSuperAdmin && !allowedPagesWithoutSubscription.includes(location.pathname)) {
     return <Navigate to="/checkout" replace />;
   }
 
