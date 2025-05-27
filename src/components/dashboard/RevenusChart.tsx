@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { ResponsiveContainer, PieChart, Pie, Cell, ChartTooltip } from 'recharts';
+import { ResponsiveContainer, PieChart, Pie, Cell } from 'recharts';
+import { ChartTooltip } from '@/components/ui/chart';
 import type { ProcessedChartData } from '@/types/dashboard';
 
 interface RevenusChartProps {

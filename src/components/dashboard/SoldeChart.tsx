@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { ResponsiveContainer, LineChart, Line, XAxis, YAxis, ChartTooltip } from 'recharts';
+import { ResponsiveContainer, LineChart, Line, XAxis, YAxis } from 'recharts';
+import { ChartTooltip } from '@/components/ui/chart';
 import type { MonthlyLineData } from '@/types/dashboard';
 
 interface SoldeChartProps {

@@ -1,7 +1,8 @@
 
 import React from 'react';
 import { Card, CardHeader, CardTitle, CardContent } from '@/components/ui/card';
-import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, ChartTooltip } from 'recharts';
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis } from 'recharts';
+import { ChartTooltip } from '@/components/ui/chart';
 import type { MonthlyBarData } from '@/types/dashboard';
 
 interface EncaissementsChartProps {
