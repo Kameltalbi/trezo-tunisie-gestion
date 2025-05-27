@@ -1070,9 +1070,17 @@ export type Database = {
         Args: { _user_id: string; _limit_type: string }
         Returns: Json
       }
+      has_role_secure: {
+        Args: { _user_id: string; _role: string }
+        Returns: boolean
+      }
       increment_usage: {
         Args: { _user_id: string; _usage_type: string }
         Returns: undefined
+      }
+      is_kamel_user: {
+        Args: Record<PropertyKey, never>
+        Returns: boolean
       }
     }
     Enums: {

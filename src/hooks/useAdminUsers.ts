@@ -23,11 +23,10 @@ export const useAdminUsers = (searchTerm: string, isSuperAdmin: boolean) => {
     queryKey: ['admin-users', searchTerm, user?.id],
     queryFn: async (): Promise<AdminUser[]> => {
       console.log('=== DEBUT useAdminUsers ===');
-      console.log('isSuperAdmin passé:', isSuperAdmin);
-      console.log('user actuel:', user);
+      console.log('User connecté:', user?.email);
       
       try {
-        // Étape 1: Récupérer tous les profils
+        // Étape 1: Récupérer tous les profils avec une requête simple
         let profileQuery = supabase
           .from('profiles')
           .select('id, email, created_at')
@@ -44,24 +43,27 @@ export const useAdminUsers = (searchTerm: string, isSuperAdmin: boolean) => {
           throw profileError;
         }
 
-        console.log('Profils récupérés:', profiles?.length, profiles);
+        console.log('Profils récupérés:', profiles?.length || 0);
 
         if (!profiles || profiles.length === 0) {
           return [];
         }
 
-        // Étape 2: Récupérer les rôles séparément pour chaque utilisateur
+        // Étape 2: Récupérer les rôles pour chaque utilisateur
         const userIds = profiles.map(p => p.id);
+        console.log('User IDs:', userIds);
+
         const { data: userRoles, error: rolesError } = await supabase
           .from('user_roles')
           .select('user_id, role')
           .in('user_id', userIds);
 
         if (rolesError) {
-          console.warn('Erreur rôles (non bloquante):', rolesError);
+          console.error('Erreur rôles:', rolesError);
+          // Continuer même en cas d'erreur sur les rôles
         }
 
-        console.log('Rôles récupérés:', userRoles?.length, userRoles);
+        console.log('Rôles récupérés:', userRoles?.length || 0, userRoles);
 
         // Étape 3: Récupérer les abonnements
         const { data: subscriptions, error: subError } = await supabase
@@ -79,10 +81,10 @@ export const useAdminUsers = (searchTerm: string, isSuperAdmin: boolean) => {
           .in('user_id', userIds);
 
         if (subError) {
-          console.warn('Erreur abonnements (non bloquante):', subError);
+          console.warn('Erreur abonnements:', subError);
         }
 
-        console.log('Abonnements récupérés:', subscriptions?.length);
+        console.log('Abonnements récupérés:', subscriptions?.length || 0);
 
         // Étape 4: Combiner les données
         const result = profiles.map((profile: any) => {
@@ -90,15 +92,14 @@ export const useAdminUsers = (searchTerm: string, isSuperAdmin: boolean) => {
           const subscription = subscriptions?.find((sub: any) => sub.user_id === profile.id);
           
           // Vérification spéciale pour kamel.talbi@yahoo.fr
-          const isSuperAdmin = profile.email === 'kamel.talbi@yahoo.fr' || userRole?.role === 'superadmin';
+          const isKamelUser = profile.email === 'kamel.talbi@yahoo.fr';
+          const isSuperAdmin = isKamelUser || userRole?.role === 'superadmin';
           const isAdmin = userRole?.role === 'admin';
           
           console.log(`=== UTILISATEUR ${profile.email} ===`);
-          console.log('- Email:', profile.email);
           console.log('- Rôle trouvé:', userRole?.role || 'aucun');
-          console.log('- Est kamel.talbi@yahoo.fr:', profile.email === 'kamel.talbi@yahoo.fr');
-          console.log('- isSuperAdmin final:', isSuperAdmin);
-          console.log('- isAdmin final:', isAdmin);
+          console.log('- Est Kamel:', isKamelUser);
+          console.log('- isSuperAdmin:', isSuperAdmin);
           
           return {
             id: profile.id,
@@ -116,7 +117,7 @@ export const useAdminUsers = (searchTerm: string, isSuperAdmin: boolean) => {
 
         console.log('=== RESULTAT FINAL ===');
         console.log('Nombre d\'utilisateurs:', result.length);
-        console.log('Utilisateurs:', result);
+        console.log('Utilisateurs détaillés:', result);
         console.log('=== FIN useAdminUsers ===');
         
         return result;
@@ -127,7 +128,7 @@ export const useAdminUsers = (searchTerm: string, isSuperAdmin: boolean) => {
       }
     },
     enabled: !!user,
-    retry: 2,
+    retry: 1,
     refetchInterval: 30000,
   });
 };
