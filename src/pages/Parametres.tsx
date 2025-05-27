@@ -8,10 +8,12 @@ import UserRoleManagement from "@/components/parametres/UserRoleManagement";
 import DeletePermissionsManagement from "@/components/parametres/DeletePermissionsManagement";
 import SectionBox from "@/components/SectionBox";
 import { useUserRoles } from "@/hooks/useUserRoles";
+import { usePermissions } from "@/hooks/usePermissions";
 
 const ParametresPage = () => {
   const [selectedUserId, setSelectedUserId] = useState<string | null>(null);
   const { data: userRoles = [] } = useUserRoles();
+  const { has } = usePermissions();
 
   if (selectedUserId) {
     const selectedUser = userRoles.find(u => u.user_id === selectedUserId);
@@ -51,9 +53,11 @@ const ParametresPage = () => {
         </TabsContent>
 
         <TabsContent value="role-permissions">
-          <SectionBox title="Gestion des permissions par rôle">
-            <RolePermissionsTable />
-          </SectionBox>
+          {has("parametres_read") && has("parametres_edit") && (
+            <SectionBox title="Gestion des permissions par rôle">
+              <RolePermissionsTable />
+            </SectionBox>
+          )}
         </TabsContent>
       </Tabs>
     </div>
