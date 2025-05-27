@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -8,7 +9,6 @@ import {
   DollarSign, 
   ChartLine, 
   Settings, 
-  UserCog,
   Wallet,
   FolderKanban,
   BarChart,
@@ -143,12 +143,6 @@ const Sidebar = ({ onExpandedChange }: SidebarProps) => {
       label: t('nav.parametres'),
       path: '/parametres',
       isActive: isActive('/parametres')
-    },
-    {
-      icon: <UserCog size={24} />,
-      label: t('nav.admin'),
-      path: '/admin',
-      isActive: isActive('/admin')
     },
     {
       icon: <LifeBuoy size={24} />,

@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -10,7 +11,6 @@ import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
 import Parametres from "./pages/Parametres";
-import Admin from "./pages/Admin";
 import CashFlow from "./pages/CashFlow";
 import DebtManagement from "./pages/DebtManagement";
 import NotFound from "./pages/NotFound";
@@ -51,7 +51,6 @@ const App = () => (
               <Route path="/order-confirmation" element={<OrderConfirmation />} />
               <Route path="/subscription" element={<Layout requireAuth={true}><Subscription /></Layout>} />
               <Route path="/parametres" element={<Layout requireAuth={true}><Parametres /></Layout>} />
-              <Route path="/admin" element={<Layout requireAuth={true}><Admin /></Layout>} />
               <Route path="/cash-flow" element={<Layout requireAuth={true}><CashFlow /></Layout>} />
               <Route path="/debt-management" element={<Layout requireAuth={true}><DebtManagement /></Layout>} />
               <Route path="/decaissements" element={<Layout requireAuth={true}><Depenses /></Layout>} />
