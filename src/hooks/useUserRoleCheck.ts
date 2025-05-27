@@ -14,7 +14,7 @@ export const useUserRoleCheck = () => {
         return { role: null, isSuperAdmin: false };
       }
 
-      console.log('=== useUserRoleCheck ===');
+      console.log('=== useUserRoleCheck SIMPLIFIE ===');
       console.log('User:', user.email);
 
       // Vérification spéciale pour kamel.talbi@yahoo.fr
@@ -23,7 +23,7 @@ export const useUserRoleCheck = () => {
         return { role: 'superadmin', isSuperAdmin: true };
       }
 
-      // Pour les autres utilisateurs, récupérer le rôle via une requête simple
+      // Pour les autres utilisateurs, essayer de récupérer le rôle
       try {
         const { data, error } = await supabase
           .from('user_roles')

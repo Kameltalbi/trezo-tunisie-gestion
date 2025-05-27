@@ -22,11 +22,11 @@ export const useAdminUsers = (searchTerm: string, isSuperAdmin: boolean) => {
   return useQuery({
     queryKey: ['admin-users', searchTerm, user?.id],
     queryFn: async (): Promise<AdminUser[]> => {
-      console.log('=== DEBUT useAdminUsers ===');
+      console.log('=== DEBUT useAdminUsers SIMPLIFIE ===');
       console.log('User connecté:', user?.email);
       
       try {
-        // Étape 1: Récupérer tous les profils avec une requête simple
+        // Étape 1: Récupérer UNIQUEMENT les profils
         let profileQuery = supabase
           .from('profiles')
           .select('id, email, created_at')
@@ -46,78 +46,86 @@ export const useAdminUsers = (searchTerm: string, isSuperAdmin: boolean) => {
         console.log('Profils récupérés:', profiles?.length || 0);
 
         if (!profiles || profiles.length === 0) {
+          console.log('Aucun profil trouvé');
           return [];
         }
 
-        // Étape 2: Récupérer les rôles pour chaque utilisateur
-        const userIds = profiles.map(p => p.id);
-        console.log('User IDs:', userIds);
-
-        const { data: userRoles, error: rolesError } = await supabase
-          .from('user_roles')
-          .select('user_id, role')
-          .in('user_id', userIds);
-
-        if (rolesError) {
-          console.error('Erreur rôles:', rolesError);
-          // Continuer même en cas d'erreur sur les rôles
-        }
-
-        console.log('Rôles récupérés:', userRoles?.length || 0, userRoles);
-
-        // Étape 3: Récupérer les abonnements
-        const { data: subscriptions, error: subError } = await supabase
-          .from('subscriptions')
-          .select(`
-            user_id,
-            status,
-            is_trial,
-            trial_end_date,
-            end_date,
-            plans (
-              name
-            )
-          `)
-          .in('user_id', userIds);
-
-        if (subError) {
-          console.warn('Erreur abonnements:', subError);
-        }
-
-        console.log('Abonnements récupérés:', subscriptions?.length || 0);
-
-        // Étape 4: Combiner les données
-        const result = profiles.map((profile: any) => {
-          const userRole = userRoles?.find(ur => ur.user_id === profile.id);
-          const subscription = subscriptions?.find((sub: any) => sub.user_id === profile.id);
+        // Étape 2: Pour chaque profil, essayer de récupérer le rôle individuellement
+        const result: AdminUser[] = [];
+        
+        for (const profile of profiles) {
+          console.log(`=== TRAITEMENT ${profile.email} ===`);
           
           // Vérification spéciale pour kamel.talbi@yahoo.fr
           const isKamelUser = profile.email === 'kamel.talbi@yahoo.fr';
-          const isSuperAdmin = isKamelUser || userRole?.role === 'superadmin';
-          const isAdmin = userRole?.role === 'admin';
+          let userRole = 'utilisateur';
+          let isSuperAdmin = isKamelUser;
           
-          console.log(`=== UTILISATEUR ${profile.email} ===`);
-          console.log('- Rôle trouvé:', userRole?.role || 'aucun');
-          console.log('- Est Kamel:', isKamelUser);
-          console.log('- isSuperAdmin:', isSuperAdmin);
-          
-          return {
+          if (isKamelUser) {
+            console.log('- Utilisateur Kamel détecté -> SuperAdmin');
+            userRole = 'superadmin';
+          } else {
+            // Essayer de récupérer le rôle pour les autres utilisateurs
+            try {
+              const { data: roleData } = await supabase
+                .from('user_roles')
+                .select('role')
+                .eq('user_id', profile.id)
+                .maybeSingle();
+              
+              if (roleData?.role) {
+                userRole = roleData.role;
+                isSuperAdmin = roleData.role === 'superadmin';
+                console.log('- Rôle trouvé:', roleData.role);
+              } else {
+                console.log('- Aucun rôle trouvé, utilisateur par défaut');
+              }
+            } catch (roleError) {
+              console.log('- Erreur lors de la récupération du rôle:', roleError);
+            }
+          }
+
+          // Essayer de récupérer l'abonnement
+          let subscription = null;
+          try {
+            const { data: subData } = await supabase
+              .from('subscriptions')
+              .select(`
+                status,
+                is_trial,
+                trial_end_date,
+                end_date,
+                plans (
+                  name
+                )
+              `)
+              .eq('user_id', profile.id)
+              .maybeSingle();
+            
+            subscription = subData;
+          } catch (subError) {
+            console.log('- Erreur lors de la récupération de l\'abonnement:', subError);
+          }
+
+          const adminUser: AdminUser = {
             id: profile.id,
             email: profile.email,
             created_at: profile.created_at,
-            subscription_status: isSuperAdmin ? 'superadmin' : (isAdmin ? 'admin' : subscription?.status),
-            plan_name: isSuperAdmin ? 'Super Admin' : (isAdmin ? 'Admin' : subscription?.plans?.name),
+            subscription_status: isSuperAdmin ? 'superadmin' : (userRole === 'admin' ? 'admin' : subscription?.status),
+            plan_name: isSuperAdmin ? 'Super Admin' : (userRole === 'admin' ? 'Admin' : subscription?.plans?.name),
             trial_end_date: subscription?.trial_end_date,
             is_trial: subscription?.is_trial,
             subscription_end_date: subscription?.end_date,
             is_superadmin: isSuperAdmin,
-            role: userRole?.role || 'utilisateur',
+            role: userRole,
           };
-        });
+
+          result.push(adminUser);
+          console.log('- Utilisateur ajouté:', adminUser);
+        }
 
         console.log('=== RESULTAT FINAL ===');
         console.log('Nombre d\'utilisateurs:', result.length);
-        console.log('Utilisateurs détaillés:', result);
         console.log('=== FIN useAdminUsers ===');
         
         return result;
