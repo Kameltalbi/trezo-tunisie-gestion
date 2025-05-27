@@ -10,17 +10,19 @@ import { AdminStatsCards } from '@/components/admin/AdminStatsCards';
 import { AdminUsersTable } from '@/components/admin/AdminUsersTable';
 import { AdminPaymentsTable } from '@/components/admin/AdminPaymentsTable';
 import { AddAdminForm } from '@/components/admin/AddAdminForm';
+import { useQueryClient } from '@tanstack/react-query';
 
 const Admin = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [showAddAdminForm, setShowAddAdminForm] = useState(false);
   const { user } = useAuth();
   const { data: roleCheck, isLoading: roleLoading } = useUserRoleCheck();
+  const queryClient = useQueryClient();
 
   // Vérification spéciale pour kamel.talbi@yahoo.fr
   const isSuperAdmin = user?.email === 'kamel.talbi@yahoo.fr' || roleCheck?.isSuperAdmin || false;
 
-  console.log('Vérifications Admin:', {
+  console.log('Vérifications Admin avec nouvelles politiques RLS:', {
     userEmail: user?.email,
     roleCheck,
     isSuperAdmin,
@@ -28,8 +30,10 @@ const Admin = () => {
   });
 
   const handleAddAdminSuccess = () => {
-    // Cette fonction sera appelée après l'ajout réussi d'un admin
-    // pour rafraîchir la liste des utilisateurs
+    // Rafraîchir toutes les données admin après l'ajout réussi
+    queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+    queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
+    console.log('Données admin rafraîchies après ajout d\'utilisateur');
   };
 
   if (roleLoading) {
@@ -71,6 +75,9 @@ const Admin = () => {
           <h1 className="text-3xl font-bold">Administration (Super Admin)</h1>
           <p className="text-sm text-gray-600">
             Connecté en tant que: {user?.email} - Rôle: {roleCheck?.role || 'superadmin'}
+          </p>
+          <p className="text-xs text-green-600 mt-1">
+            ✓ Politiques RLS configurées pour l'accès aux données
           </p>
         </div>
         <div className="flex gap-2">

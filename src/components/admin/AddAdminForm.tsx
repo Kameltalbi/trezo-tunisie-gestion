@@ -8,6 +8,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { Loader2 } from 'lucide-react';
+import { useQueryClient } from '@tanstack/react-query';
 
 interface AddAdminFormProps {
   open: boolean;
@@ -25,6 +26,7 @@ export const AddAdminForm: React.FC<AddAdminFormProps> = ({
   const [fullName, setFullName] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -82,6 +84,10 @@ export const AddAdminForm: React.FC<AddAdminFormProps> = ({
       toast({
         description: `${role === 'superadmin' ? 'Super-administrateur' : 'Administrateur'} ajouté avec succès`
       });
+
+      // Invalider les requêtes pour rafraîchir les données
+      queryClient.invalidateQueries({ queryKey: ['admin-users'] });
+      queryClient.invalidateQueries({ queryKey: ['admin-stats'] });
 
       // Reset form
       setEmail('');

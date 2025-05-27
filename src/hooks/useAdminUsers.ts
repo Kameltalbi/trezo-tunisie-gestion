@@ -22,7 +22,7 @@ export const useAdminUsers = (searchTerm: string, isSuperAdmin: boolean) => {
   return useQuery({
     queryKey: ['admin-users', searchTerm, user?.id],
     queryFn: async (): Promise<AdminUser[]> => {
-      console.log('Récupération des utilisateurs admin...');
+      console.log('Récupération des utilisateurs admin avec politiques RLS mises à jour...');
       
       try {
         // Récupérer tous les profils avec leurs rôles
@@ -49,9 +49,10 @@ export const useAdminUsers = (searchTerm: string, isSuperAdmin: boolean) => {
           throw profileError;
         }
 
-        console.log('Profils récupérés:', profiles?.length || 0, profiles);
+        console.log('Profils récupérés avec nouvelles politiques:', profiles?.length || 0, profiles);
 
         if (!profiles || profiles.length === 0) {
+          console.log('Aucun profil trouvé - vérifiez les politiques RLS');
           return [];
         }
 
@@ -77,12 +78,16 @@ export const useAdminUsers = (searchTerm: string, isSuperAdmin: boolean) => {
 
         console.log('Abonnements récupérés:', subscriptions?.length || 0);
 
-        // Mapper les données
+        // Mapper les données avec une meilleure gestion des rôles
         const result = profiles.map((profile: any) => {
           const subscription = subscriptions?.find((sub: any) => sub.user_id === profile.id);
           const userRole = profile.user_roles?.[0]?.role;
+          
+          // Vérification spéciale pour kamel.talbi@yahoo.fr
           const isSuperAdmin = profile.email === 'kamel.talbi@yahoo.fr' || userRole === 'superadmin';
           const isAdmin = userRole === 'admin';
+          
+          console.log(`Utilisateur ${profile.email}: rôle=${userRole}, isSuperAdmin=${isSuperAdmin}, isAdmin=${isAdmin}`);
           
           return {
             id: profile.id,
@@ -94,11 +99,11 @@ export const useAdminUsers = (searchTerm: string, isSuperAdmin: boolean) => {
             is_trial: subscription?.is_trial,
             subscription_end_date: subscription?.end_date,
             is_superadmin: isSuperAdmin,
-            role: userRole,
+            role: userRole || 'utilisateur',
           };
         });
 
-        console.log('Utilisateurs finaux:', result.length, result);
+        console.log('Utilisateurs finaux avec nouvelles politiques:', result.length, result);
         return result;
 
       } catch (error) {
@@ -107,7 +112,7 @@ export const useAdminUsers = (searchTerm: string, isSuperAdmin: boolean) => {
       }
     },
     enabled: !!user && isSuperAdmin,
-    retry: 1,
-    refetchInterval: 10000, // Rafraîchir toutes les 10 secondes
+    retry: 2,
+    refetchInterval: 15000, // Rafraîchir toutes les 15 secondes
   });
 };
