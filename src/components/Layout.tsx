@@ -3,7 +3,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useUserRoleCheck } from "@/hooks/useUserRoleCheck";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import TrialBanner from "./TrialBanner";
@@ -20,10 +19,7 @@ const Layout = ({ children, requireAuth = false }: LayoutProps) => {
   const [isCheckingSubscription, setIsCheckingSubscription] = useState(true);
   const location = useLocation();
 
-  // Appeler useUserRoleCheck seulement si l'utilisateur est connecté
-  const { data: roleData, isLoading: isRoleLoading } = useUserRoleCheck();
-
-  // Vérifier si l'utilisateur a un abonnement actif (sauf pour les super admins)
+  // Vérifier si l'utilisateur a un abonnement actif
   useEffect(() => {
     const checkSubscription = async () => {
       if (!user) {
@@ -31,8 +27,8 @@ const Layout = ({ children, requireAuth = false }: LayoutProps) => {
         return;
       }
 
-      // Si l'utilisateur est super admin, pas besoin de vérifier l'abonnement
-      if (roleData?.isSuperAdmin) {
+      // Si l'utilisateur est kamel, pas besoin de vérifier l'abonnement
+      if (user.email === 'kamel.talbi@yahoo.fr') {
         setHasActiveSubscription(true);
         setIsCheckingSubscription(false);
         return;
@@ -55,10 +51,10 @@ const Layout = ({ children, requireAuth = false }: LayoutProps) => {
       }
     };
 
-    if (user && !isRoleLoading) {
+    if (user) {
       checkSubscription();
     }
-  }, [user, roleData?.isSuperAdmin, isRoleLoading]);
+  }, [user]);
 
   // Si l'authentification est requise et que l'utilisateur n'est pas connecté
   if (requireAuth && !isLoading && !user) {
@@ -70,8 +66,8 @@ const Layout = ({ children, requireAuth = false }: LayoutProps) => {
     return <div className="bg-background text-foreground">{children}</div>;
   }
 
-  // Si on vérifie encore l'abonnement ou le rôle, afficher un loader
-  if (isCheckingSubscription || isRoleLoading) {
+  // Si on vérifie encore l'abonnement, afficher un loader
+  if (isCheckingSubscription) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-pulse">Chargement...</div>
@@ -79,9 +75,9 @@ const Layout = ({ children, requireAuth = false }: LayoutProps) => {
     );
   }
 
-  // Rediriger vers checkout si pas d'abonnement actif et pas super admin et pas déjà sur les pages autorisées
-  const allowedPagesWithoutSubscription = ['/checkout', '/subscription', '/parametres', '/order-confirmation'];
-  if (!hasActiveSubscription && !roleData?.isSuperAdmin && !allowedPagesWithoutSubscription.includes(location.pathname)) {
+  // Rediriger vers checkout si pas d'abonnement actif et pas admin kamel et pas déjà sur les pages autorisées
+  const allowedPagesWithoutSubscription = ['/checkout', '/subscription', '/order-confirmation'];
+  if (!hasActiveSubscription && user.email !== 'kamel.talbi@yahoo.fr' && !allowedPagesWithoutSubscription.includes(location.pathname)) {
     return <Navigate to="/checkout" replace />;
   }
 

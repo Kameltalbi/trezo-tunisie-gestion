@@ -10,7 +10,6 @@ import Layout from "./components/Layout";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Parametres from "./pages/Parametres";
 import CashFlow from "./pages/CashFlow";
 import DebtManagement from "./pages/DebtManagement";
 import NotFound from "./pages/NotFound";
@@ -50,7 +49,6 @@ const App = () => (
               <Route path="/payment-unavailable" element={<PaymentUnavailable />} />
               <Route path="/order-confirmation" element={<OrderConfirmation />} />
               <Route path="/subscription" element={<Layout requireAuth={true}><Subscription /></Layout>} />
-              <Route path="/parametres" element={<Layout requireAuth={true}><Parametres /></Layout>} />
               <Route path="/cash-flow" element={<Layout requireAuth={true}><CashFlow /></Layout>} />
               <Route path="/debt-management" element={<Layout requireAuth={true}><DebtManagement /></Layout>} />
               <Route path="/decaissements" element={<Layout requireAuth={true}><Depenses /></Layout>} />

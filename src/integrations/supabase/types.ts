@@ -54,13 +54,6 @@ export type Database = {
         }
         Relationships: [
           {
-            foreignKeyName: "comptes_bancaires_devise_id_fkey"
-            columns: ["devise_id"]
-            isOneToOne: false
-            referencedRelation: "devises"
-            referencedColumns: ["id"]
-          },
-          {
             foreignKeyName: "comptes_bancaires_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
@@ -144,42 +137,6 @@ export type Database = {
             referencedColumns: ["user_id"]
           },
         ]
-      }
-      devises: {
-        Row: {
-          code: string
-          created_at: string
-          decimales: number
-          id: string
-          is_default: boolean | null
-          nom: string
-          separateur: string
-          symbole: string
-          updated_at: string
-        }
-        Insert: {
-          code: string
-          created_at?: string
-          decimales?: number
-          id?: string
-          is_default?: boolean | null
-          nom: string
-          separateur?: string
-          symbole: string
-          updated_at?: string
-        }
-        Update: {
-          code?: string
-          created_at?: string
-          decimales?: number
-          id?: string
-          is_default?: boolean | null
-          nom?: string
-          separateur?: string
-          symbole?: string
-          updated_at?: string
-        }
-        Relationships: []
       }
       encaissements: {
         Row: {
@@ -999,10 +956,6 @@ export type Database = {
       check_user_limits: {
         Args: { _user_id: string; _limit_type: string }
         Returns: Json
-      }
-      has_role_secure: {
-        Args: { _user_id: string; _role: string }
-        Returns: boolean
       }
       increment_usage: {
         Args: { _user_id: string; _usage_type: string }

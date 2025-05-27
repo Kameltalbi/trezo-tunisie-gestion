@@ -8,7 +8,6 @@ import {
   FileText, 
   DollarSign, 
   ChartLine, 
-  Settings, 
   Wallet,
   FolderKanban,
   BarChart,
@@ -131,18 +130,12 @@ const Sidebar = ({ onExpandedChange }: SidebarProps) => {
     }
   ];
 
-  const reportsConfigItems: SidebarItemProps[] = [
+  const reportsItems: SidebarItemProps[] = [
     {
       icon: <FileSpreadsheet size={24} />,
       label: t('nav.reports'),
       path: '/rapports',
       isActive: isActive('/rapports')
-    },
-    {
-      icon: <Settings size={24} />,
-      label: t('nav.parametres'),
-      path: '/parametres',
-      isActive: isActive('/parametres')
     },
     {
       icon: <LifeBuoy size={24} />,
@@ -219,11 +212,11 @@ const Sidebar = ({ onExpandedChange }: SidebarProps) => {
         {projectTrackingItems.map(renderSidebarItem)}
         <Separator className="my-1 bg-sidebar-accent/20" />
         
-        {/* RAPPORTS & CONFIGURATION section */}
+        {/* RAPPORTS section */}
         {isExpanded && (
           <SidebarSection label={t('nav.reports_config')} />
         )}
-        {reportsConfigItems.map(renderSidebarItem)}
+        {reportsItems.map(renderSidebarItem)}
       </div>
     </div>
   );
