@@ -541,33 +541,6 @@ export type Database = {
           },
         ]
       }
-      permissions: {
-        Row: {
-          action: string
-          created_at: string
-          description: string | null
-          id: string
-          nom: string
-          page: string
-        }
-        Insert: {
-          action: string
-          created_at?: string
-          description?: string | null
-          id?: string
-          nom: string
-          page: string
-        }
-        Update: {
-          action?: string
-          created_at?: string
-          description?: string | null
-          id?: string
-          nom?: string
-          page?: string
-        }
-        Relationships: []
-      }
       plans: {
         Row: {
           advanced_features: Json | null
@@ -778,60 +751,6 @@ export type Database = {
           },
         ]
       }
-      role_permissions: {
-        Row: {
-          created_at: string
-          id: string
-          permission_id: string
-          role_id: string | null
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          permission_id: string
-          role_id?: string | null
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          permission_id?: string
-          role_id?: string | null
-        }
-        Relationships: [
-          {
-            foreignKeyName: "role_permissions_permission_id_fkey"
-            columns: ["permission_id"]
-            isOneToOne: false
-            referencedRelation: "permissions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "role_permissions_role_id_fkey"
-            columns: ["role_id"]
-            isOneToOne: false
-            referencedRelation: "roles"
-            referencedColumns: ["id"]
-          },
-        ]
-      }
-      roles: {
-        Row: {
-          description: string | null
-          id: string
-          name: string
-        }
-        Insert: {
-          description?: string | null
-          id?: string
-          name: string
-        }
-        Update: {
-          description?: string | null
-          id?: string
-          name?: string
-        }
-        Relationships: []
-      }
       subscriptions: {
         Row: {
           auto_renew: boolean | null
@@ -971,77 +890,6 @@ export type Database = {
           },
         ]
       }
-      user_permissions: {
-        Row: {
-          created_at: string
-          granted: boolean
-          id: string
-          permission_id: string
-          updated_at: string
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          granted?: boolean
-          id?: string
-          permission_id: string
-          updated_at?: string
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          granted?: boolean
-          id?: string
-          permission_id?: string
-          updated_at?: string
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_permissions_permission_id_fkey"
-            columns: ["permission_id"]
-            isOneToOne: false
-            referencedRelation: "permissions"
-            referencedColumns: ["id"]
-          },
-          {
-            foreignKeyName: "user_permissions_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_current_plan"
-            referencedColumns: ["user_id"]
-          },
-        ]
-      }
-      user_roles: {
-        Row: {
-          created_at: string
-          id: string
-          role: Database["public"]["Enums"]["user_role"]
-          user_id: string
-        }
-        Insert: {
-          created_at?: string
-          id?: string
-          role?: Database["public"]["Enums"]["user_role"]
-          user_id: string
-        }
-        Update: {
-          created_at?: string
-          id?: string
-          role?: Database["public"]["Enums"]["user_role"]
-          user_id?: string
-        }
-        Relationships: [
-          {
-            foreignKeyName: "user_roles_user_id_fkey"
-            columns: ["user_id"]
-            isOneToOne: false
-            referencedRelation: "user_current_plan"
-            referencedColumns: ["user_id"]
-          },
-        ]
-      }
       user_usage: {
         Row: {
           created_at: string | null
@@ -1166,12 +1014,7 @@ export type Database = {
       }
     }
     Enums: {
-      user_role:
-        | "admin"
-        | "editeur"
-        | "collaborateur"
-        | "utilisateur"
-        | "superadmin"
+      [_ in never]: never
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1286,14 +1129,6 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {
-      user_role: [
-        "admin",
-        "editeur",
-        "collaborateur",
-        "utilisateur",
-        "superadmin",
-      ],
-    },
+    Enums: {},
   },
 } as const
