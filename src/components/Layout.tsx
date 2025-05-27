@@ -15,16 +15,13 @@ interface LayoutProps {
 
 const Layout = ({ children, requireAuth = false }: LayoutProps) => {
   const { user, isLoading } = useAuth();
-  const { data: roleData, isLoading: isRoleLoading } = useUserRoleCheck();
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const [hasActiveSubscription, setHasActiveSubscription] = useState<boolean | null>(null);
   const [isCheckingSubscription, setIsCheckingSubscription] = useState(true);
   const location = useLocation();
 
-  // Si l'authentification est requise et que l'utilisateur n'est pas connecté
-  if (requireAuth && !isLoading && !user) {
-    return <Navigate to="/login" replace />;
-  }
+  // Appeler useUserRoleCheck seulement si l'utilisateur est connecté
+  const { data: roleData, isLoading: isRoleLoading } = useUserRoleCheck();
 
   // Vérifier si l'utilisateur a un abonnement actif (sauf pour les super admins)
   useEffect(() => {
@@ -62,6 +59,11 @@ const Layout = ({ children, requireAuth = false }: LayoutProps) => {
       checkSubscription();
     }
   }, [user, roleData?.isSuperAdmin, isRoleLoading]);
+
+  // Si l'authentification est requise et que l'utilisateur n'est pas connecté
+  if (requireAuth && !isLoading && !user) {
+    return <Navigate to="/login" replace />;
+  }
 
   // Si l'utilisateur n'est pas connecté, afficher seulement le contenu
   if (!user) {
