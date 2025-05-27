@@ -58,7 +58,7 @@ export const useAdminUsers = (searchTerm: string, isSuperAdmin: boolean) => {
           
           // Vérification spéciale pour kamel.talbi@yahoo.fr
           const isKamelUser = profile.email === 'kamel.talbi@yahoo.fr';
-          let userRole = 'utilisateur';
+          let userRole = 'admin'; // Changé de 'utilisateur' à 'admin'
           let isSuperAdmin = isKamelUser;
           
           if (isKamelUser) {
@@ -78,7 +78,7 @@ export const useAdminUsers = (searchTerm: string, isSuperAdmin: boolean) => {
                 isSuperAdmin = roleData.role === 'superadmin';
                 console.log('- Rôle trouvé:', roleData.role);
               } else {
-                console.log('- Aucun rôle trouvé, utilisateur par défaut');
+                console.log('- Aucun rôle trouvé, admin par défaut');
               }
             } catch (roleError) {
               console.log('- Erreur lors de la récupération du rôle:', roleError);
