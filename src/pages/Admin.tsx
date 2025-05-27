@@ -1,16 +1,17 @@
 import React, { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
-import { Users, CreditCard, TrendingUp, Settings } from 'lucide-react';
+import { Users, CreditCard, TrendingUp, Settings, CheckCircle, XCircle } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRoleCheck } from '@/hooks/useUserRoleCheck';
+import { useToast } from '@/hooks/use-toast';
 
 interface AdminUser {
   id: string;
@@ -30,10 +31,26 @@ interface AdminStats {
   revenue_this_month: number;
 }
 
+interface AdminPayment {
+  id: string;
+  user_id: string;
+  amount: number;
+  currency: string;
+  payment_method: string;
+  status: string;
+  bank_details: any;
+  notes: string | null;
+  created_at: string;
+  subscription_id: string | null;
+  user_email?: string;
+}
+
 const Admin = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const { user } = useAuth();
   const { data: roleCheck, isLoading: roleLoading } = useUserRoleCheck();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
 
   // Vérification spéciale pour kamel.talbi@yahoo.fr
   const isSuperAdmin = user?.email === 'kamel.talbi@yahoo.fr' || roleCheck?.isSuperAdmin || false;
@@ -128,6 +145,87 @@ const Admin = () => {
     enabled: !!user && isSuperAdmin,
   });
 
+  // Nouvelle requête pour les paiements
+  const { data: payments, isLoading: paymentsLoading } = useQuery({
+    queryKey: ['admin-payments', user?.id],
+    queryFn: async (): Promise<AdminPayment[]> => {
+      const { data, error } = await supabase
+        .from('payments')
+        .select(`
+          *,
+          profiles (
+            email
+          )
+        `)
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+
+      return data.map((payment: any) => ({
+        ...payment,
+        user_email: payment.profiles?.email
+      }));
+    },
+    enabled: !!user && isSuperAdmin,
+  });
+
+  // Mutation pour valider un paiement
+  const validatePaymentMutation = useMutation({
+    mutationFn: async ({ paymentId, subscriptionId }: { paymentId: string; subscriptionId?: string }) => {
+      // Mettre à jour le statut du paiement
+      const { error: paymentError } = await supabase
+        .from('payments')
+        .update({ status: 'completed' })
+        .eq('id', paymentId);
+
+      if (paymentError) throw paymentError;
+
+      // Si il y a un abonnement associé, l'activer
+      if (subscriptionId) {
+        const { error: subscriptionError } = await supabase
+          .from('subscriptions')
+          .update({ status: 'active' })
+          .eq('id', subscriptionId);
+
+        if (subscriptionError) throw subscriptionError;
+      }
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-payments'] });
+      toast({ description: "Paiement validé avec succès" });
+    },
+    onError: (error) => {
+      console.error('Erreur lors de la validation:', error);
+      toast({ 
+        description: "Erreur lors de la validation du paiement", 
+        variant: "destructive" 
+      });
+    },
+  });
+
+  // Mutation pour rejeter un paiement
+  const rejectPaymentMutation = useMutation({
+    mutationFn: async (paymentId: string) => {
+      const { error } = await supabase
+        .from('payments')
+        .update({ status: 'failed' })
+        .eq('id', paymentId);
+
+      if (error) throw error;
+    },
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: ['admin-payments'] });
+      toast({ description: "Paiement rejeté" });
+    },
+    onError: (error) => {
+      console.error('Erreur lors du rejet:', error);
+      toast({ 
+        description: "Erreur lors du rejet du paiement", 
+        variant: "destructive" 
+      });
+    },
+  });
+
   // Now handle the permission check after all hooks are called
   if (roleLoading) {
     return (
@@ -172,6 +270,32 @@ const Admin = () => {
       return <Badge variant="destructive">Annulé</Badge>;
     }
     return <Badge variant="outline">Aucun</Badge>;
+  };
+
+  const getPaymentStatusBadge = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return <Badge variant="default">Validé</Badge>;
+      case 'pending':
+        return <Badge variant="secondary">En attente</Badge>;
+      case 'failed':
+        return <Badge variant="destructive">Rejeté</Badge>;
+      default:
+        return <Badge variant="outline">{status}</Badge>;
+    }
+  };
+
+  const getPaymentMethodLabel = (method: string) => {
+    switch (method) {
+      case 'bank_transfer':
+        return 'Virement bancaire';
+      case 'card':
+        return 'Carte bancaire';
+      case 'cash':
+        return 'Espèces';
+      default:
+        return method;
+    }
   };
 
   return (
@@ -243,8 +367,8 @@ const Admin = () => {
       <Tabs defaultValue="users" className="w-full">
         <TabsList>
           <TabsTrigger value="users">Utilisateurs</TabsTrigger>
-          <TabsTrigger value="subscriptions">Abonnements</TabsTrigger>
           <TabsTrigger value="payments">Paiements</TabsTrigger>
+          <TabsTrigger value="subscriptions">Abonnements</TabsTrigger>
         </TabsList>
 
         <TabsContent value="users" className="space-y-4">
@@ -313,21 +437,108 @@ const Admin = () => {
           </Card>
         </TabsContent>
 
+        <TabsContent value="payments" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Gestion des paiements</CardTitle>
+              <CardDescription>
+                Validation des paiements en attente et historique des transactions
+              </CardDescription>
+            </CardHeader>
+            <CardContent>
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-left text-gray-600 border-b">
+                      <th className="p-2">Email</th>
+                      <th className="p-2">Montant</th>
+                      <th className="p-2">Méthode</th>
+                      <th className="p-2">Statut</th>
+                      <th className="p-2">Date</th>
+                      <th className="p-2">Notes</th>
+                      <th className="p-2">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {paymentsLoading ? (
+                      <tr>
+                        <td colSpan={7} className="p-4 text-center">Chargement...</td>
+                      </tr>
+                    ) : payments && payments.length > 0 ? (
+                      payments.map((payment) => (
+                        <tr key={payment.id} className="border-t">
+                          <td className="p-2">{payment.user_email || '-'}</td>
+                          <td className="p-2 font-medium">
+                            {payment.amount} {payment.currency}
+                          </td>
+                          <td className="p-2">{getPaymentMethodLabel(payment.payment_method)}</td>
+                          <td className="p-2">{getPaymentStatusBadge(payment.status)}</td>
+                          <td className="p-2">
+                            {format(new Date(payment.created_at), 'dd/MM/yyyy HH:mm', { locale: fr })}
+                          </td>
+                          <td className="p-2 max-w-xs truncate">
+                            {payment.notes || '-'}
+                          </td>
+                          <td className="p-2">
+                            {payment.status === 'pending' && (
+                              <div className="flex gap-2">
+                                <Button
+                                  size="sm"
+                                  onClick={() => validatePaymentMutation.mutate({
+                                    paymentId: payment.id,
+                                    subscriptionId: payment.subscription_id || undefined
+                                  })}
+                                  disabled={validatePaymentMutation.isPending}
+                                  className="bg-green-600 hover:bg-green-700"
+                                >
+                                  <CheckCircle className="w-4 h-4 mr-1" />
+                                  Valider
+                                </Button>
+                                <Button
+                                  size="sm"
+                                  variant="destructive"
+                                  onClick={() => rejectPaymentMutation.mutate(payment.id)}
+                                  disabled={rejectPaymentMutation.isPending}
+                                >
+                                  <XCircle className="w-4 h-4 mr-1" />
+                                  Rejeter
+                                </Button>
+                              </div>
+                            )}
+                          </td>
+                        </tr>
+                      ))
+                    ) : (
+                      <tr>
+                        <td colSpan={7} className="p-4 text-center text-gray-500">
+                          Aucun paiement trouvé
+                        </td>
+                      </tr>
+                    )}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Section pour les paiements en attente */}
+              {payments && payments.filter(p => p.status === 'pending').length > 0 && (
+                <div className="mt-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                  <h4 className="font-medium text-yellow-800 mb-2">
+                    {payments.filter(p => p.status === 'pending').length} paiement(s) en attente de validation
+                  </h4>
+                  <p className="text-sm text-yellow-700">
+                    Vérifiez votre compte bancaire et validez les paiements reçus pour activer les abonnements.
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
         <TabsContent value="subscriptions">
           <Card>
             <CardContent className="p-6">
               <p className="text-center text-gray-500">
                 Gestion des abonnements - Les données réelles seront affichées ici
-              </p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-
-        <TabsContent value="payments">
-          <Card>
-            <CardContent className="p-6">
-              <p className="text-center text-gray-500">
-                Historique des paiements - Les données réelles seront affichées ici
               </p>
             </CardContent>
           </Card>
