@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -35,7 +36,7 @@ export const useUserRoles = () => {
   
   return useQuery({
     queryKey: ['user-roles-with-profiles', user?.id],
-    queryFn: async () => {
+    queryFn: async (): Promise<UserWithRole[]> => {
       if (!user) return [];
 
       console.log('Récupération des utilisateurs avec rôles...');
@@ -75,13 +76,13 @@ export const useUserRoles = () => {
         console.log('Rôles récupérés:', userRoles?.length || 0);
 
         // Créer une map des rôles pour une recherche facile
-        const roleMap = new Map();
+        const roleMap = new Map<string, any>();
         userRoles?.forEach(role => {
           roleMap.set(role.user_id, role);
         });
 
         // Combiner tous les profils avec leurs rôles (ou rôle par défaut)
-        const result = (profiles || []).map(profile => {
+        const result: UserWithRole[] = (profiles || []).map(profile => {
           const userRole = roleMap.get(profile.id);
           return {
             id: userRole?.id || profile.id,
@@ -92,7 +93,7 @@ export const useUserRoles = () => {
             full_name: profile.full_name,
             company_name: profile.company_name,
           };
-        }) as UserWithRole[];
+        });
 
         console.log('Résultat final:', result.length, 'utilisateurs');
         return result;
@@ -111,14 +112,14 @@ export const useUserRoles = () => {
 export const usePermissions = () => {
   return useQuery({
     queryKey: ['permissions'],
-    queryFn: async () => {
+    queryFn: async (): Promise<Permission[]> => {
       const { data, error } = await supabase
         .from('permissions')
         .select('*')
         .order('page', { ascending: true });
 
       if (error) throw error;
-      return data as Permission[];
+      return data || [];
     },
   });
 };
@@ -138,7 +139,7 @@ export const useRolePermissions = (role?: UserRole) => {
         .eq('role', role);
 
       if (error) throw error;
-      return data;
+      return data || [];
     },
     enabled: !!role,
   });
