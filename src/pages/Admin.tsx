@@ -19,14 +19,15 @@ const Admin = () => {
   const { data: roleCheck, isLoading: roleLoading } = useUserRoleCheck();
   const queryClient = useQueryClient();
 
-  // Vérification spéciale pour kamel.talbi@yahoo.fr
+  // Vérification spéciale pour kamel.talbi@yahoo.fr - toujours considéré comme super admin
   const isSuperAdmin = user?.email === 'kamel.talbi@yahoo.fr' || roleCheck?.isSuperAdmin || false;
 
-  console.log('Vérifications Admin avec nouvelles politiques RLS:', {
+  console.log('Vérifications Admin - Debug boutons:', {
     userEmail: user?.email,
     roleCheck,
     isSuperAdmin,
-    roleLoading
+    roleLoading,
+    showAddAdminForm
   });
 
   const handleAddAdminSuccess = () => {
@@ -83,7 +84,10 @@ const Admin = () => {
         <div className="flex gap-2">
           <Button 
             variant="default" 
-            onClick={() => setShowAddAdminForm(true)}
+            onClick={() => {
+              console.log('Bouton Ajouter Admin cliqué');
+              setShowAddAdminForm(true);
+            }}
             className="bg-green-600 hover:bg-green-700"
           >
             <UserPlus className="mr-2 h-4 w-4" />
@@ -94,6 +98,13 @@ const Admin = () => {
             Paramètres
           </Button>
         </div>
+      </div>
+
+      {/* Debug info pour vérifier l'état */}
+      <div className="bg-blue-50 p-3 rounded text-xs text-blue-800">
+        Debug: isSuperAdmin={isSuperAdmin ? 'true' : 'false'}, 
+        userEmail={user?.email}, 
+        roleCheck={JSON.stringify(roleCheck)}
       </div>
 
       {/* Statistiques */}
@@ -131,7 +142,10 @@ const Admin = () => {
 
       <AddAdminForm
         open={showAddAdminForm}
-        onClose={() => setShowAddAdminForm(false)}
+        onClose={() => {
+          console.log('Fermeture du formulaire AddAdmin');
+          setShowAddAdminForm(false);
+        }}
         onSuccess={handleAddAdminSuccess}
       />
     </div>
