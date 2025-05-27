@@ -107,13 +107,41 @@ const Admin = () => {
   const { data: users, isLoading: usersLoading } = useQuery({
     queryKey: ['admin-users', searchTerm, user?.id],
     queryFn: async (): Promise<AdminUser[]> => {
-      let query = supabase
-        .from('profiles')
-        .select(`
-          id,
-          email,
-          created_at,
-          subscriptions (
+      console.log('Récupération des utilisateurs admin...');
+      
+      try {
+        // Récupérer tous les profils avec leurs abonnements
+        let profileQuery = supabase
+          .from('profiles')
+          .select(`
+            id,
+            email,
+            created_at
+          `)
+          .order('created_at', { ascending: false });
+
+        if (searchTerm) {
+          profileQuery = profileQuery.ilike('email', `%${searchTerm}%`);
+        }
+
+        const { data: profiles, error: profileError } = await profileQuery;
+        if (profileError) {
+          console.error('Erreur profils:', profileError);
+          throw profileError;
+        }
+
+        console.log('Profils récupérés:', profiles?.length);
+
+        if (!profiles || profiles.length === 0) {
+          return [];
+        }
+
+        // Récupérer les abonnements pour ces utilisateurs
+        const userIds = profiles.map(p => p.id);
+        const { data: subscriptions, error: subError } = await supabase
+          .from('subscriptions')
+          .select(`
+            user_id,
             status,
             is_trial,
             trial_end_date,
@@ -121,28 +149,40 @@ const Admin = () => {
             plans (
               name
             )
-          )
-        `)
-        .order('created_at', { ascending: false });
+          `)
+          .in('user_id', userIds);
 
-      if (searchTerm) {
-        query = query.ilike('email', `%${searchTerm}%`);
+        if (subError) {
+          console.warn('Erreur abonnements (non bloquante):', subError);
+        }
+
+        console.log('Abonnements récupérés:', subscriptions?.length || 0);
+
+        // Mapper les données
+        const result = profiles.map((profile: any) => {
+          const subscription = subscriptions?.find((sub: any) => sub.user_id === profile.id);
+          return {
+            id: profile.id,
+            email: profile.email,
+            created_at: profile.created_at,
+            subscription_status: subscription?.status,
+            plan_name: subscription?.plans?.name,
+            trial_end_date: subscription?.trial_end_date,
+            is_trial: subscription?.is_trial,
+            subscription_end_date: subscription?.end_date,
+          };
+        });
+
+        console.log('Utilisateurs finaux:', result.length);
+        return result;
+
+      } catch (error) {
+        console.error('Erreur dans la récupération des utilisateurs:', error);
+        throw error;
       }
-
-      const { data, error } = await query;
-      if (error) throw error;
-
-      return data.map((user: any) => ({
-        id: user.id,
-        email: user.email,
-        created_at: user.created_at,
-        subscription_status: user.subscriptions?.[0]?.status,
-        plan_name: user.subscriptions?.[0]?.plans?.name,
-        trial_end_date: user.subscriptions?.[0]?.trial_end_date,
-        is_trial: user.subscriptions?.[0]?.is_trial,
-      }));
     },
     enabled: !!user && isSuperAdmin,
+    retry: 1,
   });
 
   // Nouvelle requête pour les paiements
@@ -261,7 +301,7 @@ const Admin = () => {
 
   const getStatusBadge = (user: AdminUser) => {
     if (user.is_trial) {
-      return <Badge variant="secondary">Essai</Badge>;
+      return <Badge variant="secondary">Essai gratuit</Badge>;
     }
     if (user.subscription_status === 'active') {
       return <Badge variant="default">Actif</Badge>;
@@ -269,7 +309,7 @@ const Admin = () => {
     if (user.subscription_status === 'cancelled') {
       return <Badge variant="destructive">Annulé</Badge>;
     }
-    return <Badge variant="outline">Aucun</Badge>;
+    return <Badge variant="outline">Aucun abonnement</Badge>;
   };
 
   const getPaymentStatusBadge = (status: string) => {
@@ -412,8 +452,18 @@ const Admin = () => {
                           <td className="p-2">
                             {format(new Date(user.created_at), 'dd/MM/yyyy', { locale: fr })}
                           </td>
-                          <td className="p-2">{user.plan_name || '-'}</td>
-                          <td className="p-2">{getStatusBadge(user)}</td>
+                          <td className="p-2">{user.plan_name || 'Aucun plan'}</td>
+                          <td className="p-2">
+                            {user.is_trial ? (
+                              <Badge variant="secondary">Essai gratuit</Badge>
+                            ) : user.subscription_status === 'active' ? (
+                              <Badge variant="default">Actif</Badge>
+                            ) : user.subscription_status === 'cancelled' ? (
+                              <Badge variant="destructive">Annulé</Badge>
+                            ) : (
+                              <Badge variant="outline">Aucun abonnement</Badge>
+                            )}
+                          </td>
                           <td className="p-2">
                             {user.is_trial && user.trial_end_date
                               ? format(new Date(user.trial_end_date), 'dd/MM/yyyy', { locale: fr })

@@ -38,47 +38,73 @@ export const useUserRoles = () => {
     queryFn: async () => {
       if (!user) return [];
 
-      // Récupérer tous les rôles d'utilisateurs
-      const { data: userRoles, error: rolesError } = await supabase
-        .from('user_roles')
-        .select('*');
+      console.log('Récupération des utilisateurs avec rôles...');
 
-      if (rolesError) throw rolesError;
+      try {
+        // Récupérer tous les profils d'abord
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, email, full_name, company_name');
 
-      if (!userRoles || userRoles.length === 0) {
+        if (profilesError) {
+          console.error('Erreur lors de la récupération des profils:', profilesError);
+          throw profilesError;
+        }
+
+        console.log('Profils récupérés:', profiles?.length || 0);
+
+        // Récupérer les rôles d'utilisateurs
+        const { data: userRoles, error: rolesError } = await supabase
+          .from('user_roles')
+          .select('*');
+
+        if (rolesError) {
+          console.error('Erreur lors de la récupération des rôles:', rolesError);
+          // En cas d'erreur, retourner les profils sans rôles
+          return (profiles || []).map(profile => ({
+            id: profile.id,
+            user_id: profile.id,
+            role: 'utilisateur' as UserRole,
+            created_at: new Date().toISOString(),
+            email: profile.email,
+            full_name: profile.full_name,
+            company_name: profile.company_name,
+          }));
+        }
+
+        console.log('Rôles récupérés:', userRoles?.length || 0);
+
+        // Créer une map des rôles pour une recherche facile
+        const roleMap = new Map();
+        userRoles?.forEach(role => {
+          roleMap.set(role.user_id, role);
+        });
+
+        // Combiner tous les profils avec leurs rôles (ou rôle par défaut)
+        const result = (profiles || []).map(profile => {
+          const userRole = roleMap.get(profile.id);
+          return {
+            id: userRole?.id || profile.id,
+            user_id: profile.id,
+            role: userRole?.role || 'utilisateur' as UserRole,
+            created_at: userRole?.created_at || new Date().toISOString(),
+            email: profile.email,
+            full_name: profile.full_name,
+            company_name: profile.company_name,
+          };
+        }) as UserWithRole[];
+
+        console.log('Résultat final:', result.length, 'utilisateurs');
+        return result;
+
+      } catch (error) {
+        console.error('Erreur dans useUserRoles:', error);
         return [];
       }
-
-      // Récupérer les profils pour ces utilisateurs
-      const userIds = userRoles.map(role => role.user_id);
-      const { data: profiles, error: profilesError } = await supabase
-        .from('profiles')
-        .select('id, email, full_name, company_name')
-        .in('id', userIds);
-
-      if (profilesError) throw profilesError;
-
-      // Créer une map des profils pour une recherche facile
-      const profileMap = new Map();
-      profiles?.forEach(profile => {
-        profileMap.set(profile.id, profile);
-      });
-
-      // Combiner les rôles avec leurs profils
-      return userRoles.map(role => {
-        const profile = profileMap.get(role.user_id);
-        return {
-          id: role.id,
-          user_id: role.user_id,
-          role: role.role,
-          created_at: role.created_at,
-          email: profile?.email || null,
-          full_name: profile?.full_name || null,
-          company_name: profile?.company_name || null,
-        };
-      }) as UserWithRole[];
     },
     enabled: !!user,
+    retry: 1,
+    staleTime: 30000,
   });
 };
 
