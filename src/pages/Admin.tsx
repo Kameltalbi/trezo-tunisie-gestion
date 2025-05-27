@@ -1,49 +1,23 @@
-import React from 'react';
-import { useQuery } from '@tanstack/react-query';
 
-// Fonction pour appeler l'API intermédiaire sécurisée
-const fetchAdminUsers = async () => {
-  const res = await fetch('/api/admin-users');
-  if (!res.ok) throw new Error('Erreur lors du chargement des utilisateurs');
-  return res.json();
-};
+import React, { useState } from 'react';
+import { AdminUsersTable } from '@/components/admin/AdminUsersTable';
+import { useUserRoleCheck } from '@/hooks/useUserRoleCheck';
 
-interface AdminUsersTableProps {
-  searchTerm: string;
-  onSearchChange?: (value: string) => void;
-  isSuperAdmin: boolean;
-}
-
-export const AdminUsersTable: React.FC<AdminUsersTableProps> = ({ searchTerm, isSuperAdmin }) => {
-  const { data: users = [], isLoading, isError } = useQuery(['admin-users'], fetchAdminUsers);
-
-  if (isLoading) {
-    return <div className="text-center py-6">Chargement des utilisateurs...</div>;
-  }
-
-  if (isError) {
-    return <div className="text-center py-6 text-red-600">Erreur lors du chargement des utilisateurs.</div>;
-  }
-
-  const filteredUsers = users.filter((user: any) =>
-    user.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+const Admin = () => {
+  const [searchTerm, setSearchTerm] = useState('');
+  const { data: roleData } = useUserRoleCheck();
+  const isSuperAdmin = roleData?.isSuperAdmin || false;
 
   return (
-    <div className="space-y-4">
-      {filteredUsers.length === 0 ? (
-        <div className="text-center text-gray-500">Aucun utilisateur trouvé.</div>
-      ) : (
-        filteredUsers.map((user: any) => (
-          <div key={user.id} className="border p-4 rounded shadow-sm bg-white">
-            <p className="font-semibold">{user.email}</p>
-            <p className="text-sm text-gray-500">Créé le : {new Date(user.created_at).toLocaleDateString()}</p>
-            {isSuperAdmin && (
-              <p className="text-sm text-green-700 font-medium">(Super Admin Visible)</p>
-            )}
-          </div>
-        ))
-      )}
+    <div className="container mx-auto p-6">
+      <h1 className="text-3xl font-bold mb-6">Administration</h1>
+      <AdminUsersTable 
+        searchTerm={searchTerm}
+        onSearchChange={setSearchTerm}
+        isSuperAdmin={isSuperAdmin}
+      />
     </div>
   );
 };
+
+export default Admin;
