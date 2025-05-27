@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -6,7 +5,7 @@ import { format } from 'date-fns';
 import { Edit, Trash2, Archive, ArrowLeft } from 'lucide-react';
 import { toast } from 'sonner';
 
-import { Projet } from '@/types/parametres';
+import { Projet } from '@/types/projet';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Progress } from '@/components/ui/progress';

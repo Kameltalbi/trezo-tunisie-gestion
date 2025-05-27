@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Plus, Wallet, ArrowUp, ArrowDown, Edit, MoreHorizontal, Trash2 } from 'lucide-react';
@@ -31,13 +30,11 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { toast } from '@/hooks/use-toast';
 import { useComptesBancaires, useCreateCompteBancaire } from '@/hooks/useComptesBancaires';
-import { useDefaultDevise } from '@/hooks/useDevises';
 import { formatCurrency } from '@/lib/utils';
 
 const Comptes = () => {
   const { t } = useTranslation();
   const { data: accounts = [], isLoading } = useComptesBancaires();
-  const { data: defaultCurrency } = useDefaultDevise();
   const createCompteMutation = useCreateCompteBancaire();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -56,16 +53,10 @@ const Comptes = () => {
     banque: '',
     numero_compte: '',
     solde_initial: '',
-    devise_id: defaultCurrency?.id || ''
+    devise_id: ''
   });
 
   const formatAccountCurrency = (amount: number) => {
-    if (defaultCurrency) {
-      return new Intl.NumberFormat('fr-FR', { 
-        style: 'currency', 
-        currency: defaultCurrency.code || 'TND'
-      }).format(amount).replace(defaultCurrency.code || 'TND', defaultCurrency.symbole || 'DT');
-    }
     return formatCurrency(amount);
   };
 
@@ -77,7 +68,7 @@ const Comptes = () => {
       banque: '',
       numero_compte: '',
       solde_initial: '',
-      devise_id: defaultCurrency?.id || ''
+      devise_id: ''
     });
     setIsDialogOpen(true);
   };
@@ -93,7 +84,7 @@ const Comptes = () => {
         banque: account.banque || '',
         numero_compte: account.numero_compte || '',
         solde_initial: account.solde_initial.toString(),
-        devise_id: account.devise_id || defaultCurrency?.id || ''
+        devise_id: account.devise_id || ''
       });
     } else if (type !== 'delete') {
       setTransactionForm({
@@ -126,7 +117,7 @@ const Comptes = () => {
         numero_compte: accountForm.numero_compte,
         solde_initial: soldeInitial,
         solde_actuel: soldeInitial,
-        devise_id: accountForm.devise_id || defaultCurrency?.id,
+        devise_id: accountForm.devise_id,
         is_active: true
       });
 

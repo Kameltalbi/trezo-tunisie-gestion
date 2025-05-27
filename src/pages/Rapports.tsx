@@ -1,494 +1,438 @@
-import React, { useState } from "react";
-import { useTranslation } from "react-i18next";
-import { FileSpreadsheet, FileText, Download, File, Crown } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
-import { Input } from "@/components/ui/input";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Separator } from "@/components/ui/separator";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
-import { toast } from "sonner";
-import { Rapport } from "@/types/parametres";
-import { useUserCurrentPlan } from "@/hooks/useUserCurrentPlan";
-import { useUserLimits } from "@/hooks/useUserLimits";
-import { Alert, AlertDescription } from "@/components/ui/alert";
+import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { format } from 'date-fns';
+import { fr } from 'date-fns/locale';
+import { Calendar, FileText, Download, Plus, Filter, Eye, Trash2, MoreHorizontal } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
+import { Separator } from '@/components/ui/separator';
+import { Projet } from '@/types/projet';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
+import { DatePickerWithRange } from '@/components/ui/date-range-picker';
+import { DateRange } from 'react-day-picker';
+import { addMonths } from 'date-fns';
 
-// Mock data for reports
-const mockRapports: Rapport[] = [
+// Mocked data for reports
+const mockReports = [
   {
-    id: "1",
-    type: "tresorerie",
-    format: "pdf",
-    dateDebut: "2025-01-01",
-    dateFin: "2025-01-31"
+    id: '1',
+    name: 'Rapport financier mensuel',
+    type: 'financial',
+    dateCreated: '2023-06-15',
+    dateRange: { from: '2023-05-01', to: '2023-05-31' },
+    format: 'pdf',
+    status: 'completed',
   },
   {
-    id: "2",
-    type: "comptes",
-    format: "excel",
-    dateDebut: "2025-01-01",
-    dateFin: "2025-03-31",
-    filtre: {
-      entite: "banqueA",
-      categorie: "courant"
-    }
-  }
+    id: '2',
+    name: 'Analyse des flux de trésorerie',
+    type: 'cash_flow',
+    dateCreated: '2023-06-10',
+    dateRange: { from: '2023-01-01', to: '2023-05-31' },
+    format: 'excel',
+    status: 'completed',
+  },
+  {
+    id: '3',
+    name: 'Prévisions budgétaires',
+    type: 'forecast',
+    dateCreated: '2023-06-05',
+    dateRange: { from: '2023-06-01', to: '2023-12-31' },
+    format: 'pdf',
+    status: 'scheduled',
+  },
+  {
+    id: '4',
+    name: 'Rapport de projet - Construction Immeuble A',
+    type: 'project',
+    dateCreated: '2023-05-20',
+    dateRange: { from: '2023-01-15', to: '2023-05-15' },
+    format: 'pdf',
+    status: 'completed',
+  },
 ];
-
-// Mock data for report options
-const entitiesMock = [
-  { id: "banqueA", name: "Banque ABC" },
-  { id: "banqueB", name: "Banque XYZ" },
-  { id: "caisse", name: "Caisse Principale" }
-];
-
-const categoriesMock = {
-  tresorerie: ["Flux entrants", "Flux sortants", "Soldes"],
-  comptes: ["courant", "epargne", "credit"],
-  projets: ["actifs", "termines", "en_attente"],
-  utilisateurs: ["admin", "collaborateur"]
-};
 
 const Rapports = () => {
   const { t } = useTranslation();
-  const [reports, setReports] = useState<Rapport[]>(mockRapports);
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [isCreateDialogOpen, setIsCreateDialogOpen] = useState(false);
+  const [isDeleteDialogOpen, setIsDeleteDialogOpen] = useState(false);
+  const [selectedReport, setSelectedReport] = useState<string | null>(null);
+  const [dateRange, setDateRange] = useState<DateRange | undefined>({
+    from: new Date(),
+    to: addMonths(new Date(), 1),
+  });
+  const [newReport, setNewReport] = useState({
+    name: '',
+    type: 'financial',
+    format: 'pdf',
+    description: '',
+  });
 
-  // User plan and limits
-  const { data: userPlan, isLoading: isPlanLoading } = useUserCurrentPlan();
-  const { data: reportLimits, isLoading: isLimitsLoading } = useUserLimits('reports');
+  const handleCreateReport = () => {
+    console.log('Creating report:', {
+      ...newReport,
+      dateRange,
+    });
+    setIsCreateDialogOpen(false);
+    // In a real app, you would send this to your API
+  };
 
-  // Form state
-  const [reportType, setReportType] = useState<"tresorerie" | "comptes" | "projets" | "utilisateurs">("tresorerie");
-  const [reportFormat, setReportFormat] = useState<"pdf" | "excel">("pdf");
-  const [dateDebut, setDateDebut] = useState("");
-  const [dateFin, setDateFin] = useState("");
-  const [selectedEntity, setSelectedEntity] = useState("");
-  const [selectedCategory, setSelectedCategory] = useState("");
-
-  // Determine if user has advanced plan
-  const hasAdvancedPlan = userPlan?.plan_name !== 'basic' && userPlan?.plan_name !== null;
-  const canGenerateReports = reportLimits?.can_proceed ?? false;
-
-  // Basic plan report types (limited)
-  const basicReportTypes = ["tresorerie", "comptes"];
-  const advancedReportTypes = ["tresorerie", "comptes", "projets", "utilisateurs"];
-
-  const availableReportTypes = hasAdvancedPlan ? advancedReportTypes : basicReportTypes;
-
-  const getReportIcon = (format: "pdf" | "excel", size = 40) => {
-    return format === "pdf" ? <FileText size={size} className="text-red-500" /> : <FileSpreadsheet size={size} className="text-green-600" />;
+  const handleDeleteReport = () => {
+    console.log('Deleting report:', selectedReport);
+    setIsDeleteDialogOpen(false);
+    // In a real app, you would send this to your API
   };
 
   const getReportTypeLabel = (type: string) => {
     switch (type) {
-      case "tresorerie":
-        return t("rapports.treasury");
-      case "comptes":
-        return t("rapports.accounts");
-      case "projets":
-        return t("rapports.projects");
-      case "utilisateurs":
-        return t("rapports.users");
+      case 'financial':
+        return t('rapports.financial');
+      case 'cash_flow':
+        return t('rapports.cash_flow');
+      case 'forecast':
+        return t('rapports.forecast');
+      case 'project':
+        return t('rapports.project');
       default:
         return type;
     }
   };
 
-  const handleGenerateReport = () => {
-    if (!canGenerateReports) {
-      toast.error(t("rapports.limit_reached"));
-      return;
+  const getReportStatusBadge = (status: string) => {
+    switch (status) {
+      case 'completed':
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+            {t('rapports.completed')}
+          </span>
+        );
+      case 'scheduled':
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+            {t('rapports.scheduled')}
+          </span>
+        );
+      case 'failed':
+        return (
+          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-red-100 text-red-800">
+            {t('rapports.failed')}
+          </span>
+        );
+      default:
+        return null;
     }
-
-    // Validate
-    if (!dateDebut || !dateFin) {
-      toast.error(t("rapports.fill_all_fields"));
-      return;
-    }
-
-    // Show generating state
-    setIsGenerating(true);
-
-    // Mock API call
-    setTimeout(() => {
-      // Create new report
-      const newReport: Rapport = {
-        id: Date.now().toString(),
-        type: reportType,
-        format: reportFormat,
-        dateDebut,
-        dateFin,
-        filtre: {
-          entite: selectedEntity || undefined,
-          categorie: selectedCategory || undefined
-        },
-        url: `/mock-report-${Date.now()}.${reportFormat}`
-      };
-
-      // Add to state
-      setReports([newReport, ...reports]);
-      toast.success(t("rapports.success"));
-      setIsGenerating(false);
-    }, 1500);
   };
-
-  const handleDownload = (report: Rapport) => {
-    toast.success(`${t("rapports.download")}: ${getReportTypeLabel(report.type)} (${report.format.toUpperCase()})`);
-  };
-
-  if (isPlanLoading || isLimitsLoading) {
-    return (
-      <div className="container mx-auto py-6">
-        <div className="flex items-center justify-center h-40">
-          <div className="text-muted-foreground">Chargement...</div>
-        </div>
-      </div>
-    );
-  }
 
   return (
-    <div className="container mx-auto py-6">
-      <div className="flex items-center justify-between mb-6">
-        <div>
-          <h1 className="text-3xl font-bold tracking-tight mb-1">{t("rapports.title")}</h1>
-          <p className="text-muted-foreground">{t("rapports.description")}</p>
-        </div>
-        {!hasAdvancedPlan && (
-          <Button variant="outline" className="flex items-center gap-2">
-            <Crown className="h-4 w-4 text-yellow-500" />
-            Passer au plan avancé
+    <div className="container">
+      <h1 className="text-3xl font-bold mb-2">{t('rapports.title')}</h1>
+      <p className="text-muted-foreground mb-6">{t('rapports.description')}</p>
+
+      <div className="flex justify-between items-center mb-6">
+        <div className="flex gap-2">
+          <Button variant="outline">
+            <Filter className="mr-2 h-4 w-4" />
+            {t('rapports.filter')}
           </Button>
-        )}
-      </div>
-
-      {/* Plan limitations warning */}
-      {!hasAdvancedPlan && (
-        <Alert className="mb-6">
-          <Crown className="h-4 w-4 text-yellow-500" />
-          <AlertDescription>
-            Vous utilisez le plan de base. Certaines fonctionnalités de rapports sont limitées. 
-            Passez au plan avancé pour accéder à tous les types de rapports et options personnalisées.
-          </AlertDescription>
-        </Alert>
-      )}
-
-      <Tabs defaultValue="simple" className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
-          <TabsTrigger value="simple">Rapports simples</TabsTrigger>
-          <TabsTrigger value="advanced" disabled={!hasAdvancedPlan}>
-            Rapports personnalisés
-            {!hasAdvancedPlan && <Crown className="ml-2 h-4 w-4 text-yellow-500" />}
-          </TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="simple" className="space-y-6">
-          <div className="grid gap-6 md:grid-cols-2">
-            {/* Simple report generation */}
-            <Card>
-              <CardHeader>
-                <CardTitle>Génération rapide</CardTitle>
-                <CardDescription>Créez rapidement vos rapports essentiels</CardDescription>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="space-y-2">
-                  <Label>{t("rapports.type")}</Label>
-                  <Select value={reportType} onValueChange={(value) => setReportType(value as any)}>
-                    <SelectTrigger>
-                      <SelectValue placeholder={t("rapports.type")} />
+          <Select defaultValue="all">
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder={t('rapports.all_types')} />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">{t('rapports.all_types')}</SelectItem>
+              <SelectItem value="financial">{t('rapports.financial')}</SelectItem>
+              <SelectItem value="cash_flow">{t('rapports.cash_flow')}</SelectItem>
+              <SelectItem value="forecast">{t('rapports.forecast')}</SelectItem>
+              <SelectItem value="project">{t('rapports.project')}</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        <Dialog open={isCreateDialogOpen} onOpenChange={setIsCreateDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <Plus className="mr-2 h-4 w-4" />
+              {t('rapports.create_report')}
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="sm:max-w-[500px]">
+            <DialogHeader>
+              <DialogTitle>{t('rapports.create_new_report')}</DialogTitle>
+              <DialogDescription>
+                {t('rapports.create_report_description')}
+              </DialogDescription>
+            </DialogHeader>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="report-name">{t('rapports.report_name')}</Label>
+                <Input
+                  id="report-name"
+                  value={newReport.name}
+                  onChange={(e) => setNewReport({ ...newReport, name: e.target.value })}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label>{t('rapports.date_range')}</Label>
+                <DatePickerWithRange
+                  date={dateRange}
+                  onDateChange={setDateRange}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="grid gap-2">
+                  <Label htmlFor="report-type">{t('rapports.report_type')}</Label>
+                  <Select
+                    value={newReport.type}
+                    onValueChange={(value) => setNewReport({ ...newReport, type: value })}
+                  >
+                    <SelectTrigger id="report-type">
+                      <SelectValue placeholder={t('rapports.select_type')} />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="tresorerie">{t("rapports.treasury")}</SelectItem>
-                      <SelectItem value="comptes">{t("rapports.accounts")}</SelectItem>
-                      {!hasAdvancedPlan && (
-                        <>
-                          <SelectItem value="projets" disabled>
-                            {t("rapports.projects")} (Plan avancé)
-                          </SelectItem>
-                          <SelectItem value="utilisateurs" disabled>
-                            {t("rapports.users")} (Plan avancé)
-                          </SelectItem>
-                        </>
-                      )}
+                      <SelectItem value="financial">{t('rapports.financial')}</SelectItem>
+                      <SelectItem value="cash_flow">{t('rapports.cash_flow')}</SelectItem>
+                      <SelectItem value="forecast">{t('rapports.forecast')}</SelectItem>
+                      <SelectItem value="project">{t('rapports.project')}</SelectItem>
                     </SelectContent>
                   </Select>
                 </div>
-
-                <div className="space-y-2">
-                  <Label>{t("rapports.format")}</Label>
-                  <RadioGroup 
-                    defaultValue="pdf" 
-                    className="flex gap-4"
-                    value={reportFormat}
-                    onValueChange={(value) => setReportFormat(value as "pdf" | "excel")}
+                <div className="grid gap-2">
+                  <Label htmlFor="report-format">{t('rapports.format')}</Label>
+                  <Select
+                    value={newReport.format}
+                    onValueChange={(value) => setNewReport({ ...newReport, format: value })}
                   >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="pdf" id="pdf" />
-                      <Label htmlFor="pdf" className="flex items-center">
-                        <FileText className="mr-2 h-4 w-4 text-red-500" />
-                        {t("rapports.pdf")}
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="excel" id="excel" disabled={!hasAdvancedPlan} />
-                      <Label htmlFor="excel" className="flex items-center">
-                        <FileSpreadsheet className="mr-2 h-4 w-4 text-green-600" />
-                        {t("rapports.excel")} {!hasAdvancedPlan && "(Plan avancé)"}
-                      </Label>
-                    </div>
-                  </RadioGroup>
+                    <SelectTrigger id="report-format">
+                      <SelectValue placeholder={t('rapports.select_format')} />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="pdf">PDF</SelectItem>
+                      <SelectItem value="excel">Excel</SelectItem>
+                      <SelectItem value="csv">CSV</SelectItem>
+                    </SelectContent>
+                  </Select>
                 </div>
-
-                <div className="space-y-2">
-                  <Label>{t("rapports.period")}</Label>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <Label htmlFor="start-date" className="text-xs text-muted-foreground">{t("rapports.start_date")}</Label>
-                      <Input 
-                        id="start-date" 
-                        type="date" 
-                        value={dateDebut}
-                        onChange={(e) => setDateDebut(e.target.value)}
-                      />
-                    </div>
-                    <div>
-                      <Label htmlFor="end-date" className="text-xs text-muted-foreground">{t("rapports.end_date")}</Label>
-                      <Input 
-                        id="end-date" 
-                        type="date" 
-                        value={dateFin}
-                        onChange={(e) => setDateFin(e.target.value)}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </CardContent>
-              <CardFooter>
-                <Button 
-                  className="w-full" 
-                  onClick={handleGenerateReport}
-                  disabled={isGenerating || !canGenerateReports}
-                >
-                  {isGenerating ? t("rapports.generating") : t("rapports.generate_report")}
-                </Button>
-              </CardFooter>
-            </Card>
-
-            {/* Reports list */}
-            <div className="space-y-4">
-              <h3 className="text-lg font-medium">{t("rapports.title")}</h3>
-              
-              {reports.length > 0 ? (
-                reports.map((report) => (
-                  <Card key={report.id} className="flex">
-                    <div className="p-4 flex items-center justify-center border-r">
-                      {getReportIcon(report.format)}
-                    </div>
-                    <div className="p-4 flex-1">
-                      <h4 className="font-medium">{getReportTypeLabel(report.type)}</h4>
-                      <p className="text-sm text-muted-foreground">
-                        {new Date(report.dateDebut).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })} - {new Date(report.dateFin).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
-                      </p>
-                    </div>
-                    <div className="p-4 flex items-center">
-                      <Button variant="ghost" size="sm" onClick={() => handleDownload(report)}>
-                        <Download className="h-4 w-4" />
-                      </Button>
-                    </div>
-                  </Card>
-                ))
-              ) : (
-                <div className="text-center py-10 border rounded-lg">
-                  <File className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
-                  <h3 className="font-medium">{t("rapports.no_data")}</h3>
-                </div>
-              )}
-            </div>
-          </div>
-        </TabsContent>
-
-        <TabsContent value="advanced" className="space-y-6">
-          {hasAdvancedPlan ? (
-            <div className="grid gap-6 md:grid-cols-2">
-              {/* Advanced report generation form */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Rapports personnalisés</CardTitle>
-                  <CardDescription>Créez des rapports détaillés avec filtres avancés</CardDescription>
-                </CardHeader>
-                <CardContent className="space-y-6">
-                  <div className="space-y-2">
-                    <Label>{t("rapports.type")}</Label>
-                    <Select value={reportType} onValueChange={(value) => setReportType(value as any)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder={t("rapports.type")} />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="tresorerie">{t("rapports.treasury")}</SelectItem>
-                        <SelectItem value="comptes">{t("rapports.accounts")}</SelectItem>
-                        <SelectItem value="projets">{t("rapports.projects")}</SelectItem>
-                        <SelectItem value="utilisateurs">{t("rapports.users")}</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label>{t("rapports.format")}</Label>
-                    <RadioGroup 
-                      defaultValue="pdf" 
-                      className="flex gap-4"
-                      value={reportFormat}
-                      onValueChange={(value) => setReportFormat(value as "pdf" | "excel")}
-                    >
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="pdf" id="advanced-pdf" />
-                        <Label htmlFor="advanced-pdf" className="flex items-center">
-                          <FileText className="mr-2 h-4 w-4 text-red-500" />
-                          {t("rapports.pdf")}
-                        </Label>
-                      </div>
-                      <div className="flex items-center space-x-2">
-                        <RadioGroupItem value="excel" id="advanced-excel" />
-                        <Label htmlFor="advanced-excel" className="flex items-center">
-                          <FileSpreadsheet className="mr-2 h-4 w-4 text-green-600" />
-                          {t("rapports.excel")}
-                        </Label>
-                      </div>
-                    </RadioGroup>
-                  </div>
-
-                  <Separator />
-
-                  <div className="space-y-2">
-                    <Label>{t("rapports.period")}</Label>
-                    <div className="grid grid-cols-2 gap-4">
-                      <div>
-                        <Label htmlFor="adv-start-date" className="text-xs text-muted-foreground">{t("rapports.start_date")}</Label>
-                        <Input 
-                          id="adv-start-date" 
-                          type="date" 
-                          value={dateDebut}
-                          onChange={(e) => setDateDebut(e.target.value)}
-                        />
-                      </div>
-                      <div>
-                        <Label htmlFor="adv-end-date" className="text-xs text-muted-foreground">{t("rapports.end_date")}</Label>
-                        <Input 
-                          id="adv-end-date" 
-                          type="date" 
-                          value={dateFin}
-                          onChange={(e) => setDateFin(e.target.value)}
-                        />
-                      </div>
-                    </div>
-                  </div>
-
-                  <Accordion type="single" collapsible className="w-full">
-                    <AccordionItem value="filters">
-                      <AccordionTrigger>{t("rapports.filters")}</AccordionTrigger>
-                      <AccordionContent>
-                        <div className="space-y-4 pt-2">
-                          <div className="space-y-2">
-                            <Label>{t("rapports.entity")}</Label>
-                            <Select value={selectedEntity} onValueChange={setSelectedEntity}>
-                              <SelectTrigger>
-                                <SelectValue placeholder={t("rapports.select_entity")} />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {entitiesMock.map((entity) => (
-                                  <SelectItem key={entity.id} value={entity.id}>
-                                    {entity.name}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                          <div className="space-y-2">
-                            <Label>{t("rapports.category")}</Label>
-                            <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                              <SelectTrigger>
-                                <SelectValue placeholder={t("rapports.select_category")} />
-                              </SelectTrigger>
-                              <SelectContent>
-                                {categoriesMock[reportType]?.map((category) => (
-                                  <SelectItem key={category} value={category}>
-                                    {category}
-                                  </SelectItem>
-                                ))}
-                              </SelectContent>
-                            </Select>
-                          </div>
-                        </div>
-                      </AccordionContent>
-                    </AccordionItem>
-                  </Accordion>
-                </CardContent>
-                <CardFooter>
-                  <Button 
-                    className="w-full" 
-                    onClick={handleGenerateReport}
-                    disabled={isGenerating || !canGenerateReports}
-                  >
-                    {isGenerating ? t("rapports.generating") : t("rapports.generate_report")}
-                  </Button>
-                </CardFooter>
-              </Card>
-
-              {/* Advanced reports list */}
-              <div className="space-y-4">
-                <h3 className="text-lg font-medium">Rapports générés</h3>
-                
-                {reports.length > 0 ? (
-                  reports.map((report) => (
-                    <Card key={report.id} className="flex">
-                      <div className="p-4 flex items-center justify-center border-r">
-                        {getReportIcon(report.format)}
-                      </div>
-                      <div className="p-4 flex-1">
-                        <h4 className="font-medium">{getReportTypeLabel(report.type)}</h4>
-                        <p className="text-sm text-muted-foreground">
-                          {new Date(report.dateDebut).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })} - {new Date(report.dateFin).toLocaleDateString(undefined, { year: 'numeric', month: 'short', day: 'numeric' })}
-                        </p>
-                        {report.filtre && Object.keys(report.filtre).length > 0 && (
-                          <div className="mt-1 text-xs text-muted-foreground">
-                            {report.filtre.entite && <span className="mr-2">{report.filtre.entite}</span>}
-                            {report.filtre.categorie && <span>{report.filtre.categorie}</span>}
-                          </div>
-                        )}
-                      </div>
-                      <div className="p-4 flex items-center">
-                        <Button variant="ghost" size="sm" onClick={() => handleDownload(report)}>
-                          <Download className="h-4 w-4" />
-                        </Button>
-                      </div>
-                    </Card>
-                  ))
-                ) : (
-                  <div className="text-center py-10 border rounded-lg">
-                    <File className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
-                    <h3 className="font-medium">{t("rapports.no_data")}</h3>
-                  </div>
-                )}
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="report-description">{t('rapports.description')}</Label>
+                <Textarea
+                  id="report-description"
+                  value={newReport.description}
+                  onChange={(e) => setNewReport({ ...newReport, description: e.target.value })}
+                />
               </div>
             </div>
-          ) : (
-            <div className="text-center py-20">
-              <Crown className="mx-auto h-16 w-16 text-yellow-500 mb-4" />
-              <h3 className="text-xl font-semibold mb-2">Fonctionnalité Premium</h3>
-              <p className="text-muted-foreground mb-6">
-                Les rapports personnalisés sont disponibles avec le plan avancé
-              </p>
-              <Button className="flex items-center gap-2">
-                <Crown className="h-4 w-4" />
-                Passer au plan avancé
+            <DialogFooter>
+              <Button variant="outline" onClick={() => setIsCreateDialogOpen(false)}>
+                {t('rapports.cancel')}
+              </Button>
+              <Button onClick={handleCreateReport}>{t('rapports.create')}</Button>
+            </DialogFooter>
+          </DialogContent>
+        </Dialog>
+      </div>
+
+      <Card>
+        <CardHeader>
+          <CardTitle>{t('rapports.reports_list')}</CardTitle>
+          <CardDescription>{t('rapports.manage_reports')}</CardDescription>
+        </CardHeader>
+        <CardContent>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHead>{t('rapports.name')}</TableHead>
+                <TableHead>{t('rapports.type')}</TableHead>
+                <TableHead>{t('rapports.date_created')}</TableHead>
+                <TableHead>{t('rapports.period')}</TableHead>
+                <TableHead>{t('rapports.format')}</TableHead>
+                <TableHead>{t('rapports.status')}</TableHead>
+                <TableHead className="text-right">{t('rapports.actions')}</TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {mockReports.map((report) => (
+                <TableRow key={report.id}>
+                  <TableCell className="font-medium">
+                    <div className="flex items-center">
+                      <FileText className="mr-2 h-4 w-4 text-slate-500" />
+                      {report.name}
+                    </div>
+                  </TableCell>
+                  <TableCell>{getReportTypeLabel(report.type)}</TableCell>
+                  <TableCell>
+                    {format(new Date(report.dateCreated), 'dd/MM/yyyy')}
+                  </TableCell>
+                  <TableCell>
+                    {format(new Date(report.dateRange.from), 'dd/MM/yyyy')} - {format(new Date(report.dateRange.to), 'dd/MM/yyyy')}
+                  </TableCell>
+                  <TableCell className="uppercase">{report.format}</TableCell>
+                  <TableCell>{getReportStatusBadge(report.status)}</TableCell>
+                  <TableCell className="text-right">
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="outline" size="sm">
+                          <MoreHorizontal size={16} />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" className="w-48">
+                        <DropdownMenuItem>
+                          <Eye size={16} className="mr-2" />
+                          {t('rapports.view')}
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <Download size={16} className="mr-2" />
+                          {t('rapports.download')}
+                        </DropdownMenuItem>
+                        <AlertDialog open={isDeleteDialogOpen && selectedReport === report.id} onOpenChange={(open) => {
+                          setIsDeleteDialogOpen(open);
+                          if (!open) setSelectedReport(null);
+                        }}>
+                          <AlertDialogTrigger asChild>
+                            <DropdownMenuItem
+                              onSelect={(e) => {
+                                e.preventDefault();
+                                setSelectedReport(report.id);
+                                setIsDeleteDialogOpen(true);
+                              }}
+                              className="text-red-600"
+                            >
+                              <Trash2 size={16} className="mr-2" />
+                              {t('rapports.delete')}
+                            </DropdownMenuItem>
+                          </AlertDialogTrigger>
+                          <AlertDialogContent>
+                            <AlertDialogHeader>
+                              <AlertDialogTitle>{t('rapports.delete_report')}</AlertDialogTitle>
+                              <AlertDialogDescription>
+                                {t('rapports.delete_report_confirm')}
+                              </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            <AlertDialogFooter>
+                              <AlertDialogCancel>{t('rapports.cancel')}</AlertDialogCancel>
+                              <AlertDialogAction onClick={handleDeleteReport} className="bg-red-600 hover:bg-red-700">
+                                {t('rapports.delete')}
+                              </AlertDialogAction>
+                            </AlertDialogFooter>
+                          </AlertDialogContent>
+                        </AlertDialog>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </CardContent>
+      </Card>
+
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('rapports.quick_reports')}</CardTitle>
+            <CardDescription>{t('rapports.quick_reports_desc')}</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between p-3 border rounded-md hover:bg-accent cursor-pointer">
+              <div className="flex items-center">
+                <Calendar className="h-5 w-5 mr-3 text-blue-600" />
+                <span>{t('rapports.monthly_financial')}</span>
+              </div>
+              <Button variant="outline" size="sm">
+                <Download className="h-4 w-4 mr-1" />
+                PDF
               </Button>
             </div>
-          )}
-        </TabsContent>
-      </Tabs>
+            <div className="flex items-center justify-between p-3 border rounded-md hover:bg-accent cursor-pointer">
+              <div className="flex items-center">
+                <Calendar className="h-5 w-5 mr-3 text-green-600" />
+                <span>{t('rapports.cash_flow_analysis')}</span>
+              </div>
+              <Button variant="outline" size="sm">
+                <Download className="h-4 w-4 mr-1" />
+                Excel
+              </Button>
+            </div>
+            <div className="flex items-center justify-between p-3 border rounded-md hover:bg-accent cursor-pointer">
+              <div className="flex items-center">
+                <Calendar className="h-5 w-5 mr-3 text-amber-600" />
+                <span>{t('rapports.budget_forecast')}</span>
+              </div>
+              <Button variant="outline" size="sm">
+                <Download className="h-4 w-4 mr-1" />
+                PDF
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card>
+          <CardHeader>
+            <CardTitle>{t('rapports.scheduled_reports')}</CardTitle>
+            <CardDescription>{t('rapports.scheduled_reports_desc')}</CardDescription>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            <div className="flex items-center justify-between p-3 border rounded-md">
+              <div>
+                <p className="font-medium">{t('rapports.monthly_financial')}</p>
+                <p className="text-sm text-muted-foreground">{t('rapports.every_month')}</p>
+              </div>
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                {t('rapports.active')}
+              </span>
+            </div>
+            <div className="flex items-center justify-between p-3 border rounded-md">
+              <div>
+                <p className="font-medium">{t('rapports.quarterly_report')}</p>
+                <p className="text-sm text-muted-foreground">{t('rapports.every_quarter')}</p>
+              </div>
+              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                {t('rapports.active')}
+              </span>
+            </div>
+            <Button variant="outline" className="w-full">
+              <Plus className="mr-2 h-4 w-4" />
+              {t('rapports.schedule_new_report')}
+            </Button>
+          </CardContent>
+        </Card>
+      </div>
     </div>
   );
 };
