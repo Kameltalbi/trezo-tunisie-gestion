@@ -1,8 +1,6 @@
-
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from "@supabase/supabase-js";
-import { useAutoRegisterUser } from "@/hooks/useAutoRegisterUser";
 
 interface AuthContextType {
   user: User | null;
@@ -22,8 +20,52 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Utiliser le hook d'auto-registration
-  useAutoRegisterUser();
+  // Fonction pour auto-enregistrer l'utilisateur
+  const autoRegisterUser = async (currentUser: User) => {
+    try {
+      // Vérifier si l'utilisateur existe déjà dans users_app
+      const { data: existing, error: checkError } = await supabase
+        .from("users_app")
+        .select("id")
+        .eq("id", currentUser.id)
+        .maybeSingle();
+
+      if (existing || checkError) return;
+
+      // Chercher le plan trial
+      const { data: trialPlan, error: planError } = await supabase
+        .from("plans")
+        .select("id")
+        .eq("name", "trial")
+        .maybeSingle();
+
+      if (planError || !trialPlan) {
+        console.error("Plan 'trial' introuvable", planError);
+        return;
+      }
+
+      // Calculer la date de fin d'essai (14 jours)
+      const trialEnd = new Date();
+      trialEnd.setDate(trialEnd.getDate() + 14);
+
+      // Insérer l'utilisateur dans users_app
+      const { error: insertError } = await supabase.from("users_app").insert({
+        id: currentUser.id,
+        email: currentUser.email || "",
+        role: "user",
+        plan_id: trialPlan.id,
+        trial_end_date: trialEnd.toISOString().split("T")[0],
+      });
+
+      if (insertError) {
+        console.error("Erreur création utilisateur trial :", insertError);
+      } else {
+        console.log("Utilisateur créé avec succès avec plan trial");
+      }
+    } catch (error) {
+      console.error("Erreur dans autoRegisterUser:", error);
+    }
+  };
 
   useEffect(() => {
     // Écouter les changements d'état d'authentification
@@ -34,8 +76,13 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         setIsLoading(false);
         setError(null);
 
-        // Si un utilisateur se connecte, s'assurer que son profil existe
+        // Si un utilisateur se connecte, s'assurer que son profil existe et l'auto-enregistrer
         if (event === 'SIGNED_IN' && session?.user) {
+          // Auto-enregistrer l'utilisateur avec un petit délai
+          setTimeout(() => {
+            autoRegisterUser(session.user);
+          }, 100);
+
           setTimeout(async () => {
             try {
               const { data: existingProfile } = await supabase
