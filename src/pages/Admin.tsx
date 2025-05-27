@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
-import { Users, CreditCard, TrendingUp, Settings, CheckCircle, XCircle } from 'lucide-react';
+import { Users, CreditCard, TrendingUp, Settings, CheckCircle, XCircle, Crown } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useAuth } from '@/contexts/AuthContext';
@@ -22,6 +22,7 @@ interface AdminUser {
   trial_end_date?: string;
   subscription_end_date?: string;
   is_trial?: boolean;
+  is_superadmin?: boolean;
 }
 
 interface AdminStats {
@@ -161,15 +162,18 @@ const Admin = () => {
         // Mapper les données
         const result = profiles.map((profile: any) => {
           const subscription = subscriptions?.find((sub: any) => sub.user_id === profile.id);
+          const isSuperAdmin = profile.email === 'kamel.talbi@yahoo.fr';
+          
           return {
             id: profile.id,
             email: profile.email,
             created_at: profile.created_at,
-            subscription_status: subscription?.status,
-            plan_name: subscription?.plans?.name,
+            subscription_status: isSuperAdmin ? 'superadmin' : subscription?.status,
+            plan_name: isSuperAdmin ? 'Super Admin' : subscription?.plans?.name,
             trial_end_date: subscription?.trial_end_date,
             is_trial: subscription?.is_trial,
             subscription_end_date: subscription?.end_date,
+            is_superadmin: isSuperAdmin,
           };
         });
 
@@ -300,6 +304,12 @@ const Admin = () => {
   }
 
   const getStatusBadge = (user: AdminUser) => {
+    if (user.is_superadmin) {
+      return <Badge variant="default" className="bg-purple-600 hover:bg-purple-700">
+        <Crown className="w-3 h-3 mr-1" />
+        Super Admin
+      </Badge>;
+    }
     if (user.is_trial) {
       return <Badge variant="secondary">Essai gratuit</Badge>;
     }
@@ -448,28 +458,27 @@ const Admin = () => {
                     ) : users && users.length > 0 ? (
                       users.map((user) => (
                         <tr key={user.id} className="border-t">
-                          <td className="p-2">{user.email}</td>
+                          <td className="p-2 flex items-center gap-2">
+                            {user.is_superadmin && <Crown className="w-4 h-4 text-purple-600" />}
+                            {user.email}
+                          </td>
                           <td className="p-2">
                             {format(new Date(user.created_at), 'dd/MM/yyyy', { locale: fr })}
                           </td>
-                          <td className="p-2">{user.plan_name || 'Aucun plan'}</td>
-                          <td className="p-2">
-                            {user.is_trial ? (
-                              <Badge variant="secondary">Essai gratuit</Badge>
-                            ) : user.subscription_status === 'active' ? (
-                              <Badge variant="default">Actif</Badge>
-                            ) : user.subscription_status === 'cancelled' ? (
-                              <Badge variant="destructive">Annulé</Badge>
-                            ) : (
-                              <Badge variant="outline">Aucun abonnement</Badge>
-                            )}
+                          <td className="p-2 font-medium">
+                            {user.is_superadmin ? 'Super Admin' : (user.plan_name || 'Aucun plan')}
                           </td>
+                          <td className="p-2">{getStatusBadge(user)}</td>
                           <td className="p-2">
-                            {user.is_trial && user.trial_end_date
-                              ? format(new Date(user.trial_end_date), 'dd/MM/yyyy', { locale: fr })
-                              : user.subscription_end_date
-                              ? format(new Date(user.subscription_end_date), 'dd/MM/yyyy', { locale: fr })
-                              : '-'}
+                            {user.is_superadmin ? (
+                              <span className="text-purple-600 font-medium">∞ Permanent</span>
+                            ) : user.is_trial && user.trial_end_date ? (
+                              format(new Date(user.trial_end_date), 'dd/MM/yyyy', { locale: fr })
+                            ) : user.subscription_end_date ? (
+                              format(new Date(user.subscription_end_date), 'dd/MM/yyyy', { locale: fr })
+                            ) : (
+                              '-'
+                            )}
                           </td>
                         </tr>
                       ))
