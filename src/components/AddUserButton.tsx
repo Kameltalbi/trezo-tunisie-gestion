@@ -13,19 +13,23 @@ const AddUserButton: React.FC<AddUserButtonProps> = ({ onAdd }) => {
   const { user } = useAuth();
   const [canAddUser, setCanAddUser] = useState<boolean>(false);
   const [loading, setLoading] = useState(true);
+  const [userRole, setUserRole] = useState<string | null>(null);
 
   useEffect(() => {
     if (!user?.id) return;
 
     const checkUserQuota = async () => {
       setLoading(true);
+
       const { data: currentUser } = await supabase
         .from("users_app")
-        .select("plan_id")
+        .select("role, plan_id")
         .eq("id", user.id)
         .single();
 
-      if (!currentUser?.plan_id) {
+      setUserRole(currentUser?.role || null);
+
+      if (!currentUser?.plan_id || !['admin', 'superadmin'].includes(currentUser.role)) {
         setCanAddUser(false);
         setLoading(false);
         return;
@@ -54,10 +58,16 @@ const AddUserButton: React.FC<AddUserButtonProps> = ({ onAdd }) => {
   }, [user]);
 
   const handleClick = () => {
+    if (userRole !== 'admin' && userRole !== 'superadmin') {
+      toast("Seuls les administrateurs peuvent ajouter des utilisateurs.");
+      return;
+    }
+
     if (!canAddUser) {
       toast("Limite atteinte : vous ne pouvez pas ajouter plus d'utilisateurs avec votre plan actuel.");
       return;
     }
+
     onAdd();
   };
 
