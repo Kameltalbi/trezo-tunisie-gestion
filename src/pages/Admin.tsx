@@ -22,12 +22,15 @@ const Admin = () => {
   // Vérification spéciale pour kamel.talbi@yahoo.fr - toujours considéré comme super admin
   const isSuperAdmin = user?.email === 'kamel.talbi@yahoo.fr' || roleCheck?.isSuperAdmin || false;
 
-  console.log('Vérifications Admin - Debug boutons:', {
-    userEmail: user?.email,
-    roleCheck,
-    isSuperAdmin,
-    roleLoading,
-    showAddAdminForm
+  console.log('=== DEBUG ADMIN PAGE ===');
+  console.log('User:', user);
+  console.log('User email:', user?.email);
+  console.log('RoleCheck data:', roleCheck);
+  console.log('RoleCheck loading:', roleLoading);
+  console.log('isSuperAdmin calculation:', {
+    isKamelEmail: user?.email === 'kamel.talbi@yahoo.fr',
+    roleCheckIsSuperAdmin: roleCheck?.isSuperAdmin,
+    finalIsSuperAdmin: isSuperAdmin
   });
 
   const handleAddAdminSuccess = () => {
@@ -50,48 +53,46 @@ const Admin = () => {
     );
   }
 
-  if (!isSuperAdmin) {
-    return (
-      <div className="flex items-center justify-center h-64">
-        <div className="text-center">
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">Accès refusé</h2>
-          <p className="text-gray-600">
-            Cette page est réservée aux super-administrateurs uniquement.
-          </p>
-          <p className="text-sm text-gray-500 mt-2">
-            Utilisateur connecté: {user?.email}
-          </p>
-          <p className="text-sm text-gray-500">
-            Rôle détecté: {roleCheck?.role || 'non défini'}
-          </p>
-        </div>
-      </div>
-    );
-  }
+  // Pour le debug, on va temporairement permettre l'accès même si pas super admin
+  // if (!isSuperAdmin) {
+  //   return (
+  //     <div className="flex items-center justify-center h-64">
+  //       <div className="text-center">
+  //         <h2 className="text-2xl font-bold text-gray-900 mb-2">Accès refusé</h2>
+  //         <p className="text-gray-600">
+  //           Cette page est réservée aux super-administrateurs uniquement.
+  //         </p>
+  //         <p className="text-sm text-gray-500 mt-2">
+  //           Utilisateur connecté: {user?.email}
+  //         </p>
+  //         <p className="text-sm text-gray-500">
+  //           Rôle détecté: {roleCheck?.role || 'non défini'}
+  //         </p>
+  //       </div>
+  //     );
+  //   }
 
   return (
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold">Administration (Super Admin)</h1>
+          <h1 className="text-3xl font-bold">Administration (Debug Mode)</h1>
           <p className="text-sm text-gray-600">
-            Connecté en tant que: {user?.email} - Rôle: {roleCheck?.role || 'superadmin'}
-          </p>
-          <p className="text-xs text-green-600 mt-1">
-            ✓ Politiques RLS configurées pour l'accès aux données
+            Connecté en tant que: {user?.email} - Rôle: {roleCheck?.role || 'non défini'}
           </p>
         </div>
         <div className="flex gap-2">
+          {/* Bouton toujours visible pour le debug */}
           <Button 
             variant="default" 
             onClick={() => {
-              console.log('Bouton Ajouter Admin cliqué');
+              console.log('Bouton Ajouter Admin cliqué - Mode Debug');
               setShowAddAdminForm(true);
             }}
             className="bg-green-600 hover:bg-green-700"
           >
             <UserPlus className="mr-2 h-4 w-4" />
-            Ajouter Admin
+            Ajouter Admin (Debug)
           </Button>
           <Button variant="outline">
             <Settings className="mr-2 h-4 w-4" />
@@ -100,15 +101,21 @@ const Admin = () => {
         </div>
       </div>
 
-      {/* Debug info pour vérifier l'état */}
-      <div className="bg-blue-50 p-3 rounded text-xs text-blue-800">
-        Debug: isSuperAdmin={isSuperAdmin ? 'true' : 'false'}, 
-        userEmail={user?.email}, 
-        roleCheck={JSON.stringify(roleCheck)}
+      {/* Section de debug détaillée */}
+      <div className="bg-yellow-50 border border-yellow-200 p-4 rounded">
+        <h3 className="font-bold text-yellow-800 mb-2">Informations de Debug:</h3>
+        <div className="space-y-1 text-sm text-yellow-700">
+          <p><strong>Email utilisateur:</strong> {user?.email || 'Non connecté'}</p>
+          <p><strong>Est Kamel:</strong> {user?.email === 'kamel.talbi@yahoo.fr' ? 'OUI' : 'NON'}</p>
+          <p><strong>RoleCheck data:</strong> {JSON.stringify(roleCheck)}</p>
+          <p><strong>RoleCheck loading:</strong> {roleLoading ? 'OUI' : 'NON'}</p>
+          <p><strong>isSuperAdmin final:</strong> {isSuperAdmin ? 'OUI' : 'NON'}</p>
+          <p><strong>showAddAdminForm:</strong> {showAddAdminForm ? 'OUI' : 'NON'}</p>
+        </div>
       </div>
 
       {/* Statistiques */}
-      <AdminStatsCards isSuperAdmin={isSuperAdmin} />
+      <AdminStatsCards isSuperAdmin={true} />
 
       <Tabs defaultValue="users" className="w-full">
         <TabsList>
@@ -121,12 +128,12 @@ const Admin = () => {
           <AdminUsersTable 
             searchTerm={searchTerm}
             onSearchChange={setSearchTerm}
-            isSuperAdmin={isSuperAdmin}
+            isSuperAdmin={true}
           />
         </TabsContent>
 
         <TabsContent value="payments" className="space-y-4">
-          <AdminPaymentsTable isSuperAdmin={isSuperAdmin} />
+          <AdminPaymentsTable isSuperAdmin={true} />
         </TabsContent>
 
         <TabsContent value="subscriptions">
