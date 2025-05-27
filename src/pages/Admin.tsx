@@ -3,15 +3,17 @@ import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Settings } from 'lucide-react';
+import { Settings, UserPlus } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserRoleCheck } from '@/hooks/useUserRoleCheck';
 import { AdminStatsCards } from '@/components/admin/AdminStatsCards';
 import { AdminUsersTable } from '@/components/admin/AdminUsersTable';
 import { AdminPaymentsTable } from '@/components/admin/AdminPaymentsTable';
+import { AddAdminForm } from '@/components/admin/AddAdminForm';
 
 const Admin = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [showAddAdminForm, setShowAddAdminForm] = useState(false);
   const { user } = useAuth();
   const { data: roleCheck, isLoading: roleLoading } = useUserRoleCheck();
 
@@ -24,6 +26,11 @@ const Admin = () => {
     isSuperAdmin,
     roleLoading
   });
+
+  const handleAddAdminSuccess = () => {
+    // Cette fonction sera appelée après l'ajout réussi d'un admin
+    // pour rafraîchir la liste des utilisateurs
+  };
 
   if (roleLoading) {
     return (
@@ -66,10 +73,20 @@ const Admin = () => {
             Connecté en tant que: {user?.email} - Rôle: {roleCheck?.role || 'superadmin'}
           </p>
         </div>
-        <Button variant="outline">
-          <Settings className="mr-2 h-4 w-4" />
-          Paramètres
-        </Button>
+        <div className="flex gap-2">
+          <Button 
+            variant="default" 
+            onClick={() => setShowAddAdminForm(true)}
+            className="bg-green-600 hover:bg-green-700"
+          >
+            <UserPlus className="mr-2 h-4 w-4" />
+            Ajouter Admin
+          </Button>
+          <Button variant="outline">
+            <Settings className="mr-2 h-4 w-4" />
+            Paramètres
+          </Button>
+        </div>
       </div>
 
       {/* Statistiques */}
@@ -104,6 +121,12 @@ const Admin = () => {
           </Card>
         </TabsContent>
       </Tabs>
+
+      <AddAdminForm
+        open={showAddAdminForm}
+        onClose={() => setShowAddAdminForm(false)}
+        onSuccess={handleAddAdminSuccess}
+      />
     </div>
   );
 };

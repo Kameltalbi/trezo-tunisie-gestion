@@ -13,6 +13,7 @@ export interface AdminUser {
   subscription_end_date?: string;
   is_trial?: boolean;
   is_superadmin?: boolean;
+  role?: string;
 }
 
 export const useAdminUsers = (searchTerm: string, isSuperAdmin: boolean) => {
@@ -24,10 +25,17 @@ export const useAdminUsers = (searchTerm: string, isSuperAdmin: boolean) => {
       console.log('Récupération des utilisateurs admin...');
       
       try {
-        // D'abord récupérer tous les utilisateurs de auth.users via les profils
+        // Récupérer tous les profils avec leurs rôles
         let profileQuery = supabase
           .from('profiles')
-          .select('id, email, created_at')
+          .select(`
+            id, 
+            email, 
+            created_at,
+            user_roles (
+              role
+            )
+          `)
           .order('created_at', { ascending: false });
 
         if (searchTerm) {
@@ -42,46 +50,6 @@ export const useAdminUsers = (searchTerm: string, isSuperAdmin: boolean) => {
         }
 
         console.log('Profils récupérés:', profiles?.length || 0, profiles);
-
-        if (!profiles || profiles.length === 0) {
-          console.log('Aucun profil trouvé, tentative de récupération directe depuis auth.users');
-          
-          // Si aucun profil n'est trouvé, essayer de créer les profils manquants
-          // En récupérant d'abord les utilisateurs existants dans auth
-          const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
-          
-          if (authError) {
-            console.error('Erreur lors de la récupération des utilisateurs auth:', authError);
-          } else {
-            console.log('Utilisateurs auth trouvés:', authUsers.users.length);
-            
-            // Créer les profils manquants
-            for (const authUser of authUsers.users) {
-              const { data: existingProfile } = await supabase
-                .from('profiles')
-                .select('id')
-                .eq('id', authUser.id)
-                .single();
-              
-              if (!existingProfile) {
-                console.log('Création du profil manquant pour:', authUser.email);
-                await supabase
-                  .from('profiles')
-                  .insert({
-                    id: authUser.id,
-                    email: authUser.email,
-                    created_at: authUser.created_at
-                  });
-              }
-            }
-            
-            // Récupérer à nouveau les profils après création
-            const { data: newProfiles } = await profileQuery;
-            if (newProfiles) {
-              profiles.push(...newProfiles);
-            }
-          }
-        }
 
         if (!profiles || profiles.length === 0) {
           return [];
@@ -112,18 +80,21 @@ export const useAdminUsers = (searchTerm: string, isSuperAdmin: boolean) => {
         // Mapper les données
         const result = profiles.map((profile: any) => {
           const subscription = subscriptions?.find((sub: any) => sub.user_id === profile.id);
-          const isSuperAdmin = profile.email === 'kamel.talbi@yahoo.fr';
+          const userRole = profile.user_roles?.[0]?.role;
+          const isSuperAdmin = profile.email === 'kamel.talbi@yahoo.fr' || userRole === 'superadmin';
+          const isAdmin = userRole === 'admin';
           
           return {
             id: profile.id,
             email: profile.email,
             created_at: profile.created_at,
-            subscription_status: isSuperAdmin ? 'superadmin' : subscription?.status,
-            plan_name: isSuperAdmin ? 'Super Admin' : subscription?.plans?.name,
+            subscription_status: isSuperAdmin ? 'superadmin' : (isAdmin ? 'admin' : subscription?.status),
+            plan_name: isSuperAdmin ? 'Super Admin' : (isAdmin ? 'Admin' : subscription?.plans?.name),
             trial_end_date: subscription?.trial_end_date,
             is_trial: subscription?.is_trial,
             subscription_end_date: subscription?.end_date,
             is_superadmin: isSuperAdmin,
+            role: userRole,
           };
         });
 
@@ -137,5 +108,6 @@ export const useAdminUsers = (searchTerm: string, isSuperAdmin: boolean) => {
     },
     enabled: !!user && isSuperAdmin,
     retry: 1,
+    refetchInterval: 10000, // Rafraîchir toutes les 10 secondes
   });
 };

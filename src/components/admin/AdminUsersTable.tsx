@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Crown } from 'lucide-react';
+import { Crown, Shield } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useAdminUsers, type AdminUser } from '@/hooks/useAdminUsers';
@@ -26,6 +26,12 @@ export const AdminUsersTable: React.FC<AdminUsersTableProps> = ({
       return <Badge variant="default" className="bg-purple-600 hover:bg-purple-700">
         <Crown className="w-3 h-3 mr-1" />
         Super Admin
+      </Badge>;
+    }
+    if (user.role === 'admin') {
+      return <Badge variant="default" className="bg-blue-600 hover:bg-blue-700">
+        <Shield className="w-3 h-3 mr-1" />
+        Admin
       </Badge>;
     }
     if (user.is_trial) {
@@ -79,18 +85,21 @@ export const AdminUsersTable: React.FC<AdminUsersTableProps> = ({
                   <tr key={user.id} className="border-t">
                     <td className="p-2 flex items-center gap-2">
                       {user.is_superadmin && <Crown className="w-4 h-4 text-purple-600" />}
+                      {user.role === 'admin' && !user.is_superadmin && <Shield className="w-4 h-4 text-blue-600" />}
                       {user.email}
                     </td>
                     <td className="p-2">
                       {format(new Date(user.created_at), 'dd/MM/yyyy', { locale: fr })}
                     </td>
                     <td className="p-2 font-medium">
-                      {user.is_superadmin ? 'Super Admin' : (user.plan_name || 'Aucun plan')}
+                      {user.is_superadmin ? 'Super Admin' : (user.role === 'admin' ? 'Admin' : (user.plan_name || 'Aucun plan'))}
                     </td>
                     <td className="p-2">{getStatusBadge(user)}</td>
                     <td className="p-2">
                       {user.is_superadmin ? (
                         <span className="text-purple-600 font-medium">∞ Permanent</span>
+                      ) : user.role === 'admin' ? (
+                        <span className="text-blue-600 font-medium">∞ Permanent</span>
                       ) : user.is_trial && user.trial_end_date ? (
                         format(new Date(user.trial_end_date), 'dd/MM/yyyy', { locale: fr })
                       ) : user.subscription_end_date ? (
