@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from "@supabase/supabase-js";
@@ -100,14 +101,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     email: session.user.email,
                     full_name: session.user.user_metadata?.full_name || null,
                     company_name: session.user.user_metadata?.company_name || null,
-                  });
-
-                // Pour un nouvel utilisateur, créer un rôle utilisateur par défaut
-                await supabase
-                  .from('user_roles')
-                  .insert({
-                    user_id: session.user.id,
-                    role: 'utilisateur'
                   });
               }
             } catch (error) {

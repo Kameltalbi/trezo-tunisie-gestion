@@ -69,23 +69,9 @@ export const useInviteUser = () => {
 
       if (profileError) throw profileError;
 
-      // Créer le rôle
-      const { data: userRole, error: roleError } = await supabase
-        .from('user_roles')
-        .insert({
-          user_id: tempUserId,
-          role: role,
-        })
-        .select()
-        .single();
-
-      if (roleError) throw roleError;
-
-      return { profile, userRole };
+      return { profile };
     },
     onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['user-roles-with-profiles'] });
-      queryClient.invalidateQueries({ queryKey: ['user-permissions'] });
       queryClient.invalidateQueries({ queryKey: ['user-invitations'] });
     },
   });
