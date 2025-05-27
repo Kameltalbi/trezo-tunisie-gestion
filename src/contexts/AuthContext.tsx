@@ -2,6 +2,7 @@
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from "@supabase/supabase-js";
+import { useAutoRegisterUser } from "@/hooks/useAutoRegisterUser";
 
 interface AuthContextType {
   user: User | null;
@@ -20,6 +21,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [session, setSession] = useState<Session | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  // Utiliser le hook d'auto-registration
+  useAutoRegisterUser();
 
   useEffect(() => {
     // Écouter les changements d'état d'authentification

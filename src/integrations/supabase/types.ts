@@ -573,16 +573,20 @@ export type Database = {
           advanced_features: Json | null
           created_at: string
           currency: string
+          duration_days: number | null
           duration_months: number
           features: Json | null
           id: string
           is_active: boolean | null
+          label: string | null
           max_bank_accounts: number | null
           max_projects: number | null
           max_reports_per_month: number | null
           max_transactions_per_month: number | null
+          max_users: number | null
           name: string
           price: number
+          support_level: string | null
           trial_days: number | null
           trial_enabled: boolean | null
           updated_at: string
@@ -591,16 +595,20 @@ export type Database = {
           advanced_features?: Json | null
           created_at?: string
           currency?: string
+          duration_days?: number | null
           duration_months?: number
           features?: Json | null
           id?: string
           is_active?: boolean | null
+          label?: string | null
           max_bank_accounts?: number | null
           max_projects?: number | null
           max_reports_per_month?: number | null
           max_transactions_per_month?: number | null
+          max_users?: number | null
           name: string
           price: number
+          support_level?: string | null
           trial_days?: number | null
           trial_enabled?: boolean | null
           updated_at?: string
@@ -609,16 +617,20 @@ export type Database = {
           advanced_features?: Json | null
           created_at?: string
           currency?: string
+          duration_days?: number | null
           duration_months?: number
           features?: Json | null
           id?: string
           is_active?: boolean | null
+          label?: string | null
           max_bank_accounts?: number | null
           max_projects?: number | null
           max_reports_per_month?: number | null
           max_transactions_per_month?: number | null
+          max_users?: number | null
           name?: string
           price?: number
+          support_level?: string | null
           trial_days?: number | null
           trial_enabled?: boolean | null
           updated_at?: string
@@ -1040,6 +1052,51 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "user_current_plan"
             referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      users_app: {
+        Row: {
+          created_at: string | null
+          email: string
+          id: string
+          plan: string | null
+          plan_id: string | null
+          role: string | null
+          trial_end_date: string | null
+        }
+        Insert: {
+          created_at?: string | null
+          email: string
+          id: string
+          plan?: string | null
+          plan_id?: string | null
+          role?: string | null
+          trial_end_date?: string | null
+        }
+        Update: {
+          created_at?: string | null
+          email?: string
+          id?: string
+          plan?: string | null
+          plan_id?: string | null
+          role?: string | null
+          trial_end_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "users_app_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "user_current_plan"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "users_app_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
           },
         ]
       }
