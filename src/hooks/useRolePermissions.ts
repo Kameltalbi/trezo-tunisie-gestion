@@ -13,7 +13,7 @@ export interface Permission {
 
 export interface RolePermission {
   id: string;
-  role: string;
+  role_id: string | null;
   permission_id: string;
   granted: boolean;
   permission: Permission;
@@ -37,7 +37,7 @@ export const useRolePermissions = () => {
       // Mapper les données - si l'enregistrement existe, la permission est accordée
       return (data || []).map(item => ({
         id: item.id,
-        role: item.role,
+        role_id: item.role_id,
         permission_id: item.permission_id,
         granted: true, // Si l'enregistrement existe, la permission est accordée
         permission: item.permission as Permission
@@ -67,13 +67,13 @@ export const useUpdateRolePermission = () => {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async ({ role, permissionId, granted }: { role: string; permissionId: string; granted: boolean }) => {
+    mutationFn: async ({ roleId, permissionId, granted }: { roleId: string; permissionId: string; granted: boolean }) => {
       if (granted) {
         // Ajouter la permission (insérer l'enregistrement)
         const { data, error } = await supabase
           .from('role_permissions')
           .insert({
-            role: role as any,
+            role_id: roleId,
             permission_id: permissionId
           })
           .select()
@@ -86,7 +86,7 @@ export const useUpdateRolePermission = () => {
         const { data, error } = await supabase
           .from('role_permissions')
           .delete()
-          .eq('role', role as any)
+          .eq('role_id', roleId)
           .eq('permission_id', permissionId)
           .select()
           .maybeSingle();
