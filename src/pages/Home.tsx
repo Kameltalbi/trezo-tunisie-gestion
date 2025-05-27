@@ -67,7 +67,7 @@ const Home = () => {
             </div>
             <div>
               <img
-                src="/lovable-uploads/83bfd5fc-af11-41e7-bd04-ada29ad2b294.png"
+                src="/lovable-uploads/4a8d58f1-f6be-4700-b29a-87480126f34c.png"
                 alt="Tableau de bord Trézo"
                 className="rounded-lg shadow-lg w-full h-auto"
               />
