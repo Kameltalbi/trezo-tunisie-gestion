@@ -14,23 +14,20 @@ export const useUserRoleCheck = () => {
         return { role: null, isSuperAdmin: false };
       }
 
-      console.log('=== useUserRoleCheck APRES NETTOYAGE ===');
+      console.log('=== useUserRoleCheck ===');
       console.log('User:', user.email);
 
       // Vérification spéciale pour kamel.talbi@yahoo.fr
       if (user.email === 'kamel.talbi@yahoo.fr') {
         console.log('Utilisateur Kamel détecté - SuperAdmin automatique');
         
-        // Recréer le rôle superadmin
+        // Recréer le rôle superadmin avec upsert
         try {
           await supabase
             .from('user_roles')
-            .insert({ user_id: user.id, role: 'superadmin' })
-            .on('conflict', () => {
-              // Ignorer si le rôle existe déjà
-            });
+            .upsert({ user_id: user.id, role: 'superadmin' }, { onConflict: 'user_id,role' });
         } catch (err) {
-          console.log('Rôle superadmin probablement déjà existant ou créé');
+          console.log('Erreur lors de la création du rôle superadmin:', err);
         }
         
         return { role: 'superadmin', isSuperAdmin: true };
@@ -57,7 +54,7 @@ export const useUserRoleCheck = () => {
           try {
             const { data: newRoleData, error: insertError } = await supabase
               .from('user_roles')
-              .insert({ user_id: user.id, role: 'utilisateur' })
+              .upsert({ user_id: user.id, role: 'utilisateur' }, { onConflict: 'user_id,role' })
               .select('role')
               .single();
             
