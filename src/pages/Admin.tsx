@@ -111,14 +111,10 @@ const Admin = () => {
       console.log('Récupération des utilisateurs admin...');
       
       try {
-        // Récupérer tous les profils avec leurs abonnements
+        // D'abord récupérer tous les utilisateurs de auth.users via les profils
         let profileQuery = supabase
           .from('profiles')
-          .select(`
-            id,
-            email,
-            created_at
-          `)
+          .select('id, email, created_at')
           .order('created_at', { ascending: false });
 
         if (searchTerm) {
@@ -126,12 +122,53 @@ const Admin = () => {
         }
 
         const { data: profiles, error: profileError } = await profileQuery;
+        
         if (profileError) {
-          console.error('Erreur profils:', profileError);
+          console.error('Erreur lors de la récupération des profils:', profileError);
           throw profileError;
         }
 
-        console.log('Profils récupérés:', profiles?.length);
+        console.log('Profils récupérés:', profiles?.length || 0, profiles);
+
+        if (!profiles || profiles.length === 0) {
+          console.log('Aucun profil trouvé, tentative de récupération directe depuis auth.users');
+          
+          // Si aucun profil n'est trouvé, essayer de créer les profils manquants
+          // En récupérant d'abord les utilisateurs existants dans auth
+          const { data: authUsers, error: authError } = await supabase.auth.admin.listUsers();
+          
+          if (authError) {
+            console.error('Erreur lors de la récupération des utilisateurs auth:', authError);
+          } else {
+            console.log('Utilisateurs auth trouvés:', authUsers.users.length);
+            
+            // Créer les profils manquants
+            for (const authUser of authUsers.users) {
+              const { data: existingProfile } = await supabase
+                .from('profiles')
+                .select('id')
+                .eq('id', authUser.id)
+                .single();
+              
+              if (!existingProfile) {
+                console.log('Création du profil manquant pour:', authUser.email);
+                await supabase
+                  .from('profiles')
+                  .insert({
+                    id: authUser.id,
+                    email: authUser.email,
+                    created_at: authUser.created_at
+                  });
+              }
+            }
+            
+            // Récupérer à nouveau les profils après création
+            const { data: newProfiles } = await profileQuery;
+            if (newProfiles) {
+              profiles.push(...newProfiles);
+            }
+          }
+        }
 
         if (!profiles || profiles.length === 0) {
           return [];
@@ -177,7 +214,7 @@ const Admin = () => {
           };
         });
 
-        console.log('Utilisateurs finaux:', result.length);
+        console.log('Utilisateurs finaux:', result.length, result);
         return result;
 
       } catch (error) {
