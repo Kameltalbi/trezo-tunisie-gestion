@@ -65,7 +65,7 @@ const RolePermissionsTable = () => {
   const grantedPermissions = new Set(
     rolePermissions
       .filter(rp => rp.granted)
-      .map(rp => `${rp.role}-${rp.permission_id}`)
+      .map(rp => `${rp.role_id}-${rp.permission_id}`)
   );
 
   const isPermissionGranted = (role: string, permissionId: string) => {
@@ -74,7 +74,7 @@ const RolePermissionsTable = () => {
 
   const handlePermissionChange = async (role: string, permissionId: string, granted: boolean) => {
     try {
-      await updateRolePermissionMutation.mutateAsync({ role, permissionId, granted });
+      await updateRolePermissionMutation.mutateAsync({ roleId: role, permissionId, granted });
       toast({
         description: granted ? `Permission accordée à ${getRoleDisplayName(role)}` : `Permission révoquée à ${getRoleDisplayName(role)}`
       });
