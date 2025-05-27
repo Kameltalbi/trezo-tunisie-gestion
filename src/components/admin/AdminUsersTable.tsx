@@ -3,7 +3,7 @@ import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
-import { Crown, Shield } from 'lucide-react';
+import { Crown, Shield, User } from 'lucide-react';
 import { format } from 'date-fns';
 import { fr } from 'date-fns/locale';
 import { useAdminUsers, type AdminUser } from '@/hooks/useAdminUsers';
@@ -19,7 +19,7 @@ export const AdminUsersTable: React.FC<AdminUsersTableProps> = ({
   onSearchChange,
   isSuperAdmin
 }) => {
-  const { data: users, isLoading: usersLoading } = useAdminUsers(searchTerm, isSuperAdmin);
+  const { data: users, isLoading: usersLoading, error } = useAdminUsers(searchTerm, isSuperAdmin);
 
   const getStatusBadge = (user: AdminUser) => {
     if (user.is_superadmin) {
@@ -34,17 +34,15 @@ export const AdminUsersTable: React.FC<AdminUsersTableProps> = ({
         Admin
       </Badge>;
     }
-    if (user.is_trial) {
-      return <Badge variant="secondary">Essai gratuit</Badge>;
-    }
-    if (user.subscription_status === 'active') {
-      return <Badge variant="default">Actif</Badge>;
-    }
-    if (user.subscription_status === 'cancelled') {
-      return <Badge variant="destructive">Annulé</Badge>;
-    }
-    return <Badge variant="outline">Aucun abonnement</Badge>;
+    return <Badge variant="outline">
+      <User className="w-3 h-3 mr-1" />
+      Utilisateur
+    </Badge>;
   };
+
+  if (error) {
+    console.error('Erreur AdminUsersTable:', error);
+  }
 
   return (
     <Card>
@@ -63,6 +61,12 @@ export const AdminUsersTable: React.FC<AdminUsersTableProps> = ({
             className="max-w-sm"
           />
         </div>
+
+        {error && (
+          <div className="p-4 text-center text-red-600 bg-red-50 rounded-md mb-4">
+            Erreur lors du chargement des utilisateurs: {error.message}
+          </div>
+        )}
 
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
@@ -86,13 +90,14 @@ export const AdminUsersTable: React.FC<AdminUsersTableProps> = ({
                     <td className="p-2 flex items-center gap-2">
                       {user.is_superadmin && <Crown className="w-4 h-4 text-purple-600" />}
                       {user.role === 'admin' && !user.is_superadmin && <Shield className="w-4 h-4 text-blue-600" />}
+                      {user.role === 'utilisateur' && <User className="w-4 h-4 text-gray-600" />}
                       {user.email}
                     </td>
                     <td className="p-2">
                       {format(new Date(user.created_at), 'dd/MM/yyyy', { locale: fr })}
                     </td>
                     <td className="p-2 font-medium">
-                      {user.is_superadmin ? 'Super Admin' : (user.role === 'admin' ? 'Admin' : (user.plan_name || 'Aucun plan'))}
+                      {user.is_superadmin ? 'Super Admin' : (user.role === 'admin' ? 'Admin' : 'Utilisateur')}
                     </td>
                     <td className="p-2">{getStatusBadge(user)}</td>
                     <td className="p-2">
@@ -100,12 +105,8 @@ export const AdminUsersTable: React.FC<AdminUsersTableProps> = ({
                         <span className="text-purple-600 font-medium">∞ Permanent</span>
                       ) : user.role === 'admin' ? (
                         <span className="text-blue-600 font-medium">∞ Permanent</span>
-                      ) : user.is_trial && user.trial_end_date ? (
-                        format(new Date(user.trial_end_date), 'dd/MM/yyyy', { locale: fr })
-                      ) : user.subscription_end_date ? (
-                        format(new Date(user.subscription_end_date), 'dd/MM/yyyy', { locale: fr })
                       ) : (
-                        '-'
+                        <span className="text-gray-600">Standard</span>
                       )}
                     </td>
                   </tr>
@@ -120,6 +121,12 @@ export const AdminUsersTable: React.FC<AdminUsersTableProps> = ({
             </tbody>
           </table>
         </div>
+        
+        {users && users.length > 0 && (
+          <div className="mt-4 text-sm text-gray-600">
+            Total: {users.length} utilisateur{users.length > 1 ? 's' : ''}
+          </div>
+        )}
       </CardContent>
     </Card>
   );

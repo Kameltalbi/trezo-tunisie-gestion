@@ -14,16 +14,29 @@ export const useUserRoleCheck = () => {
         return { role: null, isSuperAdmin: false };
       }
 
-      console.log('=== useUserRoleCheck SIMPLIFIE ===');
+      console.log('=== useUserRoleCheck APRES NETTOYAGE ===');
       console.log('User:', user.email);
 
       // Vérification spéciale pour kamel.talbi@yahoo.fr
       if (user.email === 'kamel.talbi@yahoo.fr') {
         console.log('Utilisateur Kamel détecté - SuperAdmin automatique');
+        
+        // Recréer le rôle superadmin
+        try {
+          await supabase
+            .from('user_roles')
+            .insert({ user_id: user.id, role: 'superadmin' })
+            .on('conflict', () => {
+              // Ignorer si le rôle existe déjà
+            });
+        } catch (err) {
+          console.log('Rôle superadmin probablement déjà existant ou créé');
+        }
+        
         return { role: 'superadmin', isSuperAdmin: true };
       }
 
-      // Pour les autres utilisateurs, essayer de récupérer le rôle
+      // Pour les autres utilisateurs, vérifier ou créer un rôle utilisateur
       try {
         const { data, error } = await supabase
           .from('user_roles')
@@ -33,30 +46,30 @@ export const useUserRoleCheck = () => {
 
         if (error) {
           console.error('Erreur lors de la vérification du rôle:', error);
-          return { role: 'admin', isSuperAdmin: false };
+          return { role: 'utilisateur', isSuperAdmin: false };
         }
 
         let role = data?.role;
         
-        // Si pas de rôle trouvé, créer un rôle admin pour le nouvel utilisateur
+        // Si pas de rôle trouvé, créer un rôle utilisateur
         if (!role) {
-          console.log('Aucun rôle trouvé, création d\'un rôle admin pour le nouvel utilisateur');
+          console.log('Aucun rôle trouvé, création d\'un rôle utilisateur');
           try {
             const { data: newRoleData, error: insertError } = await supabase
               .from('user_roles')
-              .insert({ user_id: user.id, role: 'admin' })
+              .insert({ user_id: user.id, role: 'utilisateur' })
               .select('role')
               .single();
             
             if (!insertError && newRoleData) {
               role = newRoleData.role;
             } else {
-              console.error('Erreur lors de la création du rôle admin:', insertError);
-              role = 'admin'; // Fallback
+              console.error('Erreur lors de la création du rôle utilisateur:', insertError);
+              role = 'utilisateur'; // Fallback
             }
           } catch (insertErr) {
             console.error('Erreur catch lors de la création du rôle:', insertErr);
-            role = 'admin'; // Fallback
+            role = 'utilisateur'; // Fallback
           }
         }
 
@@ -70,7 +83,7 @@ export const useUserRoleCheck = () => {
         };
       } catch (error) {
         console.error('Erreur catch dans useUserRoleCheck:', error);
-        return { role: 'admin', isSuperAdmin: false };
+        return { role: 'utilisateur', isSuperAdmin: false };
       }
     },
     enabled: !!user,
