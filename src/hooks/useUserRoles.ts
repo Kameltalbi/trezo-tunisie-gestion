@@ -36,7 +36,7 @@ export const useUserRoles = () => {
   
   return useQuery({
     queryKey: ['user-roles-with-profiles', user?.id],
-    queryFn: async (): Promise<UserWithRole[]> => {
+    queryFn: async () => {
       if (!user) return [];
 
       console.log('Récupération des utilisateurs avec rôles...');
@@ -76,14 +76,14 @@ export const useUserRoles = () => {
         console.log('Rôles récupérés:', userRoles?.length || 0);
 
         // Créer une map des rôles pour une recherche facile
-        const roleMap = new Map<string, any>();
+        const roleMap: Record<string, any> = {};
         userRoles?.forEach(role => {
-          roleMap.set(role.user_id, role);
+          roleMap[role.user_id] = role;
         });
 
         // Combiner tous les profils avec leurs rôles (ou rôle par défaut)
-        const result: UserWithRole[] = (profiles || []).map(profile => {
-          const userRole = roleMap.get(profile.id);
+        const result = (profiles || []).map(profile => {
+          const userRole = roleMap[profile.id];
           return {
             id: userRole?.id || profile.id,
             user_id: profile.id,
@@ -112,7 +112,7 @@ export const useUserRoles = () => {
 export const usePermissions = () => {
   return useQuery({
     queryKey: ['permissions'],
-    queryFn: async (): Promise<Permission[]> => {
+    queryFn: async () => {
       const { data, error } = await supabase
         .from('permissions')
         .select('*')
@@ -136,7 +136,7 @@ export const useRolePermissions = (role?: UserRole) => {
           *,
           permission:permissions(*)
         `)
-        .eq('role', role);
+        .eq('role_id', role);
 
       if (error) throw error;
       return data || [];
