@@ -3,7 +3,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Settings as SettingsIcon, Users, Building2, Shield, Currency } from 'lucide-react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import UsersManagement from '@/components/settings/UsersManagement';
 import PermissionsSection from '@/components/settings/PermissionsSection';
 import AccountInformation from '@/components/settings/AccountInformation';
@@ -12,11 +12,19 @@ import CurrencySettings from '@/components/settings/CurrencySettings';
 import EntrepriseForm from '@/components/forms/EntrepriseForm';
 
 const Settings = () => {
-  const { user } = useAuth();
   const [activeTab, setActiveTab] = useState('users');
+  const { data: currentUser, isLoading } = useCurrentUser();
+
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+        <div className="text-gray-500">Chargement...</div>
+      </div>
+    );
+  }
 
   // Vérifier si l'utilisateur a accès aux paramètres (admin ou superadmin)
-  const hasAccess = user?.email === 'kamel.talbi@yahoo.fr'; // Pour l'instant, seul kamel a accès
+  const hasAccess = currentUser?.role === 'admin' || currentUser?.role === 'superadmin';
 
   if (!hasAccess) {
     return (
@@ -36,7 +44,7 @@ const Settings = () => {
     );
   }
 
-  const isSuperAdmin = user?.email === 'kamel.talbi@yahoo.fr';
+  const isSuperAdmin = currentUser?.role === 'superadmin';
 
   return (
     <div className="min-h-screen bg-gray-50">

@@ -1,4 +1,5 @@
-import React, { useState } from 'react';
+
+import React, { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
@@ -21,22 +22,14 @@ import {
   Save,
   ArrowLeft
 } from 'lucide-react';
-import { useToast } from "@/hooks/use-toast";
-
-interface Permission {
-  id: string;
-  label: string;
-  icon: React.ComponentType<{ className?: string }>;
-  description: string;
-  enabled: boolean;
-}
+import { useUserPermissions, useUserGlobalPermissions, useUpdateUserPermissions } from '@/hooks/usePermissions';
 
 interface User {
   id: string;
-  name: string;
+  full_name: string;
   email: string;
   role: string;
-  status: 'active' | 'suspended';
+  is_active: boolean;
 }
 
 interface PermissionsManagementProps {
@@ -46,117 +39,128 @@ interface PermissionsManagementProps {
   isSection?: boolean;
 }
 
+const availableRoutes = [
+  {
+    id: 'dashboard',
+    route: '/dashboard',
+    label: 'Dashboard principal',
+    icon: BarChart3,
+    description: 'Accès au tableau de bord et aux métriques'
+  },
+  {
+    id: 'cash_flow',
+    route: '/cash-flow',
+    label: 'Flux de trésorerie',
+    icon: DollarSign,
+    description: 'Consultation et gestion des flux de trésorerie'
+  },
+  {
+    id: 'accounts',
+    route: '/comptes',
+    label: 'Comptes bancaires',
+    icon: Building2,
+    description: 'Gestion des comptes bancaires'
+  },
+  {
+    id: 'transactions',
+    route: '/transactions',
+    label: 'Transactions',
+    icon: CreditCard,
+    description: 'Historique et gestion des transactions'
+  },
+  {
+    id: 'encaissements',
+    route: '/encaissements',
+    label: 'Recettes prévues',
+    icon: TrendingUp,
+    description: 'Gestion des encaissements prévisionnels'
+  },
+  {
+    id: 'depenses',
+    route: '/depenses',
+    label: 'Dépenses prévues',
+    icon: TrendingDown,
+    description: 'Gestion des décaissements prévisionnels'
+  },
+  {
+    id: 'debt_management',
+    route: '/debt-management',
+    label: 'Gestion des dettes',
+    icon: Briefcase,
+    description: 'Suivi des créances et dettes'
+  },
+  {
+    id: 'projects',
+    route: '/projets',
+    label: 'Projets',
+    icon: Briefcase,
+    description: 'Gestion des projets et budgets'
+  },
+  {
+    id: 'objectives',
+    route: '/objectifs',
+    label: 'Objectifs',
+    icon: Target,
+    description: 'Définition et suivi des objectifs'
+  },
+  {
+    id: 'reports',
+    route: '/rapports',
+    label: 'Rapports',
+    icon: FileText,
+    description: 'Génération et consultation des rapports'
+  },
+  {
+    id: 'settings',
+    route: '/settings',
+    label: 'Paramètres',
+    icon: Settings,
+    description: 'Accès aux paramètres du compte'
+  }
+];
+
 const PermissionsManagement = ({ user, open, onOpenChange, isSection = false }: PermissionsManagementProps) => {
-  const { toast } = useToast();
-
-  const [permissions, setPermissions] = useState<Permission[]>([
-    {
-      id: 'dashboard',
-      label: 'Dashboard principal',
-      icon: BarChart3,
-      description: 'Accès au tableau de bord et aux métriques',
-      enabled: true
-    },
-    {
-      id: 'cash_flow',
-      label: 'Flux de trésorerie',
-      icon: DollarSign,
-      description: 'Consultation et gestion des flux de trésorerie',
-      enabled: true
-    },
-    {
-      id: 'accounts',
-      label: 'Comptes bancaires',
-      icon: Building2,
-      description: 'Gestion des comptes bancaires',
-      enabled: true
-    },
-    {
-      id: 'transactions',
-      label: 'Transactions',
-      icon: CreditCard,
-      description: 'Historique et gestion des transactions',
-      enabled: true
-    },
-    {
-      id: 'encaissements',
-      label: 'Recettes prévues',
-      icon: TrendingUp,
-      description: 'Gestion des encaissements prévisionnels',
-      enabled: true
-    },
-    {
-      id: 'decaissements',
-      label: 'Dépenses prévues',
-      icon: TrendingDown,
-      description: 'Gestion des décaissements prévisionnels',
-      enabled: true
-    },
-    {
-      id: 'debt_management',
-      label: 'Gestion des dettes',
-      icon: Briefcase,
-      description: 'Suivi des créances et dettes',
-      enabled: false
-    },
-    {
-      id: 'projects',
-      label: 'Projets',
-      icon: Briefcase,
-      description: 'Gestion des projets et budgets',
-      enabled: true
-    },
-    {
-      id: 'objectives',
-      label: 'Objectifs',
-      icon: Target,
-      description: 'Définition et suivi des objectifs',
-      enabled: true
-    },
-    {
-      id: 'reports',
-      label: 'Rapports',
-      icon: FileText,
-      description: 'Génération et consultation des rapports',
-      enabled: false
-    },
-    {
-      id: 'subscription',
-      label: 'Abonnement',
-      icon: CreditCard,
-      description: 'Gestion de l\'abonnement',
-      enabled: false
-    },
-    {
-      id: 'settings',
-      label: 'Paramètres',
-      icon: Settings,
-      description: 'Accès aux paramètres du compte',
-      enabled: false
-    }
-  ]);
-
+  const [permissions, setPermissions] = useState<Record<string, boolean>>({});
   const [canDelete, setCanDelete] = useState(false);
 
-  const togglePermission = (permissionId: string) => {
-    setPermissions(prev => 
-      prev.map(permission => 
-        permission.id === permissionId 
-          ? { ...permission, enabled: !permission.enabled }
-          : permission
-      )
-    );
+  const { data: userPermissions } = useUserPermissions(user.id);
+  const { data: globalPermissions } = useUserGlobalPermissions(user.id);
+  const updatePermissionsMutation = useUpdateUserPermissions();
+
+  useEffect(() => {
+    if (userPermissions) {
+      const permMap = {};
+      availableRoutes.forEach(route => {
+        const userPerm = userPermissions.find(p => p.route === route.route);
+        permMap[route.id] = userPerm?.can_access ?? true;
+      });
+      setPermissions(permMap);
+    }
+  }, [userPermissions]);
+
+  useEffect(() => {
+    if (globalPermissions) {
+      setCanDelete(globalPermissions.can_delete);
+    }
+  }, [globalPermissions]);
+
+  const togglePermission = (routeId: string) => {
+    setPermissions(prev => ({
+      ...prev,
+      [routeId]: !prev[routeId]
+    }));
   };
 
-  const handleSavePermissions = () => {
-    console.log('Saving permissions for user:', user.id, {
-      permissions: permissions.filter(p => p.enabled).map(p => p.id),
-      canDelete
-    });
+  const handleSavePermissions = async () => {
+    const permissionsArray = availableRoutes.map(route => ({
+      route: route.route,
+      can_access: permissions[route.id] ?? true
+    }));
 
-    toast({
-      title: "Permissions mises à jour",
-      description: `Les permissions de ${user.name} ont été sauvegardées avec succès.`,
+    await updatePermissionsMutation.mutateAsync({
+      userId: user.id,
+      permissions: permissionsArray,
+      globalPermissions: { can_delete: canDelete }
     });
 
     onOpenChange(false);
@@ -164,6 +168,7 @@ const PermissionsManagement = ({ user, open, onOpenChange, isSection = false }: 
 
   const getRoleBadge = (role: string) => {
     const variants = {
+      'superadmin': { className: 'bg-purple-100 text-purple-800', text: 'Superadmin' },
       'admin': { className: 'bg-blue-100 text-blue-800', text: 'Admin' },
       'financier': { className: 'bg-green-100 text-green-800', text: 'Financier' },
       'editeur': { className: 'bg-orange-100 text-orange-800', text: 'Éditeur' },
@@ -174,10 +179,10 @@ const PermissionsManagement = ({ user, open, onOpenChange, isSection = false }: 
     return <Badge className={config.className}>{config.text}</Badge>;
   };
 
-  const getStatusBadge = (status: string) => {
-    return status === 'active' 
+  const getStatusBadge = (isActive: boolean) => {
+    return isActive 
       ? <Badge className="bg-green-100 text-green-800">Actif</Badge>
-      : <Badge className="bg-red-100 text-red-800">Suspendu</Badge>;
+      : <Badge className="bg-red-100 text-red-800">Inactif</Badge>;
   };
 
   const content = (
@@ -193,17 +198,17 @@ const PermissionsManagement = ({ user, open, onOpenChange, isSection = false }: 
         <CardContent>
           <div className="flex items-center justify-between">
             <div className="space-y-1">
-              <p className="font-medium text-lg">{user.name}</p>
+              <p className="font-medium text-lg">{user.full_name}</p>
               <p className="text-gray-600">{user.email}</p>
             </div>
             <div className="flex gap-2">
               {getRoleBadge(user.role)}
-              {getStatusBadge(user.status)}
+              {getStatusBadge(user.is_active)}
             </div>
           </div>
           <div className="mt-4 p-3 bg-blue-50 rounded-md">
             <p className="text-sm text-blue-700">
-              Définissez précisément ce que <strong>{user.name}</strong> est autorisé à consulter ou modifier.
+              Définissez précisément ce que <strong>{user.full_name}</strong> est autorisé à consulter ou modifier.
             </p>
           </div>
         </CardContent>
@@ -219,23 +224,23 @@ const PermissionsManagement = ({ user, open, onOpenChange, isSection = false }: 
         </CardHeader>
         <CardContent>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {permissions.map((permission) => {
-              const IconComponent = permission.icon;
+            {availableRoutes.map((route) => {
+              const IconComponent = route.icon;
               return (
                 <div
-                  key={permission.id}
+                  key={route.id}
                   className="flex items-center justify-between p-4 border rounded-lg hover:bg-gray-50"
                 >
                   <div className="flex items-center gap-3">
                     <IconComponent className="h-5 w-5 text-gray-600" />
                     <div>
-                      <p className="font-medium">{permission.label}</p>
-                      <p className="text-sm text-gray-500">{permission.description}</p>
+                      <p className="font-medium">{route.label}</p>
+                      <p className="text-sm text-gray-500">{route.description}</p>
                     </div>
                   </div>
                   <Switch
-                    checked={permission.enabled}
-                    onCheckedChange={() => togglePermission(permission.id)}
+                    checked={permissions[route.id] ?? true}
+                    onCheckedChange={() => togglePermission(route.id)}
                   />
                 </div>
               );
@@ -286,10 +291,11 @@ const PermissionsManagement = ({ user, open, onOpenChange, isSection = false }: 
         </Button>
         <Button
           onClick={handleSavePermissions}
+          disabled={updatePermissionsMutation.isPending}
           className="flex items-center gap-2"
         >
           <Save className="h-4 w-4" />
-          Enregistrer les permissions
+          {updatePermissionsMutation.isPending ? 'Enregistrement...' : 'Enregistrer les permissions'}
         </Button>
       </div>
     </div>
@@ -301,7 +307,7 @@ const PermissionsManagement = ({ user, open, onOpenChange, isSection = false }: 
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
             <Shield className="h-5 w-5" />
-            Gérer les permissions - {user.name}
+            Gérer les permissions - {user.full_name}
           </CardTitle>
         </CardHeader>
         <CardContent>

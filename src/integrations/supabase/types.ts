@@ -9,6 +9,51 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      accounts: {
+        Row: {
+          activation_date: string | null
+          created_at: string | null
+          currency_code: string | null
+          currency_symbol: string | null
+          id: string
+          name: string
+          plan_id: string
+          status: string
+          trial_end_date: string | null
+          trial_start_date: string | null
+          updated_at: string | null
+          valid_until: string | null
+        }
+        Insert: {
+          activation_date?: string | null
+          created_at?: string | null
+          currency_code?: string | null
+          currency_symbol?: string | null
+          id?: string
+          name: string
+          plan_id?: string
+          status?: string
+          trial_end_date?: string | null
+          trial_start_date?: string | null
+          updated_at?: string | null
+          valid_until?: string | null
+        }
+        Update: {
+          activation_date?: string | null
+          created_at?: string | null
+          currency_code?: string | null
+          currency_symbol?: string | null
+          id?: string
+          name?: string
+          plan_id?: string
+          status?: string
+          trial_end_date?: string | null
+          trial_start_date?: string | null
+          updated_at?: string | null
+          valid_until?: string | null
+        }
+        Relationships: []
+      }
       comptes_bancaires: {
         Row: {
           banque: string
@@ -216,6 +261,7 @@ export type Database = {
       }
       entreprises: {
         Row: {
+          account_id: string | null
           adresse: string | null
           capital: number | null
           created_at: string
@@ -233,6 +279,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          account_id?: string | null
           adresse?: string | null
           capital?: number | null
           created_at?: string
@@ -250,6 +297,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          account_id?: string | null
           adresse?: string | null
           capital?: number | null
           created_at?: string
@@ -266,7 +314,15 @@ export type Database = {
           updated_at?: string
           user_id?: string
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "entreprises_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       flux_tresorerie: {
         Row: {
@@ -433,74 +489,83 @@ export type Database = {
       }
       payment_proofs: {
         Row: {
+          account_id: string | null
           admin_notes: string | null
           amount: number
-          approved_at: string | null
-          approved_by: string | null
-          created_at: string
-          currency: string
+          created_at: string | null
+          currency: string | null
+          file_url: string | null
           id: string
+          notes: string | null
           payment_method: string
-          plan_id: string
-          proof_file_url: string | null
+          plan: string
           reference_info: string | null
           status: string
-          updated_at: string
-          user_id: string
+          submitted_at: string | null
+          updated_at: string | null
+          user_id: string | null
+          validated_at: string | null
+          validated_by: string | null
         }
         Insert: {
+          account_id?: string | null
           admin_notes?: string | null
           amount: number
-          approved_at?: string | null
-          approved_by?: string | null
-          created_at?: string
-          currency?: string
+          created_at?: string | null
+          currency?: string | null
+          file_url?: string | null
           id?: string
+          notes?: string | null
           payment_method: string
-          plan_id: string
-          proof_file_url?: string | null
+          plan: string
           reference_info?: string | null
           status?: string
-          updated_at?: string
-          user_id: string
+          submitted_at?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          validated_at?: string | null
+          validated_by?: string | null
         }
         Update: {
+          account_id?: string | null
           admin_notes?: string | null
           amount?: number
-          approved_at?: string | null
-          approved_by?: string | null
-          created_at?: string
-          currency?: string
+          created_at?: string | null
+          currency?: string | null
+          file_url?: string | null
           id?: string
+          notes?: string | null
           payment_method?: string
-          plan_id?: string
-          proof_file_url?: string | null
+          plan?: string
           reference_info?: string | null
           status?: string
-          updated_at?: string
-          user_id?: string
+          submitted_at?: string | null
+          updated_at?: string | null
+          user_id?: string | null
+          validated_at?: string | null
+          validated_by?: string | null
         }
         Relationships: [
           {
-            foreignKeyName: "payment_proofs_approved_by_fkey"
-            columns: ["approved_by"]
+            foreignKeyName: "payment_proofs_account_id_fkey"
+            columns: ["account_id"]
             isOneToOne: false
-            referencedRelation: "user_current_plan"
-            referencedColumns: ["user_id"]
-          },
-          {
-            foreignKeyName: "payment_proofs_plan_id_fkey"
-            columns: ["plan_id"]
-            isOneToOne: false
-            referencedRelation: "plans"
+            referencedRelation: "accounts"
             referencedColumns: ["id"]
           },
           {
             foreignKeyName: "payment_proofs_user_id_fkey"
             columns: ["user_id"]
             isOneToOne: false
-            referencedRelation: "user_current_plan"
-            referencedColumns: ["user_id"]
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_proofs_validated_by_fkey"
+            columns: ["validated_by"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -568,6 +633,41 @@ export type Database = {
             isOneToOne: false
             referencedRelation: "user_current_plan"
             referencedColumns: ["user_id"]
+          },
+        ]
+      }
+      permissions: {
+        Row: {
+          can_access: boolean | null
+          created_at: string | null
+          id: string
+          route: string
+          updated_at: string | null
+          user_id: string | null
+        }
+        Insert: {
+          can_access?: boolean | null
+          created_at?: string | null
+          id?: string
+          route: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          can_access?: boolean | null
+          created_at?: string | null
+          id?: string
+          route?: string
+          updated_at?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "permissions_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "users"
+            referencedColumns: ["id"]
           },
         ]
       }
@@ -926,6 +1026,83 @@ export type Database = {
           },
         ]
       }
+      user_permissions_globales: {
+        Row: {
+          can_delete: boolean | null
+          created_at: string | null
+          updated_at: string | null
+          user_id: string
+        }
+        Insert: {
+          can_delete?: boolean | null
+          created_at?: string | null
+          updated_at?: string | null
+          user_id: string
+        }
+        Update: {
+          can_delete?: boolean | null
+          created_at?: string | null
+          updated_at?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_permissions_globales_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: true
+            referencedRelation: "users"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      users: {
+        Row: {
+          account_id: string | null
+          created_at: string | null
+          email: string | null
+          full_name: string | null
+          id: string
+          is_active: boolean | null
+          role: string
+          updated_at: string | null
+        }
+        Insert: {
+          account_id?: string | null
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id: string
+          is_active?: boolean | null
+          role?: string
+          updated_at?: string | null
+        }
+        Update: {
+          account_id?: string | null
+          created_at?: string | null
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          is_active?: boolean | null
+          role?: string
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "users_account_id_fkey"
+            columns: ["account_id"]
+            isOneToOne: false
+            referencedRelation: "accounts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "users_id_fkey"
+            columns: ["id"]
+            isOneToOne: true
+            referencedRelation: "user_current_plan"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
     }
     Views: {
       user_current_plan: {
@@ -952,6 +1129,14 @@ export type Database = {
       check_user_limits: {
         Args: { _user_id: string; _limit_type: string }
         Returns: Json
+      }
+      get_user_account_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
+      get_user_role: {
+        Args: Record<PropertyKey, never>
+        Returns: string
       }
       increment_usage: {
         Args: { _user_id: string; _usage_type: string }
