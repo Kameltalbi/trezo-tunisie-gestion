@@ -6,7 +6,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Loader2, Building2 } from "lucide-react";
 import { toast } from "sonner";
 
@@ -17,20 +16,21 @@ const EntrepriseForm = () => {
   
   const [formData, setFormData] = React.useState<Partial<Entreprise>>({
     nom: '',
-    secteur_activite: '',
-    taille_entreprise: '',
     adresse: '',
     telephone: '',
     email: '',
-    siret: '',
     tva: '',
-    forme_juridique: '',
-    capital: 0,
   });
 
   React.useEffect(() => {
     if (entreprise) {
-      setFormData(entreprise);
+      setFormData({
+        nom: entreprise.nom,
+        adresse: entreprise.adresse,
+        telephone: entreprise.telephone,
+        email: entreprise.email,
+        tva: entreprise.tva,
+      });
     }
   }, [entreprise]);
 
@@ -50,13 +50,6 @@ const EntrepriseForm = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: name === 'capital' ? Number(value) : value
-    }));
-  };
-
-  const handleSelectChange = (name: string, value: string) => {
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -94,42 +87,14 @@ const EntrepriseForm = () => {
             </div>
             
             <div>
-              <Label htmlFor="secteur_activite">Secteur d'activité</Label>
+              <Label htmlFor="email">Email</Label>
               <Input
-                id="secteur_activite"
-                name="secteur_activite"
-                value={formData.secteur_activite || ''}
+                id="email"
+                name="email"
+                type="email"
+                value={formData.email || ''}
                 onChange={handleChange}
-                placeholder="Ex: Commerce, Industrie, Services..."
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="taille_entreprise">Taille de l'entreprise</Label>
-              <Select 
-                value={formData.taille_entreprise || ''} 
-                onValueChange={(value) => handleSelectChange('taille_entreprise', value)}
-              >
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionnez la taille" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="1-10">1-10 employés</SelectItem>
-                  <SelectItem value="11-50">11-50 employés</SelectItem>
-                  <SelectItem value="51-200">51-200 employés</SelectItem>
-                  <SelectItem value="200+">200+ employés</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-
-            <div>
-              <Label htmlFor="forme_juridique">Forme juridique</Label>
-              <Input
-                id="forme_juridique"
-                name="forme_juridique"
-                value={formData.forme_juridique || ''}
-                onChange={handleChange}
-                placeholder="Ex: SARL, SAS, Auto-entrepreneur..."
+                placeholder="contact@entreprise.com"
               />
             </div>
 
@@ -157,29 +122,6 @@ const EntrepriseForm = () => {
             </div>
 
             <div>
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                name="email"
-                type="email"
-                value={formData.email || ''}
-                onChange={handleChange}
-                placeholder="contact@entreprise.com"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="siret">SIRET</Label>
-              <Input
-                id="siret"
-                name="siret"
-                value={formData.siret || ''}
-                onChange={handleChange}
-                placeholder="12345678901234"
-              />
-            </div>
-
-            <div>
               <Label htmlFor="tva">TVA</Label>
               <Input
                 id="tva"
@@ -187,18 +129,6 @@ const EntrepriseForm = () => {
                 value={formData.tva || ''}
                 onChange={handleChange}
                 placeholder="FR12345678901"
-              />
-            </div>
-
-            <div>
-              <Label htmlFor="capital">Capital (€)</Label>
-              <Input
-                id="capital"
-                name="capital"
-                type="number"
-                value={formData.capital || ''}
-                onChange={handleChange}
-                placeholder="10000"
               />
             </div>
           </div>

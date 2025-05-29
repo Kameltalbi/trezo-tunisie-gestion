@@ -8,16 +8,11 @@ export interface Entreprise {
   id: string;
   user_id: string;
   nom: string;
-  secteur_activite?: string;
-  taille_entreprise?: string;
   adresse?: string;
   telephone?: string;
   email?: string;
-  siret?: string;
   tva?: string;
   logo_url?: string;
-  forme_juridique?: string;
-  capital?: number;
   devise_id?: string;
   created_at: string;
   updated_at: string;

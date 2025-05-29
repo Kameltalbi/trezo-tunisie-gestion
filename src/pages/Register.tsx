@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
@@ -7,7 +8,6 @@ import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2, Eye, EyeOff, CheckCircle, Building2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 
@@ -17,15 +17,12 @@ const Register = () => {
     email: "",
     password: "",
     confirmPassword: "",
-    // Informations entreprise
+    // Informations entreprise simplifiées
     nomEntreprise: "",
-    secteurActivite: "",
-    tailleEntreprise: "",
     adresseEntreprise: "",
     telephoneEntreprise: "",
     emailEntreprise: "",
-    siret: "",
-    formeJuridique: ""
+    tva: ""
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -35,13 +32,6 @@ const Register = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
-    setFormData(prev => ({
-      ...prev,
-      [name]: value
-    }));
-  };
-
-  const handleSelectChange = (name: string, value: string) => {
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -106,13 +96,10 @@ const Register = () => {
           .insert({
             user_id: authData.user.id,
             nom: formData.nomEntreprise,
-            secteur_activite: formData.secteurActivite || null,
-            taille_entreprise: formData.tailleEntreprise || null,
             adresse: formData.adresseEntreprise || null,
             telephone: formData.telephoneEntreprise || null,
             email: formData.emailEntreprise || null,
-            siret: formData.siret || null,
-            forme_juridique: formData.formeJuridique || null
+            tva: formData.tva || null
           });
 
         if (entrepriseError) {
@@ -297,7 +284,7 @@ const Register = () => {
                 </div>
               </div>
 
-              {/* Section Informations entreprise */}
+              {/* Section Informations entreprise simplifiée */}
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900 border-b pb-2 flex items-center gap-2">
                   <Building2 className="h-5 w-5" />
@@ -319,43 +306,14 @@ const Register = () => {
                   </div>
                   
                   <div className="space-y-2">
-                    <Label htmlFor="secteurActivite">Secteur d'activité</Label>
+                    <Label htmlFor="emailEntreprise">Email entreprise</Label>
                     <Input
-                      id="secteurActivite"
-                      name="secteurActivite"
-                      type="text"
-                      value={formData.secteurActivite}
+                      id="emailEntreprise"
+                      name="emailEntreprise"
+                      type="email"
+                      value={formData.emailEntreprise}
                       onChange={handleChange}
-                      placeholder="Ex: Commerce, Industrie, Services..."
-                    />
-                  </div>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="tailleEntreprise">Taille de l'entreprise</Label>
-                    <Select onValueChange={(value) => handleSelectChange('tailleEntreprise', value)}>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Sélectionnez la taille" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="1-10">1-10 employés</SelectItem>
-                        <SelectItem value="11-50">11-50 employés</SelectItem>
-                        <SelectItem value="51-200">51-200 employés</SelectItem>
-                        <SelectItem value="200+">200+ employés</SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="formeJuridique">Forme juridique</Label>
-                    <Input
-                      id="formeJuridique"
-                      name="formeJuridique"
-                      type="text"
-                      value={formData.formeJuridique}
-                      onChange={handleChange}
-                      placeholder="Ex: SARL, SAS, Auto-entrepreneur..."
+                      placeholder="contact@entreprise.com"
                     />
                   </div>
                 </div>
@@ -372,7 +330,7 @@ const Register = () => {
                   />
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="telephoneEntreprise">Téléphone</Label>
                     <Input
@@ -386,26 +344,14 @@ const Register = () => {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="emailEntreprise">Email entreprise</Label>
+                    <Label htmlFor="tva">TVA</Label>
                     <Input
-                      id="emailEntreprise"
-                      name="emailEntreprise"
-                      type="email"
-                      value={formData.emailEntreprise}
-                      onChange={handleChange}
-                      placeholder="contact@entreprise.com"
-                    />
-                  </div>
-
-                  <div className="space-y-2">
-                    <Label htmlFor="siret">SIRET</Label>
-                    <Input
-                      id="siret"
-                      name="siret"
+                      id="tva"
+                      name="tva"
                       type="text"
-                      value={formData.siret}
+                      value={formData.tva}
                       onChange={handleChange}
-                      placeholder="12345678901234"
+                      placeholder="FR12345678901"
                     />
                   </div>
                 </div>
