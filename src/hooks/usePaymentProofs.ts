@@ -5,19 +5,22 @@ import { useAuth } from "@/contexts/AuthContext";
 
 export interface PaymentProof {
   id: string;
+  account_id: string;
   user_id: string;
-  plan_id: string;
+  plan: string;
   amount: number;
   currency: string;
   payment_method: 'bank_transfer' | 'check';
-  proof_file_url?: string;
+  file_url?: string;
   reference_info?: string;
-  status: 'pending' | 'approved' | 'rejected';
+  status: 'pending' | 'accepted' | 'rejected';
+  notes?: string;
   admin_notes?: string;
+  submitted_at: string;
+  validated_at?: string;
+  validated_by?: string;
   created_at: string;
   updated_at: string;
-  approved_by?: string;
-  approved_at?: string;
 }
 
 export const usePaymentProofs = () => {
@@ -46,14 +49,24 @@ export const useCreatePaymentProof = () => {
   const { user } = useAuth();
   
   return useMutation({
-    mutationFn: async (data: Omit<PaymentProof, 'id' | 'user_id' | 'status' | 'created_at' | 'updated_at'>) => {
+    mutationFn: async (data: Omit<PaymentProof, 'id' | 'account_id' | 'user_id' | 'status' | 'created_at' | 'updated_at' | 'submitted_at' | 'validated_at' | 'validated_by'>) => {
       if (!user) throw new Error('User not authenticated');
+      
+      // Récupérer l'account_id de l'utilisateur
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('account_id')
+        .eq('id', user.id)
+        .single();
+      
+      if (userError) throw userError;
       
       const { data: result, error } = await supabase
         .from('payment_proofs')
         .insert({
           ...data,
           user_id: user.id,
+          account_id: userData.account_id,
         })
         .select()
         .single();

@@ -7,7 +7,7 @@ export interface NewPaymentProof {
   id: string;
   account_id: string;
   uploaded_by: string;
-  plan_id: string;
+  plan: string;
   file_url?: string;
   status: 'pending' | 'accepted' | 'rejected';
   notes?: string;
@@ -31,17 +31,17 @@ export const useNewPaymentProofs = () => {
       
       if (error) throw error;
       
-      // Adapter les données existantes au nouveau format
+      // Adapter les données de la base vers le format NewPaymentProof
       return data.map(proof => ({
         id: proof.id,
-        account_id: proof.user_id, // Utiliser user_id comme account_id temporairement
+        account_id: proof.account_id,
         uploaded_by: proof.user_id,
-        plan_id: proof.plan_id,
-        file_url: proof.proof_file_url,
+        plan: proof.plan,
+        file_url: proof.file_url,
         status: proof.status as 'pending' | 'accepted' | 'rejected',
-        notes: proof.admin_notes,
-        submitted_at: proof.created_at,
-        validated_at: proof.approved_at
+        notes: proof.notes,
+        submitted_at: proof.submitted_at,
+        validated_at: proof.validated_at
       })) as NewPaymentProof[];
     },
     enabled: !!user,
@@ -60,12 +60,13 @@ export const useCreateNewPaymentProof = () => {
         .from('payment_proofs')
         .insert({
           user_id: user.id,
-          plan_id: data.plan_id,
+          account_id: data.account_id,
+          plan: data.plan,
           amount: 0, // Sera déterminé côté serveur basé sur le plan
-          currency: 'DT',
+          currency: 'TND',
           payment_method: 'bank_transfer',
-          proof_file_url: data.file_url,
-          reference_info: data.notes,
+          file_url: data.file_url,
+          notes: data.notes,
         })
         .select()
         .single();
