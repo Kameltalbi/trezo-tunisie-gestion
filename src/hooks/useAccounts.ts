@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -20,17 +19,32 @@ export interface Account {
 }
 
 export const useAccounts = () => {
+  const { user } = useAuth();
+  
   return useQuery({
     queryKey: ['accounts'],
     queryFn: async () => {
+      console.log('Fetching accounts for user:', user?.email);
+      
+      // Vérifier si l'utilisateur est superadmin
+      if (user?.email !== 'kamel.talbi@yahoo.fr') {
+        throw new Error('Accès non autorisé');
+      }
+
       const { data, error } = await supabase
         .from('accounts')
         .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Erreur lors de la récupération des comptes:', error);
+        throw error;
+      }
+
+      console.log('Comptes récupérés:', data);
       return data as Account[];
     },
+    enabled: !!user && user?.email === 'kamel.talbi@yahoo.fr',
   });
 };
 

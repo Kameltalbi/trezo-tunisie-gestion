@@ -5,13 +5,22 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Building2, Edit, CheckCircle, XCircle, Trash2, Loader2 } from 'lucide-react';
+import { Building2, Edit, CheckCircle, XCircle, Trash2, Loader2, AlertCircle } from 'lucide-react';
 import { useAccounts } from '@/hooks/useAccounts';
+import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
 const AccountsManagement = () => {
   const [selectedAccount, setSelectedAccount] = useState(null);
+  const { user } = useAuth();
   const { data: accounts, isLoading, error } = useAccounts();
+
+  console.log('AccountsManagement - Debug:', {
+    userEmail: user?.email,
+    accountsData: accounts,
+    isLoading,
+    error: error?.message
+  });
 
   const getStatusBadge = (status: string) => {
     const variants = {
@@ -64,6 +73,7 @@ const AccountsManagement = () => {
   }
 
   if (error) {
+    console.error('Erreur dans AccountsManagement:', error);
     return (
       <Card>
         <CardHeader>
@@ -73,8 +83,15 @@ const AccountsManagement = () => {
           </CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="text-center text-red-600">
-            Erreur lors du chargement des comptes
+          <div className="flex items-center justify-center h-32 text-red-600">
+            <div className="text-center">
+              <AlertCircle className="h-8 w-8 mx-auto mb-2" />
+              <p className="font-medium">Erreur lors du chargement des comptes</p>
+              <p className="text-sm text-gray-500 mt-1">{error.message}</p>
+              <p className="text-xs text-gray-400 mt-1">
+                Utilisateur: {user?.email || 'Non connecté'}
+              </p>
+            </div>
           </div>
         </CardContent>
       </Card>
@@ -149,7 +166,11 @@ const AccountsManagement = () => {
           </div>
         ) : (
           <div className="text-center py-8 text-gray-500">
-            Aucun compte trouvé
+            <Building2 className="h-12 w-12 mx-auto mb-4 text-gray-300" />
+            <p className="text-lg font-medium">Aucun compte trouvé</p>
+            <p className="text-sm text-gray-400 mt-1">
+              Les comptes clients apparaîtront ici une fois créés.
+            </p>
           </div>
         )}
       </CardContent>
