@@ -1,4 +1,3 @@
-
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -75,8 +74,6 @@ const Home = () => {
           </div>
         </div>
       </section>
-
-      {/* ... keep existing code (features section) */}
 
       {/* Features Section */}
       <section id="features" className="py-20 bg-gray-50">
@@ -187,131 +184,213 @@ const Home = () => {
       {/* Pricing Section */}
       <section id="pricing" className="py-20 bg-gray-50">
         <div className="container mx-auto px-4">
-          <h2 className="text-3xl font-semibold text-center text-gray-900 mb-12">
-            {t('home.pricing')}
-          </h2>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-            {/* Free Trial Plan */}
-            <Card>
-              <CardHeader className="text-center">
-                <CardTitle className="text-2xl font-semibold">{t('home.free_trial')}</CardTitle>
-                <CardDescription>
-                  {t('home.free_trial_desc')}
-                </CardDescription>
-                <div className="mt-4">
-                  <Badge variant="secondary">
-                    <Check className="h-4 w-4 mr-2" />
-                    {t('home.fourteen_days_trial')}
+          <div className="text-center mb-16">
+            <h2 className="text-4xl font-bold text-gray-900 mb-4">
+              Tarification transparente
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Choisissez le plan qui correspond le mieux aux besoins de votre entreprise
+            </p>
+          </div>
+          
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
+            {/* Plan Essai Gratuit */}
+            <Card className="relative bg-white border border-gray-200 shadow-lg hover:shadow-xl transition-shadow duration-300 rounded-2xl">
+              <CardHeader className="text-center pb-6">
+                <div className="mb-4">
+                  <Badge variant="secondary" className="bg-green-100 text-green-700 border-green-200">
+                    Essai de 14 jours
                   </Badge>
                 </div>
-              </CardHeader>
-              <CardContent className="text-center">
-                <div className="text-4xl font-bold text-gray-900 mb-4">
-                  {t('home.free')}
+                <CardTitle className="text-2xl font-bold text-gray-900 mb-2">
+                  Essai Gratuit
+                </CardTitle>
+                <div className="mb-2">
+                  <span className="text-5xl font-bold text-gray-900">0</span>
+                  <span className="text-xl text-gray-500 ml-1">DT</span>
                 </div>
-                <div className="text-sm text-emerald-600 mb-4">{t('home.fourteen_days_trial_full')}</div>
-                <ul className="text-sm text-gray-600 space-y-2 text-left">
-                  <li>✓ {t('home.complete_dashboard')}</li>
-                  <li>✓ {t('home.income_management')}</li>
-                  <li>✓ {t('home.expense_tracking')}</li>
-                  <li>✓ {t('home.two_bank_accounts_max')}</li>
-                  <li>✓ {t('home.three_projects_max')}</li>
-                  <li>✓ {t('home.basic_financial_goals')}</li>
-                  <li>✓ {t('home.community_support')}</li>
+                <CardDescription className="text-gray-600">
+                  Découvrez toutes nos fonctionnalités gratuitement
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="px-6 pb-6">
+                <ul className="space-y-4">
+                  <li className="flex items-center">
+                    <Check className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">Tableau de bord complet</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Check className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">Gestion des revenus et dépenses</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Check className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">2 comptes bancaires</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Check className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">3 projets</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Check className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">Objectifs financiers de base</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Check className="h-5 w-5 text-green-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">Support communautaire</span>
+                  </li>
                 </ul>
               </CardContent>
-              <CardFooter className="text-center">
+              <CardFooter className="px-6 pb-8">
                 <Link to="/register" className="w-full">
-                  <Button className="w-full">
-                    {t('home.start_free_trial')}
+                  <Button className="w-full bg-green-600 hover:bg-green-700 text-white py-3 text-lg font-semibold rounded-xl">
+                    Commencer l'essai gratuit
                   </Button>
                 </Link>
               </CardFooter>
             </Card>
 
-            {/* Pro Plan */}
-            <Card className="border-emerald-500 border-2 relative">
-              <div className="absolute -top-3 left-1/2 transform -translate-x-1/2">
-                <Badge className="bg-emerald-500 text-white">
-                  {t('home.most_popular')}
+            {/* Plan Pro - Most Popular */}
+            <Card className="relative bg-white border-2 border-orange-500 shadow-xl hover:shadow-2xl transition-shadow duration-300 rounded-2xl transform lg:scale-105">
+              <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+                <Badge className="bg-orange-500 text-white px-4 py-2 text-sm font-semibold">
+                  Recommandé
                 </Badge>
               </div>
-              <CardHeader className="text-center">
-                <CardTitle className="text-2xl font-semibold">{t('home.pro')}</CardTitle>
-                <CardDescription>
-                  {t('home.pro_desc')}
+              <CardHeader className="text-center pb-6 pt-8">
+                <CardTitle className="text-2xl font-bold text-gray-900 mb-2">
+                  Pro
+                </CardTitle>
+                <div className="mb-2">
+                  <span className="text-5xl font-bold text-gray-900">450</span>
+                  <span className="text-xl text-gray-500 ml-1">DT / an</span>
+                </div>
+                <CardDescription className="text-gray-600">
+                  Pour les entreprises en croissance
                 </CardDescription>
-                <div className="mt-4">
-                  <Badge variant="outline">
-                    <Check className="h-4 w-4 mr-2" />
-                    {t('home.advanced_features')}
-                  </Badge>
-                </div>
               </CardHeader>
-              <CardContent className="text-center">
-                <div className="text-4xl font-bold text-gray-900 mb-2">
-                  450 DT
-                </div>
-                <div className="text-sm text-gray-500 mb-4">{t('home.per_year')}</div>
-                <ul className="text-sm text-gray-600 space-y-2 text-left">
-                  <li>✓ {t('home.all_trial_features')}</li>
-                  <li>✓ {t('home.three_bank_accounts')}</li>
-                  <li>✓ {t('home.ten_projects_per_year')}</li>
-                  <li>✓ {t('home.cash_flow_forecasts')}</li>
-                  <li>✓ {t('home.debt_management')}</li>
-                  <li>✓ {t('home.pdf_excel_reports')}</li>
-                  <li>✓ {t('home.unlimited_financial_goals')}</li>
-                  <li>✓ {t('home.email_support')}</li>
+              <CardContent className="px-6 pb-6">
+                <ul className="space-y-4">
+                  <li className="flex items-center">
+                    <Check className="h-5 w-5 text-orange-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">Toutes les fonctionnalités de l'essai</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Check className="h-5 w-5 text-orange-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">3 comptes bancaires</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Check className="h-5 w-5 text-orange-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">10 projets</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Check className="h-5 w-5 text-orange-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">Suivi de trésorerie & prévisions</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Check className="h-5 w-5 text-orange-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">Gestion des dettes</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Check className="h-5 w-5 text-orange-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">Objectifs illimités</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Check className="h-5 w-5 text-orange-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">Exports PDF / Excel</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Check className="h-5 w-5 text-orange-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">Support par email</span>
+                  </li>
                 </ul>
               </CardContent>
-              <CardFooter className="text-center">
-                <Link to="/checkout" className="w-full">
-                  <Button className="w-full">
-                    {t('home.choose_pro')}
+              <CardFooter className="px-6 pb-8">
+                <Link to="/subscription" className="w-full">
+                  <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 text-lg font-semibold rounded-xl">
+                    Choisir Pro
                   </Button>
                 </Link>
               </CardFooter>
             </Card>
 
-            {/* Enterprise Plan */}
-            <Card>
-              <CardHeader className="text-center">
-                <CardTitle className="text-2xl font-semibold">{t('home.enterprise')}</CardTitle>
-                <CardDescription>
-                  {t('home.enterprise_desc')}
-                </CardDescription>
-                <div className="mt-4">
-                  <Badge variant="outline">
-                    <Check className="h-4 w-4 mr-2" />
-                    {t('home.custom_solutions')}
+            {/* Plan Entreprise */}
+            <Card className="relative bg-white border border-gray-200 shadow-lg hover:shadow-xl transition-shadow duration-300 rounded-2xl">
+              <CardHeader className="text-center pb-6">
+                <div className="mb-4">
+                  <Badge variant="outline" className="border-blue-500 text-blue-700">
+                    Pour les PME
                   </Badge>
                 </div>
-              </CardHeader>
-              <CardContent className="text-center">
-                <div className="text-4xl font-bold text-gray-900 mb-2">
-                  599 DT
+                <CardTitle className="text-2xl font-bold text-gray-900 mb-2">
+                  Entreprise
+                </CardTitle>
+                <div className="mb-2">
+                  <span className="text-5xl font-bold text-gray-900">599</span>
+                  <span className="text-xl text-gray-500 ml-1">DT / an</span>
                 </div>
-                <div className="text-sm text-gray-500 mb-4">{t('home.per_year')}</div>
-                <ul className="text-sm text-gray-600 space-y-2 text-left">
-                  <li>✓ {t('home.all_pro_features')}</li>
-                  <li>✓ {t('home.multi_users_up_to_seven')}</li>
-                  <li>✓ {t('home.advanced_administration')}</li>
-                  <li>✓ {t('home.role_permission_management')}</li>
-                  <li>✓ {t('home.custom_reports')}</li>
-                  <li>✓ {t('home.automatic_backup')}</li>
-                  <li>✓ {t('home.priority_support')}</li>
-                  <li>✓ {t('home.personalized_training')}</li>
-                  <li>✓ {t('home.dedicated_advisor')}</li>
+                <CardDescription className="text-gray-600">
+                  Solution complète pour équipes
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="px-6 pb-6">
+                <ul className="space-y-4">
+                  <li className="flex items-center">
+                    <Check className="h-5 w-5 text-blue-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">Toutes les fonctionnalités du plan Pro</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Check className="h-5 w-5 text-blue-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">Jusqu'à 5 utilisateurs</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Check className="h-5 w-5 text-blue-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">Attribution de rôles (Financier, Éditeur, Collaborateur)</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Check className="h-5 w-5 text-blue-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">Gestion des accès et autorisations</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Check className="h-5 w-5 text-blue-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">Rapports personnalisés</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Check className="h-5 w-5 text-blue-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">Historique des actions</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Check className="h-5 w-5 text-blue-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">Conservation des données</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Check className="h-5 w-5 text-blue-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">Support prioritaire</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Check className="h-5 w-5 text-blue-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">Formation personnalisée</span>
+                  </li>
+                  <li className="flex items-center">
+                    <Check className="h-5 w-5 text-blue-500 mr-3 flex-shrink-0" />
+                    <span className="text-gray-700">Conseiller dédié</span>
+                  </li>
                 </ul>
               </CardContent>
-              <CardFooter className="text-center">
-                <Link to="/checkout" className="w-full">
-                  <Button className="w-full">
-                    {t('home.choose_enterprise')}
+              <CardFooter className="px-6 pb-8">
+                <Link to="/subscription" className="w-full">
+                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg font-semibold rounded-xl">
+                    Choisir Entreprise
                   </Button>
                 </Link>
               </CardFooter>
             </Card>
+          </div>
+          
+          <div className="text-center mt-12">
+            <p className="text-gray-600">
+              Toutes les offres incluent une garantie de remboursement de 30 jours
+            </p>
           </div>
         </div>
       </section>
