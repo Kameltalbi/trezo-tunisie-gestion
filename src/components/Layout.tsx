@@ -3,7 +3,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useUserProfile } from "@/hooks/useUserProfile";
+import { useAccount } from "@/hooks/useAccount";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import TrialBanner from "./TrialBanner";
@@ -16,7 +16,7 @@ interface LayoutProps {
 
 const Layout = ({ children, requireAuth = false }: LayoutProps) => {
   const { user, isLoading } = useAuth();
-  const { data: profile, isLoading: profileLoading } = useUserProfile();
+  const { data: accountData, isLoading: accountLoading } = useAccount();
   const [isSidebarExpanded, setIsSidebarExpanded] = useState(false);
   const [hasActiveSubscription, setHasActiveSubscription] = useState<boolean | null>(null);
   const [isCheckingSubscription, setIsCheckingSubscription] = useState(true);
@@ -37,37 +37,39 @@ const Layout = ({ children, requireAuth = false }: LayoutProps) => {
         return;
       }
 
-      // Vérifier d'abord le statut du profil
-      if (profile) {
-        if (profile.account_status === 'active') {
+      // Vérifier le statut du compte
+      if (accountData?.account) {
+        const account = accountData.account;
+        
+        if (account.status === 'active') {
           setHasActiveSubscription(true);
           setIsCheckingSubscription(false);
           return;
         }
         
-        if (profile.account_status === 'expired') {
+        if (account.status === 'expired') {
           setHasActiveSubscription(false);
           setIsCheckingSubscription(false);
           return;
         }
         
-        if (profile.account_status === 'pending_activation') {
+        if (account.status === 'pending_activation') {
           setHasActiveSubscription(false);
           setIsCheckingSubscription(false);
           return;
         }
         
         // Si en trial, vérifier la date d'expiration
-        if (profile.account_status === 'trial' && profile.trial_expires_at) {
-          const trialExpiry = new Date(profile.trial_expires_at);
+        if (account.status === 'trial' && account.trial_end_date) {
+          const trialExpiry = new Date(account.trial_end_date);
           const now = new Date();
           
           if (now > trialExpiry) {
             // Mettre à jour le statut à expiré
             await supabase
-              .from('profiles')
-              .update({ account_status: 'expired' })
-              .eq('id', user.id);
+              .from('accounts')
+              .update({ status: 'expired' })
+              .eq('id', account.id);
             
             setHasActiveSubscription(false);
           } else {
@@ -78,27 +80,14 @@ const Layout = ({ children, requireAuth = false }: LayoutProps) => {
         }
       }
 
-      try {
-        const { data: subscription } = await supabase
-          .from('subscriptions')
-          .select('*')
-          .eq('user_id', user.id)
-          .eq('status', 'active')
-          .maybeSingle();
-
-        setHasActiveSubscription(!!subscription);
-      } catch (error) {
-        console.error('Erreur lors de la vérification de l\'abonnement:', error);
-        setHasActiveSubscription(false);
-      } finally {
-        setIsCheckingSubscription(false);
-      }
+      setHasActiveSubscription(false);
+      setIsCheckingSubscription(false);
     };
 
-    if (user && !profileLoading) {
+    if (user && !accountLoading) {
       checkSubscription();
     }
-  }, [user, profile, profileLoading]);
+  }, [user, accountData, accountLoading]);
 
   // Si l'authentification est requise et que l'utilisateur n'est pas connecté
   if (requireAuth && !isLoading && !user) {
@@ -111,7 +100,7 @@ const Layout = ({ children, requireAuth = false }: LayoutProps) => {
   }
 
   // Si on vérifie encore l'abonnement, afficher un loader
-  if (isCheckingSubscription || profileLoading) {
+  if (isCheckingSubscription || accountLoading) {
     return (
       <div className="min-h-screen flex items-center justify-center">
         <div className="animate-pulse">Chargement...</div>
@@ -120,12 +109,12 @@ const Layout = ({ children, requireAuth = false }: LayoutProps) => {
   }
 
   // Si le compte est expiré, rediriger vers la page de checkout
-  if (profile?.account_status === 'expired') {
+  if (accountData?.account?.status === 'expired') {
     return <Navigate to="/checkout" replace />;
   }
 
   // Si le compte est en attente d'activation, afficher une interface limitée
-  if (profile?.account_status === 'pending_activation') {
+  if (accountData?.account?.status === 'pending_activation') {
     return (
       <div className="min-h-screen bg-background text-foreground">
         <Header />

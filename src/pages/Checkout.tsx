@@ -5,7 +5,7 @@ import { Badge } from "@/components/ui/badge";
 import { usePlans } from "@/hooks/usePlans";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import PaymentMethodSelection from "@/components/PaymentMethodSelection";
-import { Check, Star, Users } from "lucide-react";
+import { Check, Star, Users, Clock } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import { toast } from 'sonner';
 
