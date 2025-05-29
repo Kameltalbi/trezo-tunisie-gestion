@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
@@ -30,7 +29,8 @@ const Register = () => {
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { signUp, isLoading, error } = useAuth();
+  const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -81,11 +81,20 @@ const Register = () => {
     
     if (!validateForm()) return;
 
+    setIsLoading(true);
+    setError(null);
+
     try {
       // Créer le compte utilisateur
-      const { data: authData, error: authError } = await signUp(formData.email, formData.password, {
-        full_name: formData.nom,
-        company_name: formData.nomEntreprise
+      const { data: authData, error: authError } = await supabase.auth.signUp({
+        email: formData.email,
+        password: formData.password,
+        options: {
+          data: {
+            full_name: formData.nom,
+            company_name: formData.nomEntreprise
+          }
+        }
       });
 
       if (authError) throw authError;
@@ -117,7 +126,10 @@ const Register = () => {
       navigate("/login");
     } catch (error) {
       console.error("Erreur lors de l'inscription:", error);
+      setError(error instanceof Error ? error.message : "Erreur lors de la création du compte");
       toast.error("Erreur lors de la création du compte");
+    } finally {
+      setIsLoading(false);
     }
   };
 
