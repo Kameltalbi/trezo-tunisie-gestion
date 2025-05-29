@@ -1,12 +1,13 @@
+
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Users, Plus, Edit, Trash2, AlertTriangle } from 'lucide-react';
+import { Users, Plus, Edit, Trash2, AlertTriangle, Shield } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import AddUserDialog from './AddUserDialog';
+import PermissionsManagement from './PermissionsManagement';
 
 interface UsersManagementProps {
   isSuperAdmin: boolean;
@@ -15,6 +16,8 @@ interface UsersManagementProps {
 const UsersManagement = ({ isSuperAdmin }: UsersManagementProps) => {
   const { user } = useAuth();
   const [showAddDialog, setShowAddDialog] = useState(false);
+  const [selectedUser, setSelectedUser] = useState(null);
+  const [showPermissions, setShowPermissions] = useState(false);
 
   // Mock data - à remplacer par de vraies données
   // Exclure les super-administrateurs de la liste des utilisateurs du compte
@@ -25,7 +28,8 @@ const UsersManagement = ({ isSuperAdmin }: UsersManagementProps) => {
       email: 'ahmed@entreprise.tn',
       role: 'admin',
       addedAt: '2024-01-20',
-      isCurrentUser: false
+      isCurrentUser: false,
+      status: 'active'
     },
     {
       id: '3',
@@ -33,7 +37,8 @@ const UsersManagement = ({ isSuperAdmin }: UsersManagementProps) => {
       email: 'fatma@entreprise.tn',
       role: 'financier',
       addedAt: '2024-01-25',
-      isCurrentUser: false
+      isCurrentUser: false,
+      status: 'active'
     }
   ];
 
@@ -62,6 +67,11 @@ const UsersManagement = ({ isSuperAdmin }: UsersManagementProps) => {
   const handleDeleteUser = (userId: string) => {
     console.log('Supprimer utilisateur:', userId);
     // Logique de suppression
+  };
+
+  const handleManagePermissions = (accountUser) => {
+    setSelectedUser(accountUser);
+    setShowPermissions(true);
   };
 
   return (
@@ -143,6 +153,19 @@ const UsersManagement = ({ isSuperAdmin }: UsersManagementProps) => {
                       <Button variant="outline" size="sm">
                         <Edit className="h-4 w-4" />
                       </Button>
+                      
+                      {/* Bouton gérer les permissions - visible seulement pour les non-admins */}
+                      {accountUser.role !== 'admin' && (
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="text-blue-600"
+                          onClick={() => handleManagePermissions(accountUser)}
+                        >
+                          <Shield className="h-4 w-4" />
+                        </Button>
+                      )}
+                      
                       {!accountUser.isCurrentUser && (
                         <Button 
                           variant="outline" 
@@ -166,6 +189,14 @@ const UsersManagement = ({ isSuperAdmin }: UsersManagementProps) => {
           onOpenChange={setShowAddDialog}
           isSuperAdmin={isSuperAdmin}
         />
+
+        {selectedUser && (
+          <PermissionsManagement
+            user={selectedUser}
+            open={showPermissions}
+            onOpenChange={setShowPermissions}
+          />
+        )}
       </CardContent>
     </Card>
   );
