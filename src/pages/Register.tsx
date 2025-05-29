@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
@@ -89,8 +88,9 @@ const Register = () => {
 
       if (authError) throw authError;
 
-      // Si l'utilisateur est créé, créer l'entreprise
+      // Si l'utilisateur est créé, créer l'entreprise et l'utilisateur avec rôle admin
       if (authData.user) {
+        // Créer l'entreprise
         const { error: entrepriseError } = await supabase
           .from('entreprises')
           .insert({
@@ -104,6 +104,25 @@ const Register = () => {
 
         if (entrepriseError) {
           console.error("Erreur lors de la création de l'entreprise:", entrepriseError);
+        }
+
+        // Créer l'utilisateur avec le rôle admin dans la table users
+        const { error: userError } = await supabase
+          .from('users')
+          .insert({
+            id: authData.user.id,
+            email: formData.email,
+            full_name: formData.nom,
+            role: 'admin' // Rôle admin par défaut pour tous les nouveaux utilisateurs
+          });
+
+        if (userError) {
+          console.error("Erreur lors de la création de l'utilisateur:", userError);
+        } else {
+          console.log('Utilisateur créé avec le rôle admin lors de l\'inscription');
+        }
+
+        if (entrepriseError) {
           toast.error("Compte créé mais erreur lors de l'enregistrement de l'entreprise");
         } else {
           toast.success("Compte et entreprise créés avec succès !");
