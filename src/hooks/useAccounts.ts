@@ -1,4 +1,3 @@
-
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -40,7 +39,7 @@ export const useAccounts = () => {
       console.log('Comptes récupérés:', data);
       return data as Account[];
     },
-    enabled: !!user && user?.email === 'kamel.talbi@yahoo.fr',
+    enabled: !!user,
   });
 };
 
