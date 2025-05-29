@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -18,15 +17,8 @@ const UsersManagement = ({ isSuperAdmin }: UsersManagementProps) => {
   const [showAddDialog, setShowAddDialog] = useState(false);
 
   // Mock data - à remplacer par de vraies données
+  // Exclure les super-administrateurs de la liste des utilisateurs du compte
   const accountUsers = [
-    {
-      id: '1',
-      name: 'Kamel Talbi',
-      email: 'kamel.talbi@yahoo.fr',
-      role: 'superadmin',
-      addedAt: '2024-01-15',
-      isCurrentUser: true
-    },
     {
       id: '2',
       name: 'Ahmed Ben Ali',
@@ -54,7 +46,6 @@ const UsersManagement = ({ isSuperAdmin }: UsersManagementProps) => {
 
   const getRoleBadge = (role: string) => {
     const variants = {
-      'superadmin': { variant: 'default', text: 'Super Admin', className: 'bg-purple-100 text-purple-800' },
       'admin': { variant: 'default', text: 'Admin', className: 'bg-blue-100 text-blue-800' },
       'financier': { variant: 'secondary', text: 'Financier', className: 'bg-green-100 text-green-800' },
       'editeur': { variant: 'outline', text: 'Éditeur', className: 'bg-orange-100 text-orange-800' },
