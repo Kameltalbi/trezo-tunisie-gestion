@@ -20,6 +20,7 @@ const EntrepriseForm = () => {
     telephone: '',
     email: '',
     tva: '',
+    logo_url: '',
   });
 
   React.useEffect(() => {
@@ -30,6 +31,7 @@ const EntrepriseForm = () => {
         telephone: entreprise.telephone,
         email: entreprise.email,
         tva: entreprise.tva,
+        logo_url: entreprise.logo_url,
       });
     }
   }, [entreprise]);
@@ -95,6 +97,18 @@ const EntrepriseForm = () => {
                 value={formData.email || ''}
                 onChange={handleChange}
                 placeholder="contact@entreprise.com"
+              />
+            </div>
+
+            <div className="md:col-span-2">
+              <Label htmlFor="logo_url">Logo (URL)</Label>
+              <Input
+                id="logo_url"
+                name="logo_url"
+                type="url"
+                value={formData.logo_url || ''}
+                onChange={handleChange}
+                placeholder="https://exemple.com/logo.png"
               />
             </div>
 
