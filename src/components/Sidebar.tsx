@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '@/contexts/AuthContext';
+import { useCurrentUser } from '@/hooks/useCurrentUser';
 import { 
   LayoutDashboard, 
   Banknote, 
@@ -48,6 +49,7 @@ const SidebarSection = ({ label }: SidebarSectionProps) => {
 const Sidebar = ({ onExpandedChange }: SidebarProps) => {
   const { t } = useTranslation();
   const { user } = useAuth();
+  const { data: currentUser } = useCurrentUser();
   const location = useLocation();
   const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
@@ -63,6 +65,10 @@ const Sidebar = ({ onExpandedChange }: SidebarProps) => {
   const handleNavigation = (path: string) => {
     navigate(path);
   };
+
+  // Vérifier les permissions
+  const isSuperAdmin = user?.email === 'kamel.talbi@yahoo.fr' || currentUser?.role === 'superadmin';
+  const isAdmin = isSuperAdmin || currentUser?.role === 'admin';
 
   // Dashboard item (no section)
   const dashboardItem: SidebarItemProps = {
@@ -88,7 +94,6 @@ const Sidebar = ({ onExpandedChange }: SidebarProps) => {
     isActive: isActive('/settings')
   };
 
-  // GESTION DE TRÉSORERIE section
   const treasuryManagementItems: SidebarItemProps[] = [
     {
       icon: <Wallet size={24} />,
@@ -203,7 +208,7 @@ const Sidebar = ({ onExpandedChange }: SidebarProps) => {
         {renderSidebarItem(dashboardItem)}
         
         {/* Superadmin section (only for kamel) */}
-        {user?.email === 'kamel.talbi@yahoo.fr' && (
+        {isSuperAdmin && (
           <>
             <Separator className="my-1 bg-sidebar-accent/20" />
             {renderSidebarItem(superadminItem)}
@@ -247,7 +252,7 @@ const Sidebar = ({ onExpandedChange }: SidebarProps) => {
         {reportsItems.map(renderSidebarItem)}
         
         {/* Settings section (for admin and superadmin) */}
-        {user?.email === 'kamel.talbi@yahoo.fr' && (
+        {isAdmin && (
           <>
             <Separator className="my-1 bg-sidebar-accent/20" />
             {renderSidebarItem(settingsItem)}
