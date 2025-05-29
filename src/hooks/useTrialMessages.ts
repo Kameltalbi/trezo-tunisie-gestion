@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { useUserCurrentPlan } from './useUserCurrentPlan';
+import { supabase } from '@/integrations/supabase/client';
 
 interface TrialMessage {
   day: number;
@@ -76,15 +77,39 @@ export const useTrialMessages = () => {
   const { data: currentPlan } = useUserCurrentPlan();
   const [currentMessage, setCurrentMessage] = useState<TrialMessage | null>(null);
   const [shouldShow, setShouldShow] = useState(false);
+  const [trialStartDate, setTrialStartDate] = useState<Date | null>(null);
+
+  // Fetch trial start date from subscriptions table
+  useEffect(() => {
+    const fetchTrialStartDate = async () => {
+      if (!user || !currentPlan?.is_trial) return;
+
+      try {
+        const { data: subscription } = await supabase
+          .from('subscriptions')
+          .select('trial_start_date')
+          .eq('user_id', user.id)
+          .eq('is_trial', true)
+          .maybeSingle();
+
+        if (subscription?.trial_start_date) {
+          setTrialStartDate(new Date(subscription.trial_start_date));
+        }
+      } catch (error) {
+        console.error('Error fetching trial start date:', error);
+      }
+    };
+
+    fetchTrialStartDate();
+  }, [user, currentPlan]);
 
   useEffect(() => {
-    if (!user || !currentPlan?.is_trial || !currentPlan.trial_start_date) {
+    if (!user || !currentPlan?.is_trial || !trialStartDate) {
       setCurrentMessage(null);
       setShouldShow(false);
       return;
     }
 
-    const trialStartDate = new Date(currentPlan.trial_start_date);
     const today = new Date();
     const daysSinceStart = Math.floor((today.getTime() - trialStartDate.getTime()) / (1000 * 60 * 60 * 24));
 
@@ -104,7 +129,7 @@ export const useTrialMessages = () => {
         setShouldShow(true);
       }
     }
-  }, [user, currentPlan]);
+  }, [user, currentPlan, trialStartDate]);
 
   const dismissMessage = () => {
     if (currentMessage && user) {
