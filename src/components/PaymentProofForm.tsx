@@ -61,11 +61,11 @@ const PaymentProofForm: React.FC<PaymentProofFormProps> = ({ plan, onSuccess }) 
 
       // Créer la preuve de paiement
       await createPaymentProof.mutateAsync({
-        plan_id: plan.id,
+        plan: plan.id,
         amount: plan.price_dt,
-        currency: 'DT',
+        currency: 'TND',
         payment_method: paymentMethod,
-        proof_file_url: proofFileUrl,
+        file_url: proofFileUrl,
         reference_info: referenceInfo,
       });
 
