@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from "@supabase/supabase-js";
@@ -105,8 +104,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                     company_name: session.user.user_metadata?.company_name || null,
                   });
               }
+
+              // Vérifier et créer l'entrée dans la table users avec le rôle admin
+              const { data: existingUser } = await supabase
+                .from('users')
+                .select('id')
+                .eq('id', session.user.id)
+                .single();
+
+              if (!existingUser) {
+                // Créer l'utilisateur avec le rôle admin par défaut
+                await supabase
+                  .from('users')
+                  .insert({
+                    id: session.user.id,
+                    email: session.user.email,
+                    full_name: session.user.user_metadata?.full_name || null,
+                    role: 'admin', // Rôle admin par défaut pour tous les nouveaux utilisateurs
+                  });
+                
+                console.log('Utilisateur créé avec le rôle admin');
+              }
             } catch (error) {
-              console.error('Erreur lors de la création du profil:', error);
+              console.error('Erreur lors de la création du profil ou utilisateur:', error);
             }
           }, 0);
         }
