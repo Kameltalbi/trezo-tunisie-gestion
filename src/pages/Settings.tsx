@@ -2,11 +2,12 @@
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Settings as SettingsIcon, Users, Building2, Shield } from 'lucide-react';
+import { Settings as SettingsIcon, Users, Building2, Shield, Currency } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import UsersManagement from '@/components/settings/UsersManagement';
 import AccountInformation from '@/components/settings/AccountInformation';
 import SecuritySettings from '@/components/settings/SecuritySettings';
+import CurrencySettings from '@/components/settings/CurrencySettings';
 import EntrepriseForm from '@/components/forms/EntrepriseForm';
 
 const Settings = () => {
@@ -52,7 +53,7 @@ const Settings = () => {
 
       <div className="container mx-auto px-6 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-4">
+          <TabsList className="grid w-full grid-cols-5">
             <TabsTrigger value="users" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
               <span className="hidden sm:inline">Utilisateurs</span>
@@ -60,6 +61,10 @@ const Settings = () => {
             <TabsTrigger value="entreprise" className="flex items-center gap-2">
               <Building2 className="h-4 w-4" />
               <span className="hidden sm:inline">Entreprise</span>
+            </TabsTrigger>
+            <TabsTrigger value="currency" className="flex items-center gap-2">
+              <Currency className="h-4 w-4" />
+              <span className="hidden sm:inline">Devise</span>
             </TabsTrigger>
             <TabsTrigger value="account" className="flex items-center gap-2">
               <Building2 className="h-4 w-4" />
@@ -77,6 +82,10 @@ const Settings = () => {
 
           <TabsContent value="entreprise">
             <EntrepriseForm />
+          </TabsContent>
+
+          <TabsContent value="currency">
+            <CurrencySettings isSuperAdmin={isSuperAdmin} />
           </TabsContent>
 
           <TabsContent value="account">

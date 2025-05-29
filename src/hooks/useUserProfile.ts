@@ -11,6 +11,8 @@ export interface UserProfile {
   phone?: string;
   account_status: 'trial' | 'pending_activation' | 'active' | 'expired';
   trial_expires_at?: string;
+  currency_code?: string;
+  currency_symbol?: string;
   created_at: string;
   updated_at: string;
 }
