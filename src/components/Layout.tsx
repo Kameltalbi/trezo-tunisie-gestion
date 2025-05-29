@@ -75,28 +75,28 @@ const Layout = ({ children, requireAuth = false }: LayoutProps) => {
     );
   }
 
-  // Rediriger vers checkout si pas d'abonnement actif et pas admin kamel et pas déjà sur les pages autorisées
-  const allowedPagesWithoutSubscription = ['/checkout', '/subscription', '/order-confirmation'];
-  if (!hasActiveSubscription && user.email !== 'kamel.talbi@yahoo.fr' && !allowedPagesWithoutSubscription.includes(location.pathname)) {
-    return <Navigate to="/checkout" replace />;
+  // Admin users or users with subscriptions can access any page
+  if (hasActiveSubscription || user.email === 'kamel.talbi@yahoo.fr') {
+    return (
+      <div className="min-h-screen bg-background text-foreground">
+        <Header />
+        <div className="flex">
+          <Sidebar onExpandedChange={setIsSidebarExpanded} />
+          <main 
+            className={`flex-1 p-6 transition-all duration-300 ${
+              isSidebarExpanded ? 'ml-60' : 'ml-16'
+            }`}
+          >
+            <TrialBanner />
+            {children}
+          </main>
+        </div>
+      </div>
+    );
   }
 
-  return (
-    <div className="min-h-screen bg-background text-foreground">
-      <Header />
-      <div className="flex">
-        <Sidebar onExpandedChange={setIsSidebarExpanded} />
-        <main 
-          className={`flex-1 p-6 transition-all duration-300 ${
-            isSidebarExpanded ? 'ml-60' : 'ml-16'
-          }`}
-        >
-          <TrialBanner />
-          {children}
-        </main>
-      </div>
-    </div>
-  );
+  // Redirect to subscription page if user doesn't have active subscription
+  return <Navigate to="/subscription" replace />;
 };
 
 export default Layout;

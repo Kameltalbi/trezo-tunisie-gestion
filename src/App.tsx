@@ -1,6 +1,6 @@
 
 import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
+import {Toaster as Sonner} from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
@@ -23,13 +23,10 @@ import Objectifs from "./pages/Objectifs";
 import Rapports from "./pages/Rapports";
 import Transactions from "./pages/Transactions";
 import Support from "./pages/Support";
-import Checkout from "./pages/Checkout";
 import Subscription from "./pages/Subscription";
-import OrderConfirmation from "./pages/OrderConfirmation";
 
 // Import i18n configuration
 import "./i18n";
-import PaymentUnavailable from "./pages/PaymentUnavailable";
 
 const queryClient = new QueryClient();
 
@@ -45,9 +42,6 @@ const App = () => (
               <Route path="/" element={<Home />} />
               <Route path="/login" element={<Login />} />
               <Route path="/register" element={<Register />} />
-              <Route path="/checkout" element={<Checkout />} />
-              <Route path="/payment-unavailable" element={<PaymentUnavailable />} />
-              <Route path="/order-confirmation" element={<OrderConfirmation />} />
               <Route path="/subscription" element={<Layout requireAuth={true}><Subscription /></Layout>} />
               <Route path="/cash-flow" element={<Layout requireAuth={true}><CashFlow /></Layout>} />
               <Route path="/debt-management" element={<Layout requireAuth={true}><DebtManagement /></Layout>} />
