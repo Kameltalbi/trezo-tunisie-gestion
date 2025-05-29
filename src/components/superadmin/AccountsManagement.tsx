@@ -6,7 +6,7 @@ import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Building2, Edit, CheckCircle, XCircle, Trash2, Loader2, AlertCircle } from 'lucide-react';
-import { useAccounts } from '@/hooks/useAccounts';
+import { useAccounts, useUpdateAccount } from '@/hooks/useAccounts';
 import { useAuth } from '@/contexts/AuthContext';
 import { toast } from 'sonner';
 
@@ -14,6 +14,7 @@ const AccountsManagement = () => {
   const [selectedAccount, setSelectedAccount] = useState(null);
   const { user } = useAuth();
   const { data: accounts, isLoading, error } = useAccounts();
+  const updateAccountMutation = useUpdateAccount();
 
   console.log('AccountsManagement - Debug:', {
     userEmail: user?.email,
@@ -36,20 +37,43 @@ const AccountsManagement = () => {
 
   const handleActivateAccount = async (accountId: string) => {
     try {
-      console.log('Activer le compte:', accountId);
+      console.log('Activation du compte:', accountId);
+      
+      const today = new Date().toISOString().split('T')[0];
+      const nextYear = new Date();
+      nextYear.setFullYear(nextYear.getFullYear() + 1);
+      const validUntil = nextYear.toISOString().split('T')[0];
+
+      await updateAccountMutation.mutateAsync({
+        accountId,
+        updates: {
+          status: 'active',
+          activation_date: today,
+          valid_until: validUntil
+        }
+      });
+
       toast.success('Compte activé avec succès');
-      // TODO: Implémenter la logique d'activation
     } catch (error) {
+      console.error('Erreur lors de l\'activation:', error);
       toast.error('Erreur lors de l\'activation du compte');
     }
   };
 
   const handleSuspendAccount = async (accountId: string) => {
     try {
-      console.log('Suspendre le compte:', accountId);
+      console.log('Suspension du compte:', accountId);
+      
+      await updateAccountMutation.mutateAsync({
+        accountId,
+        updates: {
+          status: 'expired'
+        }
+      });
+
       toast.success('Compte suspendu avec succès');
-      // TODO: Implémenter la logique de suspension
     } catch (error) {
+      console.error('Erreur lors de la suspension:', error);
       toast.error('Erreur lors de la suspension du compte');
     }
   };
@@ -141,8 +165,13 @@ const AccountsManagement = () => {
                             variant="default" 
                             size="sm"
                             onClick={() => handleActivateAccount(account.id)}
+                            disabled={updateAccountMutation.isPending}
                           >
-                            <CheckCircle className="h-4 w-4" />
+                            {updateAccountMutation.isPending ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <CheckCircle className="h-4 w-4" />
+                            )}
                           </Button>
                         )}
                         {account.status === 'active' && (
@@ -150,8 +179,13 @@ const AccountsManagement = () => {
                             variant="destructive" 
                             size="sm"
                             onClick={() => handleSuspendAccount(account.id)}
+                            disabled={updateAccountMutation.isPending}
                           >
-                            <XCircle className="h-4 w-4" />
+                            {updateAccountMutation.isPending ? (
+                              <Loader2 className="h-4 w-4 animate-spin" />
+                            ) : (
+                              <XCircle className="h-4 w-4" />
+                            )}
                           </Button>
                         )}
                         <Button variant="outline" size="sm" className="text-red-600">
