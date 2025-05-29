@@ -1,3 +1,4 @@
+
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -19,7 +20,7 @@ const Home = () => {
               <img 
                 src="/lovable-uploads/71b93732-45ea-4330-96cf-7bff5ea4f99a.png" 
                 alt="Trézo" 
-                className="h-24 w-auto"
+                className="h-32 w-auto"
               />
             </Link>
             <nav className="hidden md:flex items-center space-x-8">
