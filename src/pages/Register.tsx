@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../contexts/AuthContext";
@@ -134,7 +135,7 @@ const Register = () => {
                     type="text"
                     value={formData.nom}
                     onChange={handleChange}
-                    placeholder="Jean Dupont"
+                    placeholder="your name"
                     required
                   />
                 </div>
@@ -147,7 +148,7 @@ const Register = () => {
                     type="text"
                     value={formData.company}
                     onChange={handleChange}
-                    placeholder="Mon Entreprise"
+                    placeholder="your company"
                   />
                 </div>
               </div>
