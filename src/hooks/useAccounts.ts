@@ -1,3 +1,4 @@
+
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { useAuth } from "@/contexts/AuthContext";
@@ -26,11 +27,6 @@ export const useAccounts = () => {
     queryFn: async () => {
       console.log('Fetching accounts for user:', user?.email);
       
-      // Vérifier si l'utilisateur est superadmin
-      if (user?.email !== 'kamel.talbi@yahoo.fr') {
-        throw new Error('Accès non autorisé');
-      }
-
       const { data, error } = await supabase
         .from('accounts')
         .select('*')
