@@ -7,6 +7,7 @@ import { useAuth } from '@/contexts/AuthContext';
 import UsersManagement from '@/components/settings/UsersManagement';
 import AccountInformation from '@/components/settings/AccountInformation';
 import SecuritySettings from '@/components/settings/SecuritySettings';
+import EntrepriseForm from '@/components/forms/EntrepriseForm';
 
 const Settings = () => {
   const { user } = useAuth();
@@ -51,10 +52,14 @@ const Settings = () => {
 
       <div className="container mx-auto px-6 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-3">
+          <TabsList className="grid w-full grid-cols-4">
             <TabsTrigger value="users" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
               <span className="hidden sm:inline">Utilisateurs</span>
+            </TabsTrigger>
+            <TabsTrigger value="entreprise" className="flex items-center gap-2">
+              <Building2 className="h-4 w-4" />
+              <span className="hidden sm:inline">Entreprise</span>
             </TabsTrigger>
             <TabsTrigger value="account" className="flex items-center gap-2">
               <Building2 className="h-4 w-4" />
@@ -68,6 +73,10 @@ const Settings = () => {
 
           <TabsContent value="users">
             <UsersManagement isSuperAdmin={isSuperAdmin} />
+          </TabsContent>
+
+          <TabsContent value="entreprise">
+            <EntrepriseForm />
           </TabsContent>
 
           <TabsContent value="account">

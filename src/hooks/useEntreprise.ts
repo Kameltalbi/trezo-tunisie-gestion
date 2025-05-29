@@ -7,17 +7,20 @@ import { toast } from "sonner";
 export interface Entreprise {
   id: string;
   user_id: string;
-  nom: string; // Requis selon la base de données
+  nom: string;
+  secteur_activite?: string;
+  taille_entreprise?: string;
   adresse?: string;
   telephone?: string;
   email?: string;
   siret?: string;
   tva?: string;
   logo_url?: string;
-  secteur_activite?: string;
   forme_juridique?: string;
   capital?: number;
   devise_id?: string;
+  created_at: string;
+  updated_at: string;
 }
 
 export const useEntreprise = () => {
@@ -26,11 +29,13 @@ export const useEntreprise = () => {
   return useQuery({
     queryKey: ['entreprise', user?.id],
     queryFn: async () => {
+      if (!user) return null;
+
       const { data, error } = await supabase
         .from('entreprises')
         .select('*')
-        .eq('user_id', user?.id)
-        .maybeSingle(); // Utilise maybeSingle pour éviter les erreurs si aucune entreprise n'existe
+        .eq('user_id', user.id)
+        .maybeSingle();
 
       if (error) throw error;
       return data as Entreprise | null;
@@ -47,7 +52,6 @@ export const useUpdateEntreprise = () => {
     mutationFn: async (entreprise: Partial<Entreprise> & { nom: string }) => {
       if (!user) throw new Error('Non authentifié');
       
-      // S'assurer que nom est présent
       if (!entreprise.nom) {
         throw new Error('Le nom de l\'entreprise est requis');
       }
@@ -65,11 +69,11 @@ export const useUpdateEntreprise = () => {
       return data;
     },
     onSuccess: () => {
-      toast("Entreprise mise à jour avec succès");
+      toast.success("Entreprise mise à jour avec succès");
       queryClient.invalidateQueries({ queryKey: ['entreprise'] });
     },
     onError: (error) => {
-      toast("Erreur lors de la mise à jour de l'entreprise");
+      toast.error("Erreur lors de la mise à jour de l'entreprise");
       console.error('Erreur mise à jour entreprise:', error);
     }
   });

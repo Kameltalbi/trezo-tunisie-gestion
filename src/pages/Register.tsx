@@ -6,9 +6,11 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Eye, EyeOff, CheckCircle } from "lucide-react";
+import { Loader2, Eye, EyeOff, CheckCircle, Building2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { toast } from "sonner";
+import { supabase } from "@/integrations/supabase/client";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -16,7 +18,15 @@ const Register = () => {
     email: "",
     password: "",
     confirmPassword: "",
-    company: ""
+    // Informations entreprise
+    nomEntreprise: "",
+    secteurActivite: "",
+    tailleEntreprise: "",
+    adresseEntreprise: "",
+    telephoneEntreprise: "",
+    emailEntreprise: "",
+    siret: "",
+    formeJuridique: ""
   });
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
@@ -25,6 +35,13 @@ const Register = () => {
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
+    setFormData(prev => ({
+      ...prev,
+      [name]: value
+    }));
+  };
+
+  const handleSelectChange = (name: string, value: string) => {
     setFormData(prev => ({
       ...prev,
       [name]: value
@@ -52,6 +69,10 @@ const Register = () => {
       toast.error("Les mots de passe ne correspondent pas");
       return false;
     }
+    if (!formData.nomEntreprise.trim()) {
+      toast.error("Le nom de l'entreprise est requis");
+      return false;
+    }
     return true;
   };
 
@@ -61,12 +82,38 @@ const Register = () => {
     if (!validateForm()) return;
 
     try {
-      await signUp(formData.email, formData.password, {
+      // Créer le compte utilisateur
+      const { data: authData, error: authError } = await signUp(formData.email, formData.password, {
         full_name: formData.nom,
-        company_name: formData.company
+        company_name: formData.nomEntreprise
       });
+
+      if (authError) throw authError;
+
+      // Si l'utilisateur est créé, créer l'entreprise
+      if (authData.user) {
+        const { error: entrepriseError } = await supabase
+          .from('entreprises')
+          .insert({
+            user_id: authData.user.id,
+            nom: formData.nomEntreprise,
+            secteur_activite: formData.secteurActivite || null,
+            taille_entreprise: formData.tailleEntreprise || null,
+            adresse: formData.adresseEntreprise || null,
+            telephone: formData.telephoneEntreprise || null,
+            email: formData.emailEntreprise || null,
+            siret: formData.siret || null,
+            forme_juridique: formData.formeJuridique || null
+          });
+
+        if (entrepriseError) {
+          console.error("Erreur lors de la création de l'entreprise:", entrepriseError);
+          toast.error("Compte créé mais erreur lors de l'enregistrement de l'entreprise");
+        } else {
+          toast.success("Compte et entreprise créés avec succès !");
+        }
+      }
       
-      toast.success("Compte créé avec succès ! Vérifiez votre email si nécessaire.");
       navigate("/login");
     } catch (error) {
       console.error("Erreur lors de l'inscription:", error);
@@ -99,7 +146,7 @@ const Register = () => {
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-emerald-50 to-blue-50 p-4">
-      <div className="w-full max-w-md">
+      <div className="w-full max-w-2xl">
         <div className="flex flex-col items-center mb-8">
           <Link to="/" className="flex items-center space-x-2 mb-4">
             <img 
@@ -119,128 +166,237 @@ const Register = () => {
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+            <form onSubmit={handleSubmit} className="space-y-6">
               {error && (
                 <Alert variant="destructive">
                   <AlertDescription>{error}</AlertDescription>
                 </Alert>
               )}
               
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="nom">Nom complet *</Label>
-                  <Input
-                    id="nom"
-                    name="nom"
-                    type="text"
-                    value={formData.nom}
-                    onChange={handleChange}
-                    placeholder="your name"
-                    required
-                  />
-                </div>
+              {/* Section Informations personnelles */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2">Informations personnelles</h3>
                 
-                <div className="space-y-2">
-                  <Label htmlFor="company">Entreprise</Label>
-                  <Input
-                    id="company"
-                    name="company"
-                    type="text"
-                    value={formData.company}
-                    onChange={handleChange}
-                    placeholder="your company"
-                  />
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="email">Email *</Label>
-                <Input
-                  id="email"
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleChange}
-                  placeholder="jean@entreprise.com"
-                  required
-                />
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="password">Mot de passe *</Label>
-                <div className="relative">
-                  <Input
-                    id="password"
-                    name="password"
-                    type={showPassword ? "text" : "password"}
-                    value={formData.password}
-                    onChange={handleChange}
-                    placeholder="••••••••"
-                    required
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </Button>
-                </div>
-                
-                {formData.password && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <div className="flex justify-between text-xs">
-                      <span>Force du mot de passe:</span>
-                      <span className={`font-medium ${getStrengthColor(passwordStrength(formData.password)).replace('bg-', 'text-')}`}>
-                        {getStrengthText(passwordStrength(formData.password))}
-                      </span>
-                    </div>
-                    <div className="flex space-x-1">
-                      {[1, 2, 3, 4].map((level) => (
-                        <div
-                          key={level}
-                          className={`h-1 flex-1 rounded ${
-                            level <= passwordStrength(formData.password)
-                              ? getStrengthColor(passwordStrength(formData.password))
-                              : 'bg-gray-200'
-                          }`}
-                        />
-                      ))}
-                    </div>
+                    <Label htmlFor="nom">Nom complet *</Label>
+                    <Input
+                      id="nom"
+                      name="nom"
+                      type="text"
+                      value={formData.nom}
+                      onChange={handleChange}
+                      placeholder="Votre nom complet"
+                      required
+                    />
                   </div>
-                )}
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirmer le mot de passe *</Label>
-                <div className="relative">
-                  <Input
-                    id="confirmPassword"
-                    name="confirmPassword"
-                    type={showConfirmPassword ? "text" : "password"}
-                    value={formData.confirmPassword}
-                    onChange={handleChange}
-                    placeholder="••••••••"
-                    required
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  >
-                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </Button>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="email">Email *</Label>
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      value={formData.email}
+                      onChange={handleChange}
+                      placeholder="jean@entreprise.com"
+                      required
+                    />
+                  </div>
                 </div>
-                {formData.confirmPassword && formData.password === formData.confirmPassword && (
-                  <div className="flex items-center space-x-2 text-green-600">
-                    <CheckCircle className="h-4 w-4" />
-                    <span className="text-xs">Les mots de passe correspondent</span>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="password">Mot de passe *</Label>
+                    <div className="relative">
+                      <Input
+                        id="password"
+                        name="password"
+                        type={showPassword ? "text" : "password"}
+                        value={formData.password}
+                        onChange={handleChange}
+                        placeholder="••••••••"
+                        required
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        onClick={() => setShowPassword(!showPassword)}
+                      >
+                        {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </Button>
+                    </div>
+                    
+                    {formData.password && (
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-xs">
+                          <span>Force du mot de passe:</span>
+                          <span className={`font-medium ${getStrengthColor(passwordStrength(formData.password)).replace('bg-', 'text-')}`}>
+                            {getStrengthText(passwordStrength(formData.password))}
+                          </span>
+                        </div>
+                        <div className="flex space-x-1">
+                          {[1, 2, 3, 4].map((level) => (
+                            <div
+                              key={level}
+                              className={`h-1 flex-1 rounded ${
+                                level <= passwordStrength(formData.password)
+                                  ? getStrengthColor(passwordStrength(formData.password))
+                                  : 'bg-gray-200'
+                              }`}
+                            />
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
-                )}
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="confirmPassword">Confirmer le mot de passe *</Label>
+                    <div className="relative">
+                      <Input
+                        id="confirmPassword"
+                        name="confirmPassword"
+                        type={showConfirmPassword ? "text" : "password"}
+                        value={formData.confirmPassword}
+                        onChange={handleChange}
+                        placeholder="••••••••"
+                        required
+                      />
+                      <Button
+                        type="button"
+                        variant="ghost"
+                        size="sm"
+                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                      >
+                        {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                      </Button>
+                    </div>
+                    {formData.confirmPassword && formData.password === formData.confirmPassword && (
+                      <div className="flex items-center space-x-2 text-green-600">
+                        <CheckCircle className="h-4 w-4" />
+                        <span className="text-xs">Les mots de passe correspondent</span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Section Informations entreprise */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-900 border-b pb-2 flex items-center gap-2">
+                  <Building2 className="h-5 w-5" />
+                  Informations entreprise
+                </h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="nomEntreprise">Nom de l'entreprise *</Label>
+                    <Input
+                      id="nomEntreprise"
+                      name="nomEntreprise"
+                      type="text"
+                      value={formData.nomEntreprise}
+                      onChange={handleChange}
+                      placeholder="Ma Super Entreprise"
+                      required
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label htmlFor="secteurActivite">Secteur d'activité</Label>
+                    <Input
+                      id="secteurActivite"
+                      name="secteurActivite"
+                      type="text"
+                      value={formData.secteurActivite}
+                      onChange={handleChange}
+                      placeholder="Ex: Commerce, Industrie, Services..."
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="tailleEntreprise">Taille de l'entreprise</Label>
+                    <Select onValueChange={(value) => handleSelectChange('tailleEntreprise', value)}>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Sélectionnez la taille" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="1-10">1-10 employés</SelectItem>
+                        <SelectItem value="11-50">11-50 employés</SelectItem>
+                        <SelectItem value="51-200">51-200 employés</SelectItem>
+                        <SelectItem value="200+">200+ employés</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="formeJuridique">Forme juridique</Label>
+                    <Input
+                      id="formeJuridique"
+                      name="formeJuridique"
+                      type="text"
+                      value={formData.formeJuridique}
+                      onChange={handleChange}
+                      placeholder="Ex: SARL, SAS, Auto-entrepreneur..."
+                    />
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="adresseEntreprise">Adresse de l'entreprise</Label>
+                  <Input
+                    id="adresseEntreprise"
+                    name="adresseEntreprise"
+                    type="text"
+                    value={formData.adresseEntreprise}
+                    onChange={handleChange}
+                    placeholder="123 Rue de l'Exemple, 75001 Paris"
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="telephoneEntreprise">Téléphone</Label>
+                    <Input
+                      id="telephoneEntreprise"
+                      name="telephoneEntreprise"
+                      type="tel"
+                      value={formData.telephoneEntreprise}
+                      onChange={handleChange}
+                      placeholder="01 23 45 67 89"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="emailEntreprise">Email entreprise</Label>
+                    <Input
+                      id="emailEntreprise"
+                      name="emailEntreprise"
+                      type="email"
+                      value={formData.emailEntreprise}
+                      onChange={handleChange}
+                      placeholder="contact@entreprise.com"
+                    />
+                  </div>
+
+                  <div className="space-y-2">
+                    <Label htmlFor="siret">SIRET</Label>
+                    <Input
+                      id="siret"
+                      name="siret"
+                      type="text"
+                      value={formData.siret}
+                      onChange={handleChange}
+                      placeholder="12345678901234"
+                    />
+                  </div>
+                </div>
               </div>
               
               <Button type="submit" className="w-full" disabled={isLoading}>
