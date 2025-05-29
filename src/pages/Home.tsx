@@ -242,11 +242,13 @@ const Home = () => {
                 </ul>
               </CardContent>
               <CardFooter className="px-6 pb-8">
-                <Link to="/register" className="w-full">
-                  <Button className="w-full bg-green-600 hover:bg-green-700 text-white py-3 text-lg font-semibold rounded-xl">
-                    Commencer l'essai gratuit
-                  </Button>
-                </Link>
+                <div className="w-full space-y-3">
+                  <Link to="/checkout" className="w-full block">
+                    <Button className="w-full bg-green-600 hover:bg-green-700 text-white py-3 text-lg font-semibold rounded-xl">
+                      Commencer l'essai gratuit
+                    </Button>
+                  </Link>
+                </div>
               </CardFooter>
             </Card>
 
@@ -306,11 +308,18 @@ const Home = () => {
                 </ul>
               </CardContent>
               <CardFooter className="px-6 pb-8">
-                <Link to="/subscription" className="w-full">
-                  <Button className="w-full bg-orange-500 hover:bg-orange-600 text-white py-3 text-lg font-semibold rounded-xl">
-                    Choisir Pro
-                  </Button>
-                </Link>
+                <div className="w-full space-y-3">
+                  <Link to="/checkout" className="w-full block">
+                    <Button className="w-full bg-green-600 hover:bg-green-700 text-white py-2 text-base font-semibold rounded-xl">
+                      Essai gratuit 14 jours
+                    </Button>
+                  </Link>
+                  <Link to="/checkout" className="w-full block">
+                    <Button variant="outline" className="w-full border-orange-500 text-orange-600 hover:bg-orange-50 py-2 text-base font-semibold rounded-xl">
+                      Payer maintenant
+                    </Button>
+                  </Link>
+                </div>
               </CardFooter>
             </Card>
 
@@ -378,11 +387,18 @@ const Home = () => {
                 </ul>
               </CardContent>
               <CardFooter className="px-6 pb-8">
-                <Link to="/subscription" className="w-full">
-                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg font-semibold rounded-xl">
-                    Choisir Entreprise
-                  </Button>
-                </Link>
+                <div className="w-full space-y-3">
+                  <Link to="/checkout" className="w-full block">
+                    <Button className="w-full bg-green-600 hover:bg-green-700 text-white py-2 text-base font-semibold rounded-xl">
+                      Essai gratuit 14 jours
+                    </Button>
+                  </Link>
+                  <Link to="/checkout" className="w-full block">
+                    <Button variant="outline" className="w-full border-blue-500 text-blue-600 hover:bg-blue-50 py-2 text-base font-semibold rounded-xl">
+                      Payer maintenant
+                    </Button>
+                  </Link>
+                </div>
               </CardFooter>
             </Card>
           </div>

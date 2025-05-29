@@ -431,6 +431,79 @@ export type Database = {
           },
         ]
       }
+      payment_proofs: {
+        Row: {
+          admin_notes: string | null
+          amount: number
+          approved_at: string | null
+          approved_by: string | null
+          created_at: string
+          currency: string
+          id: string
+          payment_method: string
+          plan_id: string
+          proof_file_url: string | null
+          reference_info: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          admin_notes?: string | null
+          amount: number
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          payment_method: string
+          plan_id: string
+          proof_file_url?: string | null
+          reference_info?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          admin_notes?: string | null
+          amount?: number
+          approved_at?: string | null
+          approved_by?: string | null
+          created_at?: string
+          currency?: string
+          id?: string
+          payment_method?: string
+          plan_id?: string
+          proof_file_url?: string | null
+          reference_info?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "payment_proofs_approved_by_fkey"
+            columns: ["approved_by"]
+            isOneToOne: false
+            referencedRelation: "user_current_plan"
+            referencedColumns: ["user_id"]
+          },
+          {
+            foreignKeyName: "payment_proofs_plan_id_fkey"
+            columns: ["plan_id"]
+            isOneToOne: false
+            referencedRelation: "plans"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "payment_proofs_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "user_current_plan"
+            referencedColumns: ["user_id"]
+          },
+        ]
+      }
       payments: {
         Row: {
           amount: number
@@ -569,30 +642,36 @@ export type Database = {
       }
       profiles: {
         Row: {
+          account_status: string | null
           company_name: string | null
           created_at: string
           email: string | null
           full_name: string | null
           id: string
           phone: string | null
+          trial_expires_at: string | null
           updated_at: string
         }
         Insert: {
+          account_status?: string | null
           company_name?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
           id: string
           phone?: string | null
+          trial_expires_at?: string | null
           updated_at?: string
         }
         Update: {
+          account_status?: string | null
           company_name?: string | null
           created_at?: string
           email?: string | null
           full_name?: string | null
           id?: string
           phone?: string | null
+          trial_expires_at?: string | null
           updated_at?: string
         }
         Relationships: [
