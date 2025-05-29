@@ -65,11 +65,11 @@ const Layout = ({ children, requireAuth = false }: LayoutProps) => {
           const now = new Date();
           
           if (now > trialExpiry) {
-            // Mettre à jour le statut à expiré
+            // Mettre à jour le statut à expiré via profiles
             await supabase
-              .from('accounts')
-              .update({ status: 'expired' })
-              .eq('id', account.id);
+              .from('profiles')
+              .update({ account_status: 'expired' })
+              .eq('id', user.id);
             
             setHasActiveSubscription(false);
           } else {

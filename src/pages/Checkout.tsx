@@ -2,7 +2,7 @@
 import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { usePlans } from "@/hooks/usePlans";
+import { useNewPlans } from "@/hooks/useNewPlans";
 import { useUserProfile } from "@/hooks/useUserProfile";
 import PaymentMethodSelection from "@/components/PaymentMethodSelection";
 import { Check, Star, Users, Clock } from "lucide-react";
@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from 'sonner';
 
 const Checkout = () => {
-  const { data: plans, isLoading } = usePlans();
+  const { data: plans, isLoading } = useNewPlans();
   const { data: profile } = useUserProfile();
   const navigate = useNavigate();
 
@@ -69,9 +69,9 @@ const Checkout = () => {
           </div>
           
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-4xl mx-auto">
-            {plans?.filter(plan => plan.name !== 'Essai Gratuit').map((plan) => (
+            {plans?.filter(plan => !plan.is_trial).map((plan) => (
               <Card key={plan.id} className="relative border-2 hover:border-blue-500 transition-colors">
-                {plan.name === 'Pro' && (
+                {plan.name === 'pro' && (
                   <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                     <Badge className="bg-orange-500 text-white px-4 py-2">
                       Recommandé
@@ -81,14 +81,14 @@ const Checkout = () => {
                 
                 <CardHeader className="text-center pb-6">
                   <CardTitle className="text-2xl font-bold mb-2">
-                    {plan.name}
+                    {plan.label}
                   </CardTitle>
                   <div className="mb-2">
-                    <span className="text-4xl font-bold">{plan.price}</span>
-                    <span className="text-xl text-gray-500 ml-1">{plan.currency} / an</span>
+                    <span className="text-4xl font-bold">{plan.price_dt}</span>
+                    <span className="text-xl text-gray-500 ml-1">DT / an</span>
                   </div>
                   <CardDescription>
-                    {plan.name === 'Pro' ? 'Pour les entreprises en croissance' : 'Solution complète pour équipes'}
+                    {plan.name === 'pro' ? 'Pour les entreprises en croissance' : 'Solution complète pour équipes'}
                   </CardDescription>
                 </CardHeader>
                 
@@ -124,10 +124,10 @@ const Checkout = () => {
             <Card 
               key={plan.id} 
               className={`relative border-2 hover:border-blue-500 transition-colors ${
-                plan.name === 'Pro' ? 'border-orange-500 transform lg:scale-105' : 'border-gray-200'
+                plan.name === 'pro' ? 'border-orange-500 transform lg:scale-105' : 'border-gray-200'
               }`}
             >
-              {plan.name === 'Essai Gratuit' && (
+              {plan.is_trial && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                   <Badge className="bg-green-500 text-white px-4 py-2">
                     Gratuit 14 jours
@@ -135,7 +135,7 @@ const Checkout = () => {
                 </div>
               )}
               
-              {plan.name === 'Pro' && (
+              {plan.name === 'pro' && (
                 <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
                   <Badge className="bg-orange-500 text-white px-4 py-2">
                     Recommandé
@@ -145,34 +145,40 @@ const Checkout = () => {
               
               <CardHeader className="text-center pb-6">
                 <CardTitle className="text-2xl font-bold mb-2">
-                  {plan.name}
+                  {plan.label}
                 </CardTitle>
                 <div className="mb-2">
-                  <span className="text-4xl font-bold">{plan.price}</span>
+                  <span className="text-4xl font-bold">{plan.price_dt}</span>
                   <span className="text-xl text-gray-500 ml-1">
-                    {plan.currency} {plan.name === 'Essai Gratuit' ? '' : '/ an'}
+                    DT {plan.is_trial ? '' : '/ an'}
                   </span>
                 </div>
                 <CardDescription>
-                  {plan.name === 'Essai Gratuit' ? 'Découvrez toutes nos fonctionnalités' :
-                   plan.name === 'Pro' ? 'Pour les entreprises en croissance' : 
+                  {plan.is_trial ? 'Découvrez toutes nos fonctionnalités' :
+                   plan.name === 'pro' ? 'Pour les entreprises en croissance' : 
                    'Solution complète pour équipes'}
                 </CardDescription>
               </CardHeader>
               
               <CardContent className="pb-6">
-                {/* Fonctionnalités */}
+                {/* Fonctionnalités de base */}
                 <div className="space-y-3 mb-6">
-                  {plan.features && Array.isArray(plan.features) && plan.features.map((feature, index) => (
-                    <div key={index} className="flex items-center gap-2">
-                      <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
-                      <span className="text-sm text-gray-700">{feature}</span>
-                    </div>
-                  ))}
+                  <div className="flex items-center gap-2">
+                    <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                    <span className="text-sm text-gray-700">Gestion de trésorerie</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                    <span className="text-sm text-gray-700">Tableaux de bord</span>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Check className="h-4 w-4 text-green-500 flex-shrink-0" />
+                    <span className="text-sm text-gray-700">{plan.max_users} utilisateur{plan.max_users > 1 ? 's' : ''}</span>
+                  </div>
                 </div>
                 
                 {/* Actions */}
-                {plan.name === 'Essai Gratuit' ? (
+                {plan.is_trial ? (
                   <PaymentMethodSelection 
                     plan={plan} 
                     showTrialOption={true}

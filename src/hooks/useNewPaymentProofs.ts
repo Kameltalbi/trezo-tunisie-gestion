@@ -26,10 +26,23 @@ export const useNewPaymentProofs = () => {
       const { data, error } = await supabase
         .from('payment_proofs')
         .select('*')
-        .order('submitted_at', { ascending: false });
+        .eq('user_id', user.id)
+        .order('created_at', { ascending: false });
       
       if (error) throw error;
-      return data as NewPaymentProof[];
+      
+      // Adapter les données existantes au nouveau format
+      return data.map(proof => ({
+        id: proof.id,
+        account_id: proof.user_id, // Utiliser user_id comme account_id temporairement
+        uploaded_by: proof.user_id,
+        plan_id: proof.plan_id,
+        file_url: proof.proof_file_url,
+        status: proof.status as 'pending' | 'accepted' | 'rejected',
+        notes: proof.admin_notes,
+        submitted_at: proof.created_at,
+        validated_at: proof.approved_at
+      })) as NewPaymentProof[];
     },
     enabled: !!user,
   });
@@ -46,8 +59,13 @@ export const useCreateNewPaymentProof = () => {
       const { data: result, error } = await supabase
         .from('payment_proofs')
         .insert({
-          ...data,
-          uploaded_by: user.id,
+          user_id: user.id,
+          plan_id: data.plan_id,
+          amount: 0, // Sera déterminé côté serveur basé sur le plan
+          currency: 'DT',
+          payment_method: 'bank_transfer',
+          proof_file_url: data.file_url,
+          reference_info: data.notes,
         })
         .select()
         .single();

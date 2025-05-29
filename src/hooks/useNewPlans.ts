@@ -20,10 +20,21 @@ export const useNewPlans = () => {
       const { data, error } = await supabase
         .from('plans')
         .select('*')
-        .order('price_dt', { ascending: true });
+        .order('price', { ascending: true });
 
       if (error) throw error;
-      return data as NewPlan[];
+      
+      // Adapter les données existantes au nouveau format
+      return data.map(plan => ({
+        id: plan.id,
+        name: plan.name,
+        label: plan.label || plan.name,
+        price_dt: plan.price || 0,
+        max_users: plan.max_users || 1,
+        is_trial: plan.trial_enabled || false,
+        created_at: plan.created_at,
+        updated_at: plan.updated_at
+      })) as NewPlan[];
     },
   });
 };
