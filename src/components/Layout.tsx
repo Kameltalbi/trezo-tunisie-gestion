@@ -1,4 +1,3 @@
-
 import { useAuth } from "@/contexts/AuthContext";
 import { Navigate, useLocation } from "react-router-dom";
 import { useState, useEffect } from "react";
@@ -6,6 +5,7 @@ import { supabase } from "@/integrations/supabase/client";
 import Sidebar from "./Sidebar";
 import Header from "./Header";
 import TrialBanner from "./TrialBanner";
+import TrialMessageBanner from "./TrialMessageBanner";
 
 interface LayoutProps {
   children: React.ReactNode;
@@ -80,6 +80,7 @@ const Layout = ({ children, requireAuth = false }: LayoutProps) => {
     return (
       <div className="min-h-screen bg-background text-foreground">
         <Header />
+        <TrialMessageBanner />
         <div className="flex">
           <Sidebar onExpandedChange={setIsSidebarExpanded} />
           <main 
