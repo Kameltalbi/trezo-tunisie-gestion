@@ -1,7 +1,7 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
+import { useAuth } from '@/contexts/AuthContext';
 import { 
   LayoutDashboard, 
   Banknote, 
@@ -15,7 +15,8 @@ import {
   ArrowDownCircle,
   ArrowUpCircle,
   Target,
-  LifeBuoy
+  LifeBuoy,
+  Shield
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Separator } from './ui/separator';
@@ -45,6 +46,7 @@ const SidebarSection = ({ label }: SidebarSectionProps) => {
 
 const Sidebar = ({ onExpandedChange }: SidebarProps) => {
   const { t } = useTranslation();
+  const { user } = useAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(false);
@@ -67,6 +69,14 @@ const Sidebar = ({ onExpandedChange }: SidebarProps) => {
     label: t('nav.dashboard'),
     path: '/dashboard',
     isActive: isActive('/dashboard')
+  };
+
+  // Superadmin item (only for kamel.talbi@yahoo.fr)
+  const superadminItem: SidebarItemProps = {
+    icon: <Shield size={24} />,
+    label: 'Superadmin',
+    path: '/superadmin',
+    isActive: isActive('/superadmin')
   };
 
   // GESTION DE TRÉSORERIE section
@@ -182,6 +192,15 @@ const Sidebar = ({ onExpandedChange }: SidebarProps) => {
       <div className="flex-1 overflow-y-auto py-2">
         {/* Dashboard (no section) */}
         {renderSidebarItem(dashboardItem)}
+        
+        {/* Superadmin section (only for kamel) */}
+        {user?.email === 'kamel.talbi@yahoo.fr' && (
+          <>
+            <Separator className="my-1 bg-sidebar-accent/20" />
+            {renderSidebarItem(superadminItem)}
+          </>
+        )}
+        
         <Separator className="my-1 bg-sidebar-accent/20" />
         
         {/* GESTION DE TRÉSORERIE section */}
