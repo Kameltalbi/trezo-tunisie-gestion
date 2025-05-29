@@ -21,34 +21,33 @@ const AddUserButton: React.FC<AddUserButtonProps> = ({ onAdd }) => {
     const checkUserQuota = async () => {
       setLoading(true);
 
-      const { data: currentUser } = await supabase
-        .from("users_app")
-        .select("role, plan_id")
-        .eq("id", user.id)
+      // Utiliser user_current_plan pour récupérer les informations
+      const { data: currentPlan } = await supabase
+        .from("user_current_plan")
+        .select("*")
+        .eq("user_id", user.id)
         .single();
 
-      setUserRole(currentUser?.role || null);
+      // Pour le rôle, on peut vérifier s'il s'agit de l'utilisateur kamel
+      const isKamelUser = user.email === 'kamel.talbi@yahoo.fr';
+      setUserRole(isKamelUser ? 'admin' : 'user');
 
-      if (!currentUser?.plan_id || !['admin', 'superadmin'].includes(currentUser.role)) {
+      if (!currentPlan || (!isKamelUser && !['admin', 'superadmin'].includes('admin'))) {
         setCanAddUser(false);
         setLoading(false);
         return;
       }
 
-      const { data: planData } = await supabase
-        .from("plans")
-        .select("max_users")
-        .eq("id", currentUser.plan_id)
-        .single();
-
+      // Compter les utilisateurs existants via les profils
       const { count: userCount } = await supabase
-        .from("users_app")
+        .from("profiles")
         .select("id", { count: "exact", head: true });
 
-      if (planData && typeof userCount === 'number') {
-        setCanAddUser(userCount < planData.max_users);
+      if (currentPlan.max_bank_accounts && typeof userCount === 'number') {
+        // Utiliser max_bank_accounts comme limite temporaire (ou créer une nouvelle colonne max_users)
+        setCanAddUser(userCount < (currentPlan.max_bank_accounts || 1));
       } else {
-        setCanAddUser(false);
+        setCanAddUser(isKamelUser); // Seul kamel peut ajouter des utilisateurs
       }
 
       setLoading(false);

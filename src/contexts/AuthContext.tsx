@@ -24,9 +24,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   // Fonction pour auto-enregistrer l'utilisateur
   const autoRegisterUser = async (currentUser: User) => {
     try {
-      // Vérifier si l'utilisateur existe déjà dans users_app
+      // Vérifier si l'utilisateur existe déjà dans les profils
       const { data: existing, error: checkError } = await supabase
-        .from("users_app")
+        .from("profiles")
         .select("id")
         .eq("id", currentUser.id)
         .maybeSingle();
@@ -49,17 +49,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
       const trialEnd = new Date();
       trialEnd.setDate(trialEnd.getDate() + 14);
 
-      // Insérer l'utilisateur dans users_app
-      const { error: insertError } = await supabase.from("users_app").insert({
-        id: currentUser.id,
-        email: currentUser.email || "",
-        role: "user",
+      // Créer une souscription trial pour l'utilisateur
+      const { error: subscriptionError } = await supabase.from("subscriptions").insert({
+        user_id: currentUser.id,
         plan_id: trialPlan.id,
-        trial_end_date: trialEnd.toISOString().split("T")[0],
+        status: "active",
+        is_trial: true,
+        trial_start_date: new Date().toISOString(),
+        trial_end_date: trialEnd.toISOString(),
+        end_date: trialEnd.toISOString(),
       });
 
-      if (insertError) {
-        console.error("Erreur création utilisateur trial :", insertError);
+      if (subscriptionError) {
+        console.error("Erreur création souscription trial :", subscriptionError);
       } else {
         console.log("Utilisateur créé avec succès avec plan trial");
       }
