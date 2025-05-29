@@ -8,12 +8,12 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useCreatePaymentProof } from '@/hooks/usePaymentProofs';
 import { useUpdateUserProfile } from '@/hooks/useUserProfile';
-import { Plan } from '@/hooks/usePlans';
+import { NewPlan } from '@/hooks/useNewPlans';
 import { Upload, Receipt, CreditCard } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface PaymentProofFormProps {
-  plan: Plan;
+  plan: NewPlan;
   onSuccess?: () => void;
 }
 
@@ -62,8 +62,8 @@ const PaymentProofForm: React.FC<PaymentProofFormProps> = ({ plan, onSuccess }) 
       // Créer la preuve de paiement
       await createPaymentProof.mutateAsync({
         plan_id: plan.id,
-        amount: plan.price,
-        currency: plan.currency,
+        amount: plan.price_dt,
+        currency: 'DT',
         payment_method: paymentMethod,
         proof_file_url: proofFileUrl,
         reference_info: referenceInfo,
@@ -92,7 +92,7 @@ const PaymentProofForm: React.FC<PaymentProofFormProps> = ({ plan, onSuccess }) 
           Preuve de paiement - Plan {plan.name}
         </CardTitle>
         <CardDescription>
-          Montant: {plan.price} {plan.currency} / an
+          Montant: {plan.price_dt} DT / an
         </CardDescription>
       </CardHeader>
       <CardContent>
