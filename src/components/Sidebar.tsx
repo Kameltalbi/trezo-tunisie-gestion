@@ -16,7 +16,8 @@ import {
   ArrowUpCircle,
   Target,
   LifeBuoy,
-  Shield
+  Shield,
+  Settings
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Separator } from './ui/separator';
@@ -77,6 +78,14 @@ const Sidebar = ({ onExpandedChange }: SidebarProps) => {
     label: 'Superadmin',
     path: '/superadmin',
     isActive: isActive('/superadmin')
+  };
+
+  // Settings item (for admin and superadmin)
+  const settingsItem: SidebarItemProps = {
+    icon: <Settings size={24} />,
+    label: 'Paramètres',
+    path: '/settings',
+    isActive: isActive('/settings')
   };
 
   // GESTION DE TRÉSORERIE section
@@ -236,6 +245,14 @@ const Sidebar = ({ onExpandedChange }: SidebarProps) => {
           <SidebarSection label={t('nav.reports_config')} />
         )}
         {reportsItems.map(renderSidebarItem)}
+        
+        {/* Settings section (for admin and superadmin) */}
+        {user?.email === 'kamel.talbi@yahoo.fr' && (
+          <>
+            <Separator className="my-1 bg-sidebar-accent/20" />
+            {renderSidebarItem(settingsItem)}
+          </>
+        )}
       </div>
     </div>
   );
