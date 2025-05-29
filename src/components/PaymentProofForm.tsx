@@ -8,6 +8,8 @@ import { Textarea } from "@/components/ui/textarea";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { useCreatePaymentProof } from '@/hooks/usePaymentProofs';
 import { useUpdateUserProfile } from '@/hooks/useUserProfile';
+import { useFileUpload } from '@/hooks/useFileUpload';
+import { useNotifications } from '@/hooks/useNotifications';
 import { NewPlan } from '@/hooks/useNewPlans';
 import { Upload, Receipt, CreditCard } from 'lucide-react';
 import { toast } from 'sonner';
@@ -21,19 +23,15 @@ const PaymentProofForm: React.FC<PaymentProofFormProps> = ({ plan, onSuccess }) 
   const [paymentMethod, setPaymentMethod] = useState<'bank_transfer' | 'check'>('bank_transfer');
   const [referenceInfo, setReferenceInfo] = useState('');
   const [proofFile, setProofFile] = useState<File | null>(null);
-  const [isUploading, setIsUploading] = useState(false);
   
   const createPaymentProof = useCreatePaymentProof();
   const updateProfile = useUpdateUserProfile();
+  const { uploadFile, isUploading } = useFileUpload();
+  const { sendNotification } = useNotifications();
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file) {
-      // Vérifier la taille du fichier (max 5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        toast.error('Le fichier ne doit pas dépasser 5MB');
-        return;
-      }
       setProofFile(file);
     }
   };
@@ -46,17 +44,23 @@ const PaymentProofForm: React.FC<PaymentProofFormProps> = ({ plan, onSuccess }) 
       return;
     }
 
-    setIsUploading(true);
-
     try {
       let proofFileUrl = '';
       
       // Upload du fichier si présent
       if (proofFile) {
-        const fileName = `${Date.now()}-${proofFile.name}`;
-        // Note: Dans un vrai projet, il faudrait configurer Supabase Storage
-        // Pour l'instant, on simule l'upload
-        proofFileUrl = `uploads/payment-proofs/${fileName}`;
+        const uploadResult = await uploadFile(proofFile, {
+          bucket: 'payment-proofs',
+          folder: 'proofs',
+          maxSize: 5 * 1024 * 1024, // 5MB
+          allowedTypes: ['application/pdf', 'image/jpeg', 'image/png']
+        });
+
+        if (!uploadResult) {
+          return; // L'erreur a déjà été affichée par useFileUpload
+        }
+
+        proofFileUrl = uploadResult.path;
       }
 
       // Créer la preuve de paiement
@@ -74,13 +78,22 @@ const PaymentProofForm: React.FC<PaymentProofFormProps> = ({ plan, onSuccess }) 
         account_status: 'pending_activation'
       });
 
+      // Envoyer notification email
+      await sendNotification({
+        type: 'payment_proof_submitted',
+        email: 'admin@trezo.tn', // Email admin
+        data: {
+          user_name: 'Utilisateur',
+          plan_name: plan.name,
+          amount: plan.price_dt
+        }
+      });
+
       toast.success('Votre preuve de paiement a été envoyée avec succès !');
       onSuccess?.();
     } catch (error) {
       console.error('Erreur lors de l\'envoi de la preuve:', error);
       toast.error('Erreur lors de l\'envoi de la preuve de paiement');
-    } finally {
-      setIsUploading(false);
     }
   };
 
