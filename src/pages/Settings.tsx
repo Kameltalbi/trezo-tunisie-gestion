@@ -5,6 +5,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Settings as SettingsIcon, Users, Building2, Shield, Currency } from 'lucide-react';
 import { useAuth } from '@/contexts/AuthContext';
 import UsersManagement from '@/components/settings/UsersManagement';
+import PermissionsSection from '@/components/settings/PermissionsSection';
 import AccountInformation from '@/components/settings/AccountInformation';
 import SecuritySettings from '@/components/settings/SecuritySettings';
 import CurrencySettings from '@/components/settings/CurrencySettings';
@@ -53,10 +54,14 @@ const Settings = () => {
 
       <div className="container mx-auto px-6 py-8">
         <Tabs value={activeTab} onValueChange={setActiveTab} className="space-y-6">
-          <TabsList className="grid w-full grid-cols-5">
+          <TabsList className="grid w-full grid-cols-6">
             <TabsTrigger value="users" className="flex items-center gap-2">
               <Users className="h-4 w-4" />
               <span className="hidden sm:inline">Utilisateurs</span>
+            </TabsTrigger>
+            <TabsTrigger value="permissions" className="flex items-center gap-2">
+              <Shield className="h-4 w-4" />
+              <span className="hidden sm:inline">Permissions</span>
             </TabsTrigger>
             <TabsTrigger value="entreprise" className="flex items-center gap-2">
               <Building2 className="h-4 w-4" />
@@ -78,6 +83,10 @@ const Settings = () => {
 
           <TabsContent value="users">
             <UsersManagement isSuperAdmin={isSuperAdmin} />
+          </TabsContent>
+
+          <TabsContent value="permissions">
+            <PermissionsSection />
           </TabsContent>
 
           <TabsContent value="entreprise">
