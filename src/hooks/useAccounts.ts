@@ -19,6 +19,21 @@ export interface Account {
   updated_at: string;
 }
 
+export const useAccounts = () => {
+  return useQuery({
+    queryKey: ['accounts'],
+    queryFn: async () => {
+      const { data, error } = await supabase
+        .from('accounts')
+        .select('*')
+        .order('created_at', { ascending: false });
+
+      if (error) throw error;
+      return data as Account[];
+    },
+  });
+};
+
 export const useCurrentAccount = () => {
   const { user } = useAuth();
   
@@ -61,6 +76,7 @@ export const useUpdateAccount = () => {
     onSuccess: () => {
       toast.success("Compte mis à jour avec succès");
       queryClient.invalidateQueries({ queryKey: ['current-account'] });
+      queryClient.invalidateQueries({ queryKey: ['accounts'] });
     },
     onError: (error) => {
       toast.error("Erreur lors de la mise à jour du compte");

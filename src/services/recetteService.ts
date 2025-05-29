@@ -1,6 +1,8 @@
-
 import { Recette } from "../types";
 import { supabase } from "@/integrations/supabase/client";
+
+// Type pour la récurrence
+type RecurrenceType = "aucune" | "quotidienne" | "hebdomadaire" | "bimensuelle" | "mensuelle" | "trimestrielle" | "simestrielle" | "annuelle";
 
 // Récupère toutes les recettes d'un utilisateur depuis Supabase
 export const getRecettesForUser = async (userId: string): Promise<Recette[]> => {
@@ -22,7 +24,7 @@ export const getRecettesForUser = async (userId: string): Promise<Recette[]> => 
     date: item.date_transaction,
     categorie: item.categorie,
     sousCategorie: item.sous_categorie || '',
-    recurrence: item.recurrence || 'aucune',
+    recurrence: (item.recurrence || 'aucune') as RecurrenceType,
     userId: item.user_id
   }));
 };
@@ -55,7 +57,7 @@ export const addRecette = async (recette: Omit<Recette, "id">): Promise<Recette>
     date: data.date_transaction,
     categorie: data.categorie,
     sousCategorie: data.sous_categorie || '',
-    recurrence: data.recurrence || 'aucune',
+    recurrence: (data.recurrence || 'aucune') as RecurrenceType,
     userId: data.user_id
   };
 };
@@ -89,7 +91,7 @@ export const updateRecette = async (id: string, recetteData: Partial<Recette>): 
     date: data.date_transaction,
     categorie: data.categorie,
     sousCategorie: data.sous_categorie || '',
-    recurrence: data.recurrence || 'aucune',
+    recurrence: (data.recurrence || 'aucune') as RecurrenceType,
     userId: data.user_id
   };
 };
