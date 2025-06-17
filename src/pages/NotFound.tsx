@@ -7,7 +7,7 @@ import { useTranslation } from "react-i18next";
 const NotFound = () => {
   const { user } = useAuth();
   const { t } = useTranslation();
-  const redirectPath = user ? "/recettes" : "/login";
+  const redirectPath = user ? "/dashboard" : "/login";
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background px-4">
