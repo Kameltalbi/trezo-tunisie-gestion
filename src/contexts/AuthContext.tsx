@@ -109,7 +109,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
               // Vérifier et créer l'entrée dans la table users avec le bon rôle
               const { data: existingUser } = await supabase
                 .from('users')
-                .select('id')
+                .select('id, role')
                 .eq('id', session.user.id)
                 .single();
 
@@ -240,6 +240,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     try {
       const { error } = await supabase.auth.signOut();
       if (error) throw error;
+      
+      // Rediriger vers la page d'accueil après déconnexion
+      window.location.href = '/';
     } catch (error) {
       setError(error instanceof Error ? error.message : "Erreur de déconnexion");
       throw error;
