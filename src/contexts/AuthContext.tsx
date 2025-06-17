@@ -1,3 +1,4 @@
+
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { User, Session } from "@supabase/supabase-js";
@@ -105,7 +106,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                   });
               }
 
-              // Vérifier et créer l'entrée dans la table users avec le rôle admin
+              // Vérifier et créer l'entrée dans la table users avec le bon rôle
               const { data: existingUser } = await supabase
                 .from('users')
                 .select('id')
@@ -113,17 +114,40 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
                 .single();
 
               if (!existingUser) {
-                // Créer l'utilisateur avec le rôle admin par défaut
+                // Déterminer le rôle basé sur l'email
+                let userRole = 'admin'; // Rôle admin par défaut
+                
+                // Si c'est KT CONSULTING & CO TALBI, donner le rôle admin
+                if (session.user.email === 'kamel.talbi@ktconsulting.info' || 
+                    session.user.email === 'kamel.talbi@yahoo.fr') {
+                  userRole = 'admin';
+                  console.log('Rôle admin attribué à KT CONSULTING & CO TALBI');
+                }
+
+                // Créer l'utilisateur avec le rôle approprié
                 await supabase
                   .from('users')
                   .insert({
                     id: session.user.id,
                     email: session.user.email,
                     full_name: session.user.user_metadata?.full_name || null,
-                    role: 'admin', // Rôle admin par défaut pour tous les nouveaux utilisateurs
+                    role: userRole,
                   });
                 
-                console.log('Utilisateur créé avec le rôle admin');
+                console.log(`Utilisateur créé avec le rôle ${userRole}`);
+              } else {
+                // Si l'utilisateur existe déjà, vérifier s'il faut mettre à jour son rôle
+                if ((session.user.email === 'kamel.talbi@ktconsulting.info' || 
+                     session.user.email === 'kamel.talbi@yahoo.fr') && 
+                    existingUser.role !== 'admin') {
+                  
+                  await supabase
+                    .from('users')
+                    .update({ role: 'admin' })
+                    .eq('id', session.user.id);
+                  
+                  console.log('Rôle mis à jour vers admin pour KT CONSULTING & CO TALBI');
+                }
               }
             } catch (error) {
               console.error('Erreur lors de la création du profil ou utilisateur:', error);
