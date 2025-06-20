@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -50,12 +51,12 @@ const SidebarSection = ({ label, children }: SidebarSectionProps) => {
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors group rounded-lg mx-2">
+      <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-slate-700 hover:text-slate-900 hover:bg-slate-100/50 transition-colors group rounded-lg mx-2">
         <span className="font-semibold">{label}</span>
         {isOpen ? (
-          <ChevronDown size={16} className="text-gray-500" />
+          <ChevronDown size={16} className="text-slate-500" />
         ) : (
-          <ChevronRight size={16} className="text-gray-500" />
+          <ChevronRight size={16} className="text-slate-500" />
         )}
       </CollapsibleTrigger>
       <CollapsibleContent className="space-y-1 px-2">
@@ -192,14 +193,14 @@ const Sidebar = ({ onExpandedChange }: SidebarProps) => {
       className={cn(
         "flex items-center px-3 py-2.5 mx-2 cursor-pointer rounded-lg transition-all duration-200 group",
         item.isActive 
-          ? "bg-blue-50 text-blue-600 border-l-3 border-blue-600 shadow-sm" 
-          : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
+          ? "bg-blue-100 text-blue-700 border-l-3 border-blue-600 shadow-sm" 
+          : "text-slate-700 hover:bg-slate-100/50 hover:text-slate-900"
       )}
       onClick={() => handleNavigation(item.path)}
     >
       <div className={cn(
         "flex items-center justify-center transition-colors min-w-[20px]",
-        item.isActive ? "text-blue-600" : "text-gray-500 group-hover:text-gray-700"
+        item.isActive ? "text-blue-700" : "text-slate-500 group-hover:text-slate-700"
       )}>
         {item.icon}
       </div>
@@ -209,19 +210,19 @@ const Sidebar = ({ onExpandedChange }: SidebarProps) => {
 
   return (
     <div 
-      className="fixed left-0 top-0 h-full bg-white border-r border-gray-200 z-50 transition-all duration-300 flex flex-col shadow-sm"
+      className="fixed left-0 top-0 h-full bg-slate-50 border-r border-slate-200 z-50 transition-all duration-300 flex flex-col shadow-sm"
       style={{ width: isExpanded ? '280px' : '70px' }}
     >
       {/* Header with toggle button */}
-      <div className="px-4 py-4 border-b border-gray-200 flex items-center justify-between">
+      <div className="px-4 py-4 border-b border-slate-200 flex items-center justify-between bg-slate-100/50">
         {isExpanded ? (
           <>
-            <h1 className="text-xl font-bold text-gray-900">Trezo</h1>
+            <h1 className="text-xl font-bold text-slate-800">Trezo</h1>
             <Button
               variant="ghost"
               size="icon"
               onClick={toggleSidebar}
-              className="h-8 w-8 text-gray-500 hover:text-gray-700"
+              className="h-8 w-8 text-slate-500 hover:text-slate-700 hover:bg-slate-200/50"
             >
               <X size={18} />
             </Button>
@@ -232,7 +233,7 @@ const Sidebar = ({ onExpandedChange }: SidebarProps) => {
               variant="ghost"
               size="icon"
               onClick={toggleSidebar}
-              className="h-8 w-8 text-gray-500 hover:text-gray-700"
+              className="h-8 w-8 text-slate-500 hover:text-slate-700 hover:bg-slate-200/50"
             >
               <Menu size={18} />
             </Button>
@@ -249,14 +250,14 @@ const Sidebar = ({ onExpandedChange }: SidebarProps) => {
         {isSuperAdmin && (
           <>
             <div className="my-4 mx-4">
-              <div className="h-px bg-gray-200"></div>
+              <div className="h-px bg-slate-200"></div>
             </div>
             {renderSidebarItem(superadminItem)}
           </>
         )}
         
         <div className="my-4 mx-4">
-          <div className="h-px bg-gray-200"></div>
+          <div className="h-px bg-slate-200"></div>
         </div>
         
         {/* Only show sections when expanded */}
@@ -303,7 +304,7 @@ const Sidebar = ({ onExpandedChange }: SidebarProps) => {
         {isAdmin && (
           <>
             <div className="my-4 mx-4">
-              <div className="h-px bg-gray-200"></div>
+              <div className="h-px bg-slate-200"></div>
             </div>
             {renderSidebarItem(settingsItem)}
           </>
