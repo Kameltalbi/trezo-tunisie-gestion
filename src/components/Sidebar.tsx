@@ -200,7 +200,7 @@ const Sidebar = ({ onExpandedChange }: SidebarProps) => {
     >
       <div className={cn(
         "flex items-center justify-center transition-colors min-w-[20px]",
-        item.isActive ? "text-blue-700" : "text-slate-500 group-hover:text-slate-700"
+        item.isActive ? "text-blue-700" : "text-[#01204e] group-hover:text-slate-700"
       )}>
         {item.icon}
       </div>
@@ -222,7 +222,7 @@ const Sidebar = ({ onExpandedChange }: SidebarProps) => {
               variant="ghost"
               size="icon"
               onClick={toggleSidebar}
-              className="h-8 w-8 text-slate-500 hover:text-slate-700 hover:bg-slate-200/50"
+              className="h-8 w-8 text-[#01204e] hover:text-slate-700 hover:bg-slate-200/50"
             >
               <X size={18} />
             </Button>
@@ -233,7 +233,7 @@ const Sidebar = ({ onExpandedChange }: SidebarProps) => {
               variant="ghost"
               size="icon"
               onClick={toggleSidebar}
-              className="h-8 w-8 text-slate-500 hover:text-slate-700 hover:bg-slate-200/50"
+              className="h-8 w-8 text-[#01204e] hover:text-slate-700 hover:bg-slate-200/50"
             >
               <Menu size={18} />
             </Button>
