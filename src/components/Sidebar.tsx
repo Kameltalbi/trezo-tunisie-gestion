@@ -46,19 +46,19 @@ interface SidebarProps {
 }
 
 const SidebarSection = ({ label, children }: SidebarSectionProps) => {
-  const [isOpen, setIsOpen] = useState(true);
+  const [isOpen, setIsOpen] = useState(false);
 
   return (
     <Collapsible open={isOpen} onOpenChange={setIsOpen}>
-      <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-3 text-xs font-medium text-gray-500 hover:text-gray-700 transition-colors group">
-        <span className="uppercase tracking-wider">{label}</span>
+      <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-3 text-sm font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 transition-colors group rounded-lg mx-2">
+        <span className="font-semibold">{label}</span>
         {isOpen ? (
-          <ChevronDown size={14} className="group-hover:text-gray-700" />
+          <ChevronDown size={16} className="text-gray-500" />
         ) : (
-          <ChevronRight size={14} className="group-hover:text-gray-700" />
+          <ChevronRight size={16} className="text-gray-500" />
         )}
       </CollapsibleTrigger>
-      <CollapsibleContent className="space-y-1">
+      <CollapsibleContent className="space-y-1 px-2">
         {children}
       </CollapsibleContent>
     </Collapsible>
@@ -259,49 +259,44 @@ const Sidebar = ({ onExpandedChange }: SidebarProps) => {
           <div className="h-px bg-gray-200"></div>
         </div>
         
-        {/* GESTION DE TRÉSORERIE section */}
+        {/* Only show sections when expanded */}
         {isExpanded && (
-          <div className="mb-4">
-            <SidebarSection label={t('nav.cash_management')}>
-              {treasuryManagementItems.map(renderSidebarItem)}
-            </SidebarSection>
-          </div>
-        )}
-        
-        {/* PRÉVISIONS section */}
-        {isExpanded && (
-          <div className="mb-4">
-            <SidebarSection label={t('nav.forecasts')}>
-              {forecastItems.map(renderSidebarItem)}
-            </SidebarSection>
-          </div>
-        )}
-        
-        {/* TRANSACTIONS section */}
-        {isExpanded && (
-          <div className="mb-4">
-            <SidebarSection label={t('nav.transactions_section')}>
-              {transactionsItems.map(renderSidebarItem)}
-            </SidebarSection>
-          </div>
-        )}
-        
-        {/* SUIVI PAR PROJET section */}
-        {isExpanded && (
-          <div className="mb-4">
-            <SidebarSection label={t('nav.project_tracking')}>
-              {projectTrackingItems.map(renderSidebarItem)}
-            </SidebarSection>
-          </div>
-        )}
-        
-        {/* RAPPORTS section */}
-        {isExpanded && (
-          <div className="mb-4">
-            <SidebarSection label={t('nav.reports_config')}>
-              {reportsItems.map(renderSidebarItem)}
-            </SidebarSection>
-          </div>
+          <>
+            {/* GESTION DE TRÉSORERIE section */}
+            <div className="mb-2">
+              <SidebarSection label={t('nav.cash_management')}>
+                {treasuryManagementItems.map(renderSidebarItem)}
+              </SidebarSection>
+            </div>
+            
+            {/* PRÉVISIONS section */}
+            <div className="mb-2">
+              <SidebarSection label={t('nav.forecasts')}>
+                {forecastItems.map(renderSidebarItem)}
+              </SidebarSection>
+            </div>
+            
+            {/* TRANSACTIONS section */}
+            <div className="mb-2">
+              <SidebarSection label={t('nav.transactions_section')}>
+                {transactionsItems.map(renderSidebarItem)}
+              </SidebarSection>
+            </div>
+            
+            {/* SUIVI PAR PROJET section */}
+            <div className="mb-2">
+              <SidebarSection label={t('nav.project_tracking')}>
+                {projectTrackingItems.map(renderSidebarItem)}
+              </SidebarSection>
+            </div>
+            
+            {/* RAPPORTS section */}
+            <div className="mb-2">
+              <SidebarSection label={t('nav.reports_config')}>
+                {reportsItems.map(renderSidebarItem)}
+              </SidebarSection>
+            </div>
+          </>
         )}
         
         {/* Settings section (for admin and superadmin) */}
