@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -21,11 +20,14 @@ import {
   Shield,
   Settings,
   ChevronDown,
-  ChevronRight
+  ChevronRight,
+  Menu,
+  X
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Separator } from './ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
+import { Button } from './ui/button';
 
 interface SidebarItemProps {
   icon: React.ReactNode;
@@ -74,6 +76,10 @@ const Sidebar = ({ onExpandedChange }: SidebarProps) => {
   useEffect(() => {
     onExpandedChange?.(isExpanded);
   }, [isExpanded, onExpandedChange]);
+
+  const toggleSidebar = () => {
+    setIsExpanded(!isExpanded);
+  };
 
   const isActive = (path: string) => {
     return location.pathname === path;
@@ -184,20 +190,20 @@ const Sidebar = ({ onExpandedChange }: SidebarProps) => {
     <div 
       key={item.path} 
       className={cn(
-        "flex items-center px-4 py-2.5 mx-2 cursor-pointer rounded-lg transition-all duration-200 group",
+        "flex items-center px-3 py-2.5 mx-2 cursor-pointer rounded-lg transition-all duration-200 group",
         item.isActive 
-          ? "bg-blue-50 text-blue-700 border-r-2 border-blue-700" 
-          : "text-gray-600 hover:bg-gray-50 hover:text-gray-900"
+          ? "bg-blue-50 text-blue-600 border-l-3 border-blue-600 shadow-sm" 
+          : "text-gray-700 hover:bg-gray-50 hover:text-gray-900"
       )}
       onClick={() => handleNavigation(item.path)}
     >
       <div className={cn(
-        "flex items-center justify-center transition-colors",
-        item.isActive ? "text-blue-700" : "text-gray-500 group-hover:text-gray-700"
+        "flex items-center justify-center transition-colors min-w-[20px]",
+        item.isActive ? "text-blue-600" : "text-gray-500 group-hover:text-gray-700"
       )}>
         {item.icon}
       </div>
-      <span className="ml-3 text-sm font-medium">{item.label}</span>
+      {isExpanded && <span className="ml-3 text-sm font-medium">{item.label}</span>}
     </div>
   );
 
@@ -205,15 +211,32 @@ const Sidebar = ({ onExpandedChange }: SidebarProps) => {
     <div 
       className="fixed left-0 top-0 h-full bg-white border-r border-gray-200 z-50 transition-all duration-300 flex flex-col shadow-sm"
       style={{ width: isExpanded ? '280px' : '70px' }}
-      onMouseEnter={() => setIsExpanded(true)}
-      onMouseLeave={() => setIsExpanded(false)}
     >
-      {/* Header */}
-      <div className="px-6 py-4 border-b border-gray-200">
+      {/* Header with toggle button */}
+      <div className="px-4 py-4 border-b border-gray-200 flex items-center justify-between">
         {isExpanded ? (
-          <h1 className="text-xl font-bold text-gray-900">Trezo</h1>
+          <>
+            <h1 className="text-xl font-bold text-gray-900">Trezo</h1>
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleSidebar}
+              className="h-8 w-8 text-gray-500 hover:text-gray-700"
+            >
+              <X size={18} />
+            </Button>
+          </>
         ) : (
-          <h1 className="text-xl font-bold text-gray-900">T</h1>
+          <div className="flex justify-center w-full">
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={toggleSidebar}
+              className="h-8 w-8 text-gray-500 hover:text-gray-700"
+            >
+              <Menu size={18} />
+            </Button>
+          </div>
         )}
       </div>
 
