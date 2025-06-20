@@ -63,6 +63,20 @@ export default {
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
 				},
+				// Custom blue color
+				customBlue: {
+					DEFAULT: '#27548a',
+					50: '#f0f4f8',
+					100: '#d9e2ec',
+					200: '#bcccdc',
+					300: '#9fb3c8',
+					400: '#829ab1',
+					500: '#27548a',
+					600: '#1e4772',
+					700: '#163a5b',
+					800: '#0e2d44',
+					900: '#06202d',
+				},
 				// Finance colors
 				blue: {
 					50: '#eff6ff',
@@ -70,11 +84,11 @@ export default {
 					200: '#bfdbfe',
 					300: '#93c5fd',
 					400: '#60a5fa',
-					500: '#3b82f6', // Alternative blue (Blue-500)
-					600: '#2563eb', // Primary blue (Blue-600)
-					700: '#1d4ed8',
-					800: '#1e40af',
-					900: '#1e3a8a',
+					500: '#27548a', // Changed to custom blue
+					600: '#1e4772', // Darker version of custom blue
+					700: '#163a5b',
+					800: '#0e2d44',
+					900: '#06202d',
 				},
 				green: {
 					50: '#ecfdf5',

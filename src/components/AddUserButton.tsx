@@ -71,7 +71,7 @@ const AddUserButton: React.FC<AddUserButtonProps> = ({ onAdd }) => {
   };
 
   return (
-    <Button onClick={handleClick} disabled={loading} className="bg-green-600 text-white">
+    <Button onClick={handleClick} disabled={loading} className="bg-[#27548a] text-white hover:bg-[#1e4772]">
       Ajouter un utilisateur
     </Button>
   );

@@ -22,7 +22,7 @@ const SectionCard = ({ title, data, onAdd, onDelete }: SectionCardProps) => {
         <CardTitle className="text-xl">{title}</CardTitle>
         <button
           onClick={onAdd}
-          className="bg-blue-600 text-white p-1 rounded-full hover:bg-blue-700"
+          className="bg-[#27548a] text-white p-1 rounded-full hover:bg-[#1e4772]"
           title={`Ajouter ${title.toLowerCase()}`}
         >
           <Plus className="h-5 w-5" />

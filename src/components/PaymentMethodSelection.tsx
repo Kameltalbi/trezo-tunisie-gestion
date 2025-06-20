@@ -34,7 +34,7 @@ const PaymentMethodSelection: React.FC<PaymentMethodSelectionProps> = ({
 
       <Dialog open={showPaymentForm} onOpenChange={setShowPaymentForm}>
         <DialogTrigger asChild>
-          <Button variant="outline" className="w-full">
+          <Button variant="outline" className="w-full border-[#27548a] text-[#27548a] hover:bg-[#27548a] hover:text-white">
             <CreditCard className="mr-2 h-4 w-4" />
             Payer maintenant par chèque ou virement
           </Button>

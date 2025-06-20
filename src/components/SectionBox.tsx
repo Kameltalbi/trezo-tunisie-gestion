@@ -23,7 +23,7 @@ const SectionBox = ({ title, onAdd, addButtonText, children }: SectionBoxProps) 
         {onAdd && (
           <button
             onClick={onAdd}
-            className="bg-blue-600 text-white p-1 rounded-full hover:bg-blue-700"
+            className="bg-[#27548a] text-white p-1 rounded-full hover:bg-[#1e4772]"
             title={`Ajouter ${title.toLowerCase()}`}
           >
             {addButtonText || <Plus className="h-4 w-4" />}
