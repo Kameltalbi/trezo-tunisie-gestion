@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
@@ -18,10 +19,13 @@ import {
   Target,
   LifeBuoy,
   Shield,
-  Settings
+  Settings,
+  ChevronDown,
+  ChevronRight
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import { Separator } from './ui/separator';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from './ui/collapsible';
 
 interface SidebarItemProps {
   icon: React.ReactNode;
@@ -32,17 +36,26 @@ interface SidebarItemProps {
 
 interface SidebarSectionProps {
   label: string;
+  children: React.ReactNode;
 }
 
 interface SidebarProps {
   onExpandedChange?: (expanded: boolean) => void;
 }
 
-const SidebarSection = ({ label }: SidebarSectionProps) => {
+const SidebarSection = ({ label, children }: SidebarSectionProps) => {
+  const [isOpen, setIsOpen] = useState(false);
+
   return (
-    <div className="px-4 py-1">
-      <div className="text-xs font-semibold uppercase opacity-80">{label}</div>
-    </div>
+    <Collapsible open={isOpen} onOpenChange={setIsOpen}>
+      <CollapsibleTrigger className="flex items-center justify-between w-full px-4 py-2 text-sm font-semibold uppercase opacity-80 hover:opacity-100 transition-opacity">
+        <span>{label}</span>
+        {isOpen ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+      </CollapsibleTrigger>
+      <CollapsibleContent>
+        {children}
+      </CollapsibleContent>
+    </Collapsible>
   );
 };
 
@@ -167,7 +180,7 @@ const Sidebar = ({ onExpandedChange }: SidebarProps) => {
     <div 
       key={item.path} 
       className={cn(
-        "flex items-center px-3 py-1 cursor-pointer hover:bg-sidebar-accent/50 transition-colors rounded-md mx-2 my-0.5",
+        "flex items-center px-3 py-1 cursor-pointer hover:bg-white/10 transition-colors rounded-md mx-2 my-0.5",
         item.isActive && "bg-blue-600 text-white hover:bg-blue-700"
       )}
       onClick={() => handleNavigation(item.path)}
@@ -184,12 +197,15 @@ const Sidebar = ({ onExpandedChange }: SidebarProps) => {
 
   return (
     <div 
-      className="fixed left-0 top-0 h-full bg-sidebar text-sidebar-foreground z-50 transition-all duration-300 flex flex-col"
-      style={{ width: isExpanded ? '240px' : '70px' }}
+      className="fixed left-0 top-0 h-full text-white z-50 transition-all duration-300 flex flex-col"
+      style={{ 
+        width: isExpanded ? '240px' : '70px',
+        backgroundColor: '#398058'
+      }}
       onMouseEnter={() => setIsExpanded(true)}
       onMouseLeave={() => setIsExpanded(false)}
     >
-      <div className="p-3 flex items-center justify-center h-14 border-b border-sidebar-accent/20">
+      <div className="p-3 flex items-center justify-center h-14 border-b border-white/20">
         {isExpanded ? (
           <h1 className="text-xl font-bold">Trezo</h1>
         ) : (
@@ -204,51 +220,56 @@ const Sidebar = ({ onExpandedChange }: SidebarProps) => {
         {/* Superadmin section (only for kamel) */}
         {isSuperAdmin && (
           <>
-            <Separator className="my-1 bg-sidebar-accent/20" />
+            <Separator className="my-1 bg-white/20" />
             {renderSidebarItem(superadminItem)}
           </>
         )}
         
-        <Separator className="my-1 bg-sidebar-accent/20" />
+        <Separator className="my-1 bg-white/20" />
         
         {/* GESTION DE TRÉSORERIE section */}
         {isExpanded && (
-          <SidebarSection label={t('nav.cash_management')} />
+          <SidebarSection label={t('nav.cash_management')}>
+            {treasuryManagementItems.map(renderSidebarItem)}
+          </SidebarSection>
         )}
-        {treasuryManagementItems.map(renderSidebarItem)}
-        <Separator className="my-1 bg-sidebar-accent/20" />
+        <Separator className="my-1 bg-white/20" />
         
         {/* PRÉVISIONS section */}
         {isExpanded && (
-          <SidebarSection label={t('nav.forecasts')} />
+          <SidebarSection label={t('nav.forecasts')}>
+            {forecastItems.map(renderSidebarItem)}
+          </SidebarSection>
         )}
-        {forecastItems.map(renderSidebarItem)}
-        <Separator className="my-1 bg-sidebar-accent/20" />
+        <Separator className="my-1 bg-white/20" />
         
         {/* TRANSACTIONS section */}
         {isExpanded && (
-          <SidebarSection label={t('nav.transactions_section')} />
+          <SidebarSection label={t('nav.transactions_section')}>
+            {transactionsItems.map(renderSidebarItem)}
+          </SidebarSection>
         )}
-        {transactionsItems.map(renderSidebarItem)}
-        <Separator className="my-1 bg-sidebar-accent/20" />
+        <Separator className="my-1 bg-white/20" />
         
         {/* SUIVI PAR PROJET section */}
         {isExpanded && (
-          <SidebarSection label={t('nav.project_tracking')} />
+          <SidebarSection label={t('nav.project_tracking')}>
+            {projectTrackingItems.map(renderSidebarItem)}
+          </SidebarSection>
         )}
-        {projectTrackingItems.map(renderSidebarItem)}
-        <Separator className="my-1 bg-sidebar-accent/20" />
+        <Separator className="my-1 bg-white/20" />
         
         {/* RAPPORTS section */}
         {isExpanded && (
-          <SidebarSection label={t('nav.reports_config')} />
+          <SidebarSection label={t('nav.reports_config')}>
+            {reportsItems.map(renderSidebarItem)}
+          </SidebarSection>
         )}
-        {reportsItems.map(renderSidebarItem)}
         
         {/* Settings section (for admin and superadmin) */}
         {isAdmin && (
           <>
-            <Separator className="my-1 bg-sidebar-accent/20" />
+            <Separator className="my-1 bg-white/20" />
             {renderSidebarItem(settingsItem)}
           </>
         )}
