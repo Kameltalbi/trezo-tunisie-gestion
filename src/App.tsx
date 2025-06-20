@@ -23,7 +23,6 @@ import ProjetDetail from "./pages/ProjetDetail";
 import Objectifs from "./pages/Objectifs";
 import Rapports from "./pages/Rapports";
 import Transactions from "./pages/Transactions";
-import Support from "./pages/Support";
 import Subscription from "./pages/Subscription";
 import SuperAdmin from "./pages/SuperAdmin";
 import Settings from "./pages/Settings";
@@ -60,7 +59,6 @@ const App = () => (
               <Route path="/projets/:id" element={<Layout requireAuth={true}><ProjetDetail /></Layout>} />
               <Route path="/objectifs" element={<Layout requireAuth={true}><Objectifs /></Layout>} />
               <Route path="/rapports" element={<Layout requireAuth={true}><Rapports /></Layout>} />
-              <Route path="/support" element={<Layout requireAuth={true}><Support /></Layout>} />
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>

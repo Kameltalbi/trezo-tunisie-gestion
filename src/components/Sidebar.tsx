@@ -160,12 +160,6 @@ const Sidebar = ({ onExpandedChange }: SidebarProps) => {
       label: t('nav.reports'),
       path: '/rapports',
       isActive: isActive('/rapports')
-    },
-    {
-      icon: <LifeBuoy size={24} />,
-      label: "Support",
-      path: '/support',
-      isActive: isActive('/support')
     }
   ];
 
