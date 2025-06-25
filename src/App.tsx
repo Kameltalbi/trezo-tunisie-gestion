@@ -2,11 +2,10 @@
 import { Toaster } from "@/components/ui/toaster";
 import {Toaster as Sonner} from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-import { AuthProvider } from "./contexts/AuthContext";
+import { LocalAuthProvider } from "./contexts/LocalAuthContext";
 import { ThemeProvider } from "./contexts/ThemeContext";
-import Layout from "./components/Layout";
+import LocalLayout from "./components/LocalLayout";
 import Home from "./pages/Home";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
@@ -30,42 +29,38 @@ import Settings from "./pages/Settings";
 // Import i18n configuration
 import "./i18n";
 
-const queryClient = new QueryClient();
-
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <ThemeProvider defaultTheme="system" storageKey="ui-theme">
-      <TooltipProvider>
-        <AuthProvider>
-          <Toaster />
-          <Sonner />
-          <BrowserRouter>
-            <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/register" element={<Register />} />
-              <Route path="/reset-password" element={<ResetPassword />} />
-              <Route path="/subscription" element={<Layout requireAuth={true}><Subscription /></Layout>} />
-              <Route path="/superadmin" element={<Layout requireAuth={true}><SuperAdmin /></Layout>} />
-              <Route path="/settings" element={<Layout requireAuth={true}><Settings /></Layout>} />
-              <Route path="/cash-flow" element={<Layout requireAuth={true}><CashFlow /></Layout>} />
-              <Route path="/debt-management" element={<Layout requireAuth={true}><DebtManagement /></Layout>} />
-              <Route path="/decaissements" element={<Layout requireAuth={true}><Depenses /></Layout>} />
-              <Route path="/encaissements" element={<Layout requireAuth={true}><Encaissements /></Layout>} />
-              <Route path="/transactions" element={<Layout requireAuth={true}><Transactions /></Layout>} />
-              <Route path="/dashboard" element={<Layout requireAuth={true}><Dashboard /></Layout>} />
-              <Route path="/comptes" element={<Layout requireAuth={true}><Comptes /></Layout>} />
-              <Route path="/projets" element={<Layout requireAuth={true}><Projets /></Layout>} />
-              <Route path="/projets/:id" element={<Layout requireAuth={true}><ProjetDetail /></Layout>} />
-              <Route path="/objectifs" element={<Layout requireAuth={true}><Objectifs /></Layout>} />
-              <Route path="/rapports" element={<Layout requireAuth={true}><Rapports /></Layout>} />
-              <Route path="*" element={<NotFound />} />
-            </Routes>
-          </BrowserRouter>
-        </AuthProvider>
-      </TooltipProvider>
-    </ThemeProvider>
-  </QueryClientProvider>
+  <ThemeProvider defaultTheme="system" storageKey="ui-theme">
+    <TooltipProvider>
+      <LocalAuthProvider>
+        <Toaster />
+        <Sonner />
+        <BrowserRouter>
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
+            <Route path="/reset-password" element={<ResetPassword />} />
+            <Route path="/subscription" element={<LocalLayout requireAuth={true}><Subscription /></LocalLayout>} />
+            <Route path="/superadmin" element={<LocalLayout requireAuth={true}><SuperAdmin /></LocalLayout>} />
+            <Route path="/settings" element={<LocalLayout requireAuth={true}><Settings /></LocalLayout>} />
+            <Route path="/cash-flow" element={<LocalLayout requireAuth={true}><CashFlow /></LocalLayout>} />
+            <Route path="/debt-management" element={<LocalLayout requireAuth={true}><DebtManagement /></LocalLayout>} />
+            <Route path="/decaissements" element={<LocalLayout requireAuth={true}><Depenses /></LocalLayout>} />
+            <Route path="/encaissements" element={<LocalLayout requireAuth={true}><Encaissements /></LocalLayout>} />
+            <Route path="/transactions" element={<LocalLayout requireAuth={true}><Transactions /></LocalLayout>} />
+            <Route path="/dashboard" element={<LocalLayout requireAuth={true}><Dashboard /></LocalLayout>} />
+            <Route path="/comptes" element={<LocalLayout requireAuth={true}><Comptes /></LocalLayout>} />
+            <Route path="/projets" element={<LocalLayout requireAuth={true}><Projets /></LocalLayout>} />
+            <Route path="/projets/:id" element={<LocalLayout requireAuth={true}><ProjetDetail /></LocalLayout>} />
+            <Route path="/objectifs" element={<LocalLayout requireAuth={true}><Objectifs /></LocalLayout>} />
+            <Route path="/rapports" element={<LocalLayout requireAuth={true}><Rapports /></LocalLayout>} />
+            <Route path="*" element={<NotFound />} />
+          </Routes>
+        </BrowserRouter>
+      </LocalAuthProvider>
+    </TooltipProvider>
+  </ThemeProvider>
 );
 
 export default App;
