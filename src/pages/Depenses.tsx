@@ -27,7 +27,7 @@ const DepensesPage: React.FC = () => {
   });
 
   const ajouterDepense = async () => {
-    if (!nouvelleDepense.titre || !nouvelleDepense.montant || !nouvelleDepense.dateTransaction || !nouvelleDepense.categorie) {
+    if (!nouvelleDepense.titre || !nouvelleDepense.montant || !nouvelleDepense.date_transaction || !nouvelleDepense.categorie) {
       toast.error("Veuillez remplir tous les champs obligatoires");
       return;
     }
@@ -37,11 +37,11 @@ const DepensesPage: React.FC = () => {
       await createDecaissement({
         titre: nouvelleDepense.titre,
         montant: nouvelleDepense.montant,
-        dateTransaction: nouvelleDepense.dateTransaction,
+        date_transaction: nouvelleDepense.date_transaction,
         categorie: nouvelleDepense.categorie,
-        sousCategorie: nouvelleDepense.sousCategorie,
+        sous_categorie: nouvelleDepense.sous_categorie,
         description: nouvelleDepense.description,
-        compteId: nouvelleDepense.compteId,
+        compte_id: nouvelleDepense.compte_id,
         statut: nouvelleDepense.statut || 'confirme'
       });
       
@@ -93,8 +93,8 @@ const DepensesPage: React.FC = () => {
 
               <Label>Sous-catégorie</Label>
               <Input 
-                value={nouvelleDepense.sousCategorie || ''} 
-                onChange={e => setNouvelleDepense({ ...nouvelleDepense, sousCategorie: e.target.value })} 
+                value={nouvelleDepense.sous_categorie || ''} 
+                onChange={e => setNouvelleDepense({ ...nouvelleDepense, sous_categorie: e.target.value })} 
                 placeholder="Précision sur la catégorie"
               />
 
@@ -110,12 +110,12 @@ const DepensesPage: React.FC = () => {
               <Label>Date de transaction *</Label>
               <Input 
                 type="date" 
-                value={nouvelleDepense.dateTransaction || ''} 
-                onChange={e => setNouvelleDepense({ ...nouvelleDepense, dateTransaction: e.target.value })} 
+                value={nouvelleDepense.date_transaction || ''} 
+                onChange={e => setNouvelleDepense({ ...nouvelleDepense, date_transaction: e.target.value })} 
               />
 
               <Label>Compte bancaire</Label>
-              <Select onValueChange={val => setNouvelleDepense({ ...nouvelleDepense, compteId: val })}>
+              <Select onValueChange={val => setNouvelleDepense({ ...nouvelleDepense, compte_id: val })}>
                 <SelectTrigger>
                   <SelectValue placeholder="Sélectionner un compte" />
                 </SelectTrigger>
@@ -164,10 +164,10 @@ const DepensesPage: React.FC = () => {
                   <TableCell>{dep.titre}</TableCell>
                   <TableCell>
                     {dep.categorie}
-                    {dep.sousCategorie && ` - ${dep.sousCategorie}`}
+                    {dep.sous_categorie && ` - ${dep.sous_categorie}`}
                   </TableCell>
                   <TableCell>{formatCurrency(dep.montant)}</TableCell>
-                  <TableCell>{format(new Date(dep.dateTransaction), 'dd/MM/yyyy')}</TableCell>
+                  <TableCell>{format(new Date(dep.date_transaction), 'dd/MM/yyyy')}</TableCell>
                   <TableCell className={
                     dep.statut === 'annule' ? 'text-red-500' :
                     dep.statut === 'en_attente' ? 'text-orange-500' :

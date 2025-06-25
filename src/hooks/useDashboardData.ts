@@ -28,22 +28,22 @@ export const useDashboardData = () => {
 
         // Filtrer les encaissements des 5 derniers mois
         const encaissementsData = transactions
-          .filter(t => t.type === 'encaissement' && new Date(t.dateTransaction) >= fiveMonthsAgo)
+          .filter(t => t.type === 'encaissement' && new Date(t.date_transaction) >= fiveMonthsAgo)
           .map(t => ({
             id: t.id,
             montant: t.montant,
-            date_transaction: t.dateTransaction,
+            date_transaction: t.date_transaction,
             categorie: t.categorie || 'Autres',
             user_id: user.id
           } as DashboardEncaissement));
 
         // Filtrer les décaissements du dernier mois
         const depensesData = transactions
-          .filter(t => t.type === 'decaissement' && new Date(t.dateTransaction) >= oneMonthAgo)
+          .filter(t => t.type === 'decaissement' && new Date(t.date_transaction) >= oneMonthAgo)
           .map(t => ({
             id: t.id,
             montant: t.montant,
-            date_transaction: t.dateTransaction,
+            date_transaction: t.date_transaction,
             categorie: t.categorie || 'Autres',
             statut: t.statut || 'paye',
             user_id: user.id
@@ -53,19 +53,19 @@ export const useDashboardData = () => {
         const comptes = localStorageService.getComptes();
         const soldesData = comptes.map((compte, index) => ({
           id: `flux-${compte.id}`,
-          montant_prevu: compte.soldeActuel,
-          montant_realise: compte.soldeActuel,
+          montant_prevu: compte.solde_actuel,
+          montant_realise: compte.solde_actuel,
           date_prevision: new Date(new Date().setMonth(new Date().getMonth() - index)).toISOString(),
           user_id: user.id
         } as DashboardFluxTresorerie));
 
         // Les revenus sont les mêmes que les encaissements du dernier mois
         const revenusData = transactions
-          .filter(t => t.type === 'encaissement' && new Date(t.dateTransaction) >= oneMonthAgo)
+          .filter(t => t.type === 'encaissement' && new Date(t.date_transaction) >= oneMonthAgo)
           .map(t => ({
             id: t.id,
             montant: t.montant,
-            date_transaction: t.dateTransaction,
+            date_transaction: t.date_transaction,
             categorie: t.categorie || 'Autres',
             user_id: user.id
           } as DashboardRevenu));

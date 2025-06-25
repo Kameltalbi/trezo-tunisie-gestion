@@ -25,12 +25,15 @@ export const useLocalTransactions = () => {
     loadTransactions();
   }, []);
 
-  const createTransaction = async (transactionData: Omit<Transaction, 'id' | 'createdAt'>) => {
+  const createTransaction = async (transactionData: Omit<Transaction, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
     try {
+      const now = new Date().toISOString();
       const newTransaction: Transaction = {
         ...transactionData,
         id: uuidv4(),
-        createdAt: new Date().toISOString(),
+        user_id: 'local-user',
+        created_at: now,
+        updated_at: now,
       };
 
       localStorageService.saveTransaction(newTransaction);
@@ -51,7 +54,11 @@ export const useLocalTransactions = () => {
         throw new Error('Transaction non trouvée');
       }
 
-      const updatedTransaction = { ...existingTransaction, ...updates };
+      const updatedTransaction = { 
+        ...existingTransaction, 
+        ...updates,
+        updated_at: new Date().toISOString()
+      };
       localStorageService.saveTransaction(updatedTransaction);
       setTransactions(prev => prev.map(t => t.id === id ? updatedTransaction : t));
       toast.success('Transaction mise à jour');

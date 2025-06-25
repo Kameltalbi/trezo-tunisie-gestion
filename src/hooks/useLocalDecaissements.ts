@@ -26,16 +26,16 @@ export const useLocalDecaissements = () => {
     loadDecaissements();
   }, []);
 
-  const createDecaissement = async (decaissementData: Omit<Transaction, 'id' | 'createdAt' | 'type' | 'user_id' | 'created_at' | 'updated_at'>) => {
+  const createDecaissement = async (decaissementData: Omit<Transaction, 'id' | 'created_at' | 'type' | 'user_id' | 'updated_at'>) => {
     try {
+      const now = new Date().toISOString();
       const newDecaissement: Transaction = {
         ...decaissementData,
         id: uuidv4(),
         type: 'decaissement',
         user_id: 'local-user',
-        createdAt: new Date().toISOString(),
-        created_at: new Date().toISOString(),
-        updated_at: new Date().toISOString(),
+        created_at: now,
+        updated_at: now,
       };
 
       localStorageService.saveTransaction(newDecaissement);
@@ -56,7 +56,11 @@ export const useLocalDecaissements = () => {
         throw new Error('Décaissement non trouvé');
       }
 
-      const updatedDecaissement = { ...existingDecaissement, ...updates };
+      const updatedDecaissement = { 
+        ...existingDecaissement, 
+        ...updates,
+        updated_at: new Date().toISOString()
+      };
       localStorageService.saveTransaction(updatedDecaissement);
       setDecaissements(prev => prev.map(d => d.id === id ? updatedDecaissement : d));
       toast.success('Décaissement mis à jour');
