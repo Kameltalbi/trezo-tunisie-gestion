@@ -1,8 +1,7 @@
-
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Upload, FileText, Eye, Check, X } from 'lucide-react';
+import { Upload, FileText, Eye, Check, X, Copy } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -53,6 +52,11 @@ const ImportReleve = () => {
   // Trouver le compte actuel
   const currentCompte = comptes.find(c => c.id === compteId);
 
+  // Exemple de données pour tester
+  const exampleData = `08 01 REGLEMENT CHEQUE 0001910 07012025 300,000
+10 01 VIREMENT SALAIRE JANVIER 2025 2500,000
+12 01 RETRAIT DAB AVENUE HABIB 150,000`;
+
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (file && file.type === 'application/pdf') {
@@ -61,6 +65,15 @@ const ImportReleve = () => {
     } else {
       toast.error('Veuillez sélectionner un fichier PDF valide');
     }
+  };
+
+  const copyExampleData = () => {
+    navigator.clipboard.writeText(exampleData).then(() => {
+      setPastedText(exampleData);
+      toast.success('Données d\'exemple copiées dans la zone de texte');
+    }).catch(() => {
+      toast.error('Erreur lors de la copie');
+    });
   };
 
   const parseTransactionLine = (line: string, index: number): ParsedTransaction => {
@@ -229,12 +242,12 @@ const ImportReleve = () => {
         </CardContent>
       </Card>
 
-      {/* Bloc 2: Zone de collage */}
+      {/* Bloc 2: Zone de collage améliorée */}
       <Card className="mb-6">
         <CardHeader>
           <CardTitle>Coller ici les lignes de votre relevé bancaire</CardTitle>
           <CardDescription>
-            Copiez les lignes directement depuis votre PDF et collez-les ci-dessous
+            Copiez les lignes directement depuis votre PDF et collez-les ci-dessous, ou utilisez les données d'exemple pour tester
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -246,13 +259,32 @@ const ImportReleve = () => {
             className="font-mono text-sm"
           />
           
-          <div className="p-3 bg-muted rounded-md">
-            <p className="text-sm font-medium mb-2">Exemple de format attendu :</p>
-            <code className="text-xs text-muted-foreground">
-              08 01 REGLEMENT CHEQUE 0001910 07012025 300,000<br/>
-              10 01 VIREMENT SALAIRE JANVIER 2025 2500,000<br/>
-              12 01 RETRAIT DAB AVENUE HABIB 150,000
+          <div className="p-4 bg-muted rounded-md">
+            <div className="flex items-center justify-between mb-3">
+              <p className="text-sm font-medium">Exemple de format attendu :</p>
+              <Button 
+                variant="outline" 
+                size="sm" 
+                onClick={copyExampleData}
+                className="gap-2"
+              >
+                <Copy className="h-4 w-4" />
+                Essayer avec ces données
+              </Button>
+            </div>
+            <code className="text-xs text-muted-foreground whitespace-pre-line">
+              {exampleData}
             </code>
+          </div>
+
+          <div className="p-3 bg-blue-50 border border-blue-200 rounded-md">
+            <p className="text-sm text-blue-800 font-medium mb-2">💡 Comment copier depuis votre PDF :</p>
+            <ol className="text-xs text-blue-700 space-y-1">
+              <li>1. Ouvrez votre relevé PDF dans votre navigateur ou lecteur PDF</li>
+              <li>2. Sélectionnez les lignes de transactions (date + libellé + montant)</li>
+              <li>3. Copiez (Ctrl+C) et collez ici (Ctrl+V)</li>
+              <li>4. Cliquez sur "Analyser les lignes" ci-dessous</li>
+            </ol>
           </div>
 
           <Button 
