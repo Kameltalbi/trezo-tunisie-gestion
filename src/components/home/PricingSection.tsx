@@ -1,132 +1,151 @@
 
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Check } from "lucide-react";
+import { Badge } from "@/components/ui/badge";
+import { Check, FileText, Calendar } from "lucide-react";
 
 const PricingSection = () => {
-  const plans = [
-    {
-      name: "Basique",
-      price: "29",
-      period: "/mois",
-      description: "Parfait pour les petites entreprises",
-      features: [
-        "Jusqu'à 3 comptes bancaires",
-        "Rapports de base",
-        "Support par email",
-        "Synchronisation manuelle",
-        "Tableau de bord simple"
-      ],
-      buttonText: "Commencer gratuitement",
-      buttonVariant: "outline" as const,
-      popular: false
-    },
-    {
-      name: "Pro",
-      price: "79",
-      period: "/mois",
-      description: "Idéal pour les entreprises en croissance",
-      features: [
-        "Comptes bancaires illimités",
-        "Rapports avancés et personnalisés",
-        "Support prioritaire 24/7",
-        "Synchronisation automatique",
-        "Prévisions de trésorerie",
-        "Collaboration d'équipe",
-        "API intégrations"
-      ],
-      buttonText: "Essayer Pro",
-      buttonVariant: "default" as const,
-      popular: true
-    },
-    {
-      name: "Premium",
-      price: "149",
-      period: "/mois",
-      description: "Solution complète pour grandes entreprises",
-      features: [
-        "Toutes les fonctionnalités Pro",
-        "Analyse prédictive IA",
-        "Manager dédié",
-        "Formation personnalisée",
-        "Intégrations ERP avancées",
-        "Audit et conformité",
-        "White-label disponible"
-      ],
-      buttonText: "Contacter les ventes",
-      buttonVariant: "outline" as const,
-      popular: false
-    }
+  // Date de fin de l'offre de lancement (3 mois à partir d'aujourd'hui)
+  const launchEndDate = new Date();
+  launchEndDate.setMonth(launchEndDate.getMonth() + 3);
+  const formattedEndDate = launchEndDate.toLocaleDateString('fr-FR', { 
+    day: 'numeric', 
+    month: 'long', 
+    year: 'numeric' 
+  });
+
+  const features = [
+    "Gestion de la trésorerie prévisionnelle",
+    "Suivi des transactions (recettes, dépenses)",
+    "Comptes bancaires & caisses illimités",
+    "Gestion multi-projets",
+    "Catégories & sous-catégories personnalisées",
+    "Visualisation graphique des flux",
+    "Objectifs par catégorie",
+    "Export PDF / Excel",
+    "Gestion des utilisateurs et des permissions",
+    "Récapitulatif mensuel automatique",
+    "Aucune publicité, aucune limitation"
   ];
 
   return (
-    <section className="py-20 bg-white">
+    <section className="py-20 bg-gray-50">
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-6">
-            Plans & Tarifs
+            Tarification Simple et Transparente
           </h2>
           <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-            Choisissez le plan qui correspond le mieux aux besoins de votre entreprise
+            Une solution complète pour la gestion de votre trésorerie, sans limitations
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
-          {plans.map((plan, index) => (
-            <div 
-              key={index} 
-              className={`relative bg-white rounded-2xl border-2 p-8 shadow-lg hover:shadow-xl transition-all ${
-                plan.popular 
-                  ? 'border-emerald-500 scale-105' 
-                  : 'border-gray-200 hover:border-emerald-300'
-              }`}
-            >
-              {plan.popular && (
-                <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-                  <span className="bg-emerald-500 text-white px-6 py-2 rounded-full text-sm font-semibold">
-                    Plus populaire
-                  </span>
+        <div className="max-w-2xl mx-auto">
+          <div className="relative bg-white rounded-2xl border-2 border-blue-500 p-8 shadow-2xl">
+            {/* Badge offre de lancement */}
+            <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
+              <Badge className="bg-red-500 text-white px-6 py-2 text-sm font-semibold">
+                Offre de lancement - Jusqu'au {formattedEndDate}
+              </Badge>
+            </div>
+            
+            <div className="text-center mb-8">
+              <h3 className="text-3xl font-bold text-gray-900 mb-4">
+                Trézo Pro
+              </h3>
+              <p className="text-gray-600 mb-6">
+                Solution complète de gestion de trésorerie
+              </p>
+
+              {/* Essai gratuit */}
+              <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+                <div className="flex items-center justify-center mb-2">
+                  <Calendar className="h-5 w-5 text-green-600 mr-2" />
+                  <span className="text-green-800 font-semibold">Essai gratuit 14 jours</span>
                 </div>
-              )}
-              
-              <div className="text-center mb-8">
-                <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                  {plan.name}
-                </h3>
-                <p className="text-gray-600 mb-4">
-                  {plan.description}
-                </p>
-                <div className="flex items-baseline justify-center">
-                  <span className="text-5xl font-bold text-gray-900">
-                    {plan.price}€
-                  </span>
-                  <span className="text-gray-600 ml-2">
-                    {plan.period}
-                  </span>
-                </div>
+                <p className="text-green-700 text-sm">Sans engagement • Toutes fonctionnalités incluses</p>
               </div>
 
-              <ul className="space-y-4 mb-8">
-                {plan.features.map((feature, featureIndex) => (
-                  <li key={featureIndex} className="flex items-start">
-                    <Check className="h-5 w-5 text-emerald-500 mr-3 mt-0.5 flex-shrink-0" />
+              {/* Prix Tunisie */}
+              <div className="border-b border-gray-200 pb-4 mb-4">
+                <p className="text-sm text-gray-600 mb-2">Prix Tunisie :</p>
+                <div className="flex items-baseline justify-center mb-2">
+                  <span className="text-4xl font-bold text-blue-600">570 DT</span>
+                  <span className="text-gray-600 ml-2">/an</span>
+                  <span className="text-gray-400 line-through ml-4 text-xl">650 DT</span>
+                </div>
+                <p className="text-gray-500 text-sm">soit 47,50 DT/mois</p>
+              </div>
+
+              {/* Prix International */}
+              <div className="mb-6">
+                <p className="text-sm text-gray-600 mb-2">Prix International :</p>
+                <div className="flex items-baseline justify-center mb-2">
+                  <span className="text-4xl font-bold text-blue-600">250 €</span>
+                  <span className="text-gray-600 ml-2">/an</span>
+                  <span className="text-gray-400 line-through ml-4 text-xl">290 €</span>
+                </div>
+                <p className="text-gray-500 text-sm">soit 20,83 €/mois</p>
+              </div>
+
+              {/* Bouton principal */}
+              <Button 
+                asChild 
+                size="lg" 
+                className="w-full mb-4 bg-blue-600 hover:bg-blue-700"
+              >
+                <Link to="/register">
+                  Démarrer l'essai gratuit
+                </Link>
+              </Button>
+            </div>
+
+            {/* Fonctionnalités */}
+            <div className="mb-8">
+              <h4 className="text-lg font-semibold text-gray-900 mb-4 text-center">
+                Toutes les fonctionnalités incluses :
+              </h4>
+              <ul className="space-y-3">
+                {features.map((feature, index) => (
+                  <li key={index} className="flex items-start">
+                    <Check className="h-5 w-5 text-green-500 mr-3 mt-0.5 flex-shrink-0" />
                     <span className="text-gray-700">{feature}</span>
                   </li>
                 ))}
               </ul>
+            </div>
 
+            {/* Méthode de paiement */}
+            <div className="border-t border-gray-200 pt-6">
+              <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+                <p className="text-blue-800 font-medium text-center mb-2">
+                  💳 Paiement uniquement par virement ou chèque
+                </p>
+                <p className="text-blue-700 text-sm text-center">
+                  Processus sécurisé • Facture officielle fournie
+                </p>
+              </div>
+              
               <Button 
-                asChild 
-                variant={plan.buttonVariant}
+                variant="outline" 
                 size="lg" 
-                className="w-full"
+                className="w-full border-blue-500 text-blue-600 hover:bg-blue-50"
+                asChild
               >
-                <Link to="/register">
-                  {plan.buttonText}
+                <Link to="/contact">
+                  <FileText className="mr-2 h-4 w-4" />
+                  Demander une facture
                 </Link>
               </Button>
             </div>
-          ))}
+          </div>
+        </div>
+
+        {/* Note supplémentaire */}
+        <div className="text-center mt-8">
+          <p className="text-gray-500 text-sm">
+            * Offre de lancement valable uniquement pour les nouveaux clients
+          </p>
         </div>
       </div>
     </section>
