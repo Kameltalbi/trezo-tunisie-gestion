@@ -1,7 +1,5 @@
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+import { useLocalData } from "./useLocalData";
 import { toast } from "sonner";
 
 export interface User {
@@ -16,121 +14,83 @@ export interface User {
 }
 
 export const useUsers = () => {
-  const { user } = useAuth();
-  
-  return useQuery({
-    queryKey: ['users', user?.id],
-    queryFn: async () => {
-      if (!user) return [];
-
-      const { data, error } = await supabase
-        .from('users')
-        .select('*')
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return data as User[];
-    },
-    enabled: !!user,
-  });
+  return useLocalData<User>('trezo_users');
 };
 
 export const useCreateUser = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (userData: { 
+  const { create } = useLocalData<User>('trezo_users');
+  
+  return {
+    mutate: async (userData: { 
       email: string; 
       password: string; 
       full_name: string; 
       role: string;
       account_id: string;
     }) => {
-      // D'abord créer l'utilisateur dans auth
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+      const newUser = await create({
+        account_id: userData.account_id,
+        full_name: userData.full_name,
         email: userData.email,
-        password: userData.password,
-        email_confirm: true
+        role: userData.role as any,
+        is_active: true
       });
-
-      if (authError) throw authError;
-      if (!authData.user) throw new Error('Failed to create user');
-
-      // Ensuite ajouter les métadonnées dans la table users
-      const { data, error } = await supabase
-        .from('users')
-        .insert({
-          id: authData.user.id,
-          account_id: userData.account_id,
-          full_name: userData.full_name,
-          email: userData.email,
-          role: userData.role
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
       toast.success("Utilisateur créé avec succès");
-      queryClient.invalidateQueries({ queryKey: ['users'] });
+      return newUser;
     },
-    onError: (error) => {
-      toast.error("Erreur lors de la création de l'utilisateur");
-      console.error('Erreur création utilisateur:', error);
-    }
-  });
+    mutateAsync: async (userData: { 
+      email: string; 
+      password: string; 
+      full_name: string; 
+      role: string;
+      account_id: string;
+    }) => {
+      const newUser = await create({
+        account_id: userData.account_id,
+        full_name: userData.full_name,
+        email: userData.email,
+        role: userData.role as any,
+        is_active: true
+      });
+      toast.success("Utilisateur créé avec succès");
+      return newUser;
+    },
+    isLoading: false,
+    error: null,
+  };
 };
 
 export const useUpdateUser = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async ({ userId, updates }: { 
-      userId: string; 
-      updates: Partial<User>;
-    }) => {
-      const { data, error } = await supabase
-        .from('users')
-        .update(updates)
-        .eq('id', userId)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
+  const { update } = useLocalData<User>('trezo_users');
+  
+  return {
+    mutate: ({ userId, updates }: { userId: string; updates: Partial<User> }) => {
+      update(userId, updates);
       toast.success("Utilisateur mis à jour avec succès");
-      queryClient.invalidateQueries({ queryKey: ['users'] });
     },
-    onError: (error) => {
-      toast.error("Erreur lors de la mise à jour de l'utilisateur");
-      console.error('Erreur mise à jour utilisateur:', error);
-    }
-  });
+    mutateAsync: async ({ userId, updates }: { userId: string; updates: Partial<User> }) => {
+      const result = await update(userId, updates);
+      toast.success("Utilisateur mis à jour avec succès");
+      return result;
+    },
+    isLoading: false,
+    error: null,
+  };
 };
 
 export const useDeleteUser = () => {
-  const queryClient = useQueryClient();
-
-  return useMutation({
-    mutationFn: async (userId: string) => {
-      const { error } = await supabase
-        .from('users')
-        .delete()
-        .eq('id', userId);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
+  const { delete: deleteItem } = useLocalData<User>('trezo_users');
+  
+  return {
+    mutate: (userId: string) => {
+      deleteItem(userId);
       toast.success("Utilisateur supprimé avec succès");
-      queryClient.invalidateQueries({ queryKey: ['users'] });
     },
-    onError: (error) => {
-      toast.error("Erreur lors de la suppression de l'utilisateur");
-      console.error('Erreur suppression utilisateur:', error);
-    }
-  });
+    mutateAsync: async (userId: string) => {
+      await deleteItem(userId);
+      toast.success("Utilisateur supprimé avec succès");
+    },
+    isLoading: false,
+    error: null,
+  };
 };

@@ -1,7 +1,6 @@
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+import { useQuery } from "@tanstack/react-query";
+import { useLocalAuth } from "@/contexts/LocalAuthContext";
 
 export interface UserLimits {
   has_plan: boolean;
@@ -14,43 +13,30 @@ export interface UserLimits {
 }
 
 export const useUserLimits = (limitType: 'transactions' | 'reports') => {
-  const { user } = useAuth();
+  const { user } = useLocalAuth();
   
   return useQuery({
     queryKey: ['user-limits', user?.id, limitType],
     queryFn: async (): Promise<UserLimits> => {
-      if (!user) throw new Error("User must be authenticated");
-      
-      const { data, error } = await supabase.rpc('check_user_limits', {
-        _user_id: user.id,
-        _limit_type: limitType
-      });
-      
-      if (error) throw error;
-      return data as unknown as UserLimits;
+      // Dans le système local, pas de limitations
+      return {
+        has_plan: true,
+        can_proceed: true,
+        limit_reached: false,
+        usage: 0,
+        limit: 'unlimited',
+        message: 'Pas de limitation avec le système local'
+      };
     },
     enabled: !!user,
   });
 };
 
 export const useIncrementUsage = () => {
-  const queryClient = useQueryClient();
-  const { user } = useAuth();
-  
-  return useMutation({
-    mutationFn: async (usageType: 'transactions' | 'reports') => {
-      if (!user) throw new Error("User must be authenticated");
-      
-      const { error } = await supabase.rpc('increment_usage', {
-        _user_id: user.id,
-        _usage_type: usageType
-      });
-      
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      // Invalider les requêtes de limitations pour rafraîchir les données
-      queryClient.invalidateQueries({ queryKey: ['user-limits'] });
-    },
-  });
+  return {
+    mutate: () => console.log('Usage increment simulé'),
+    mutateAsync: async () => console.log('Usage increment async simulé'),
+    isLoading: false,
+    error: null,
+  };
 };

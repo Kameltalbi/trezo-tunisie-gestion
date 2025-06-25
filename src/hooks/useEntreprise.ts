@@ -1,7 +1,6 @@
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+import { useLocalData } from "./useLocalData";
+import { useLocalAuth } from "@/contexts/LocalAuthContext";
 import { toast } from "sonner";
 
 export interface Entreprise {
@@ -19,57 +18,55 @@ export interface Entreprise {
 }
 
 export const useEntreprise = () => {
-  const { user } = useAuth();
+  const { user } = useLocalAuth();
+  const { data } = useLocalData<Entreprise>('trezo_entreprises', user?.id);
   
-  return useQuery({
-    queryKey: ['entreprise', user?.id],
-    queryFn: async () => {
-      if (!user) return null;
-
-      const { data, error } = await supabase
-        .from('entreprises')
-        .select('*')
-        .eq('user_id', user.id)
-        .maybeSingle();
-
-      if (error) throw error;
-      return data as Entreprise | null;
-    },
-    enabled: !!user,
-  });
+  return {
+    data: data && data.length > 0 ? data[0] : null,
+    isLoading: false,
+    error: null
+  };
 };
 
 export const useUpdateEntreprise = () => {
-  const queryClient = useQueryClient();
-  const { user } = useAuth();
+  const { user } = useLocalAuth();
+  const { create, update, data } = useLocalData<Entreprise>('trezo_entreprises', user?.id);
 
-  return useMutation({
-    mutationFn: async (entreprise: Partial<Entreprise> & { nom: string }) => {
-      if (!user) throw new Error('Non authentifié');
-      
-      if (!entreprise.nom) {
-        throw new Error('Le nom de l\'entreprise est requis');
-      }
-
-      const { data, error } = await supabase
-        .from('entreprises')
-        .upsert({
-          user_id: user.id,
-          ...entreprise,
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      toast.success("Entreprise mise à jour avec succès");
-      queryClient.invalidateQueries({ queryKey: ['entreprise'] });
-    },
-    onError: (error) => {
-      toast.error("Erreur lors de la mise à jour de l'entreprise");
-      console.error('Erreur mise à jour entreprise:', error);
+  const mutationFn = async (entreprise: Partial<Entreprise> & { nom: string }) => {
+    if (!user) throw new Error('Non authentifié');
+    
+    if (!entreprise.nom) {
+      throw new Error('Le nom de l\'entreprise est requis');
     }
-  });
+
+    // Si aucune entreprise n'existe, en créer une nouvelle
+    if (!data || data.length === 0) {
+      return await create({
+        nom: entreprise.nom,
+        adresse: entreprise.adresse,
+        telephone: entreprise.telephone,
+        email: entreprise.email,
+        tva: entreprise.tva,
+        logo_url: entreprise.logo_url,
+        devise_id: entreprise.devise_id
+      });
+    } else {
+      // Mettre à jour l'entreprise existante
+      return await update(data[0].id, entreprise);
+    }
+  };
+
+  return {
+    mutate: (entreprise: Partial<Entreprise> & { nom: string }) => {
+      mutationFn(entreprise)
+        .then(() => toast.success("Entreprise mise à jour avec succès"))
+        .catch((error) => {
+          toast.error("Erreur lors de la mise à jour de l'entreprise");
+          console.error('Erreur mise à jour entreprise:', error);
+        });
+    },
+    mutateAsync: mutationFn,
+    isLoading: false,
+    error: null,
+  };
 };

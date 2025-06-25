@@ -1,7 +1,6 @@
 
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+import { useLocalAuth } from "@/contexts/LocalAuthContext";
 
 export interface UserProfile {
   id: string;
@@ -18,21 +17,25 @@ export interface UserProfile {
 }
 
 export const useUserProfile = () => {
-  const { user } = useAuth();
+  const { user } = useLocalAuth();
   
   return useQuery({
     queryKey: ['user-profile', user?.id],
     queryFn: async (): Promise<UserProfile | null> => {
       if (!user) return null;
       
-      const { data, error } = await supabase
-        .from('profiles')
-        .select('*')
-        .eq('id', user.id)
-        .single();
-      
-      if (error && error.code !== 'PGRST116') throw error;
-      return data as UserProfile | null;
+      // Retourner le profil basé sur les données locales
+      return {
+        id: user.id,
+        email: user.email,
+        full_name: user.full_name || user.email,
+        company_name: 'Entreprise locale',
+        account_status: 'active',
+        currency_code: 'TND',
+        currency_symbol: 'TND',
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString()
+      };
     },
     enabled: !!user,
   });
@@ -40,21 +43,11 @@ export const useUserProfile = () => {
 
 export const useUpdateUserProfile = () => {
   const queryClient = useQueryClient();
-  const { user } = useAuth();
   
   return useMutation({
     mutationFn: async (updates: Partial<UserProfile>) => {
-      if (!user) throw new Error('User not authenticated');
-      
-      const { data, error } = await supabase
-        .from('profiles')
-        .update(updates)
-        .eq('id', user.id)
-        .select()
-        .single();
-      
-      if (error) throw error;
-      return data;
+      console.log('Mise à jour du profil simulée:', updates);
+      return updates;
     },
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ['user-profile'] });

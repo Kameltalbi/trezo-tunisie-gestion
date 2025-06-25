@@ -51,7 +51,7 @@ export const useLocalData = <T extends { id: string; user_id?: string }>(
         user_id: userId,
         created_at: new Date().toISOString(),
         updated_at: new Date().toISOString()
-      } as T;
+      } as unknown as T;
       
       allData.push(newItem);
       localStorage.setItem(storageKey, JSON.stringify(allData));

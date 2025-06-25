@@ -1,7 +1,6 @@
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+import { useLocalData } from "./useLocalData";
+import { useLocalAuth } from "@/contexts/LocalAuthContext";
 
 export interface Objectif {
   id: string;
@@ -19,95 +18,42 @@ export interface Objectif {
 }
 
 export const useObjectifs = () => {
-  const { user } = useAuth();
-  
-  return useQuery({
-    queryKey: ['objectifs', user?.id],
-    queryFn: async () => {
-      if (!user) return [];
-      
-      const { data, error } = await supabase
-        .from('objectifs')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('created_at', { ascending: false });
-
-      if (error) throw error;
-      return data as Objectif[];
-    },
-    enabled: !!user,
-  });
+  const { user } = useLocalAuth();
+  return useLocalData<Objectif>('trezo_objectifs', user?.id);
 };
 
 export const useCreateObjectif = () => {
-  const queryClient = useQueryClient();
-  const { user } = useAuth();
+  const { user } = useLocalAuth();
+  const { create } = useLocalData<Objectif>('trezo_objectifs', user?.id);
   
-  return useMutation({
-    mutationFn: async (data: Omit<Objectif, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
-      if (!user) throw new Error("User must be authenticated");
-
-      const { data: objectif, error } = await supabase
-        .from('objectifs')
-        .insert({
-          ...data,
-          user_id: user.id
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      return objectif;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['objectifs'] });
-    },
-  });
+  return {
+    mutate: create,
+    mutateAsync: create,
+    isLoading: false,
+    error: null,
+  };
 };
 
 export const useUpdateObjectif = () => {
-  const queryClient = useQueryClient();
-  const { user } = useAuth();
+  const { user } = useLocalAuth();
+  const { update } = useLocalData<Objectif>('trezo_objectifs', user?.id);
   
-  return useMutation({
-    mutationFn: async ({ id, ...data }: Partial<Objectif> & { id: string }) => {
-      if (!user) throw new Error("User must be authenticated");
-
-      const { data: objectif, error } = await supabase
-        .from('objectifs')
-        .update(data)
-        .eq('id', id)
-        .eq('user_id', user.id)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return objectif;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['objectifs'] });
-    },
-  });
+  return {
+    mutate: ({ id, ...data }: Partial<Objectif> & { id: string }) => update(id, data),
+    mutateAsync: ({ id, ...data }: Partial<Objectif> & { id: string }) => update(id, data),
+    isLoading: false,
+    error: null,
+  };
 };
 
 export const useDeleteObjectif = () => {
-  const queryClient = useQueryClient();
-  const { user } = useAuth();
+  const { user } = useLocalAuth();
+  const { delete: deleteItem } = useLocalData<Objectif>('trezo_objectifs', user?.id);
   
-  return useMutation({
-    mutationFn: async (id: string) => {
-      if (!user) throw new Error("User must be authenticated");
-
-      const { error } = await supabase
-        .from('objectifs')
-        .delete()
-        .eq('id', id)
-        .eq('user_id', user.id);
-
-      if (error) throw error;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['objectifs'] });
-    },
-  });
+  return {
+    mutate: deleteItem,
+    mutateAsync: deleteItem,
+    isLoading: false,
+    error: null,
+  };
 };

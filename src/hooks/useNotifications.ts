@@ -1,6 +1,6 @@
 
-import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { useDisabledMutation } from './useDisabledHooks';
 
 interface NotificationData {
   type: 'payment_proof_submitted' | 'payment_approved' | 'payment_rejected' | 'trial_expiring' | 'account_activated';
@@ -16,34 +16,9 @@ interface NotificationData {
 
 export const useNotifications = () => {
   const sendNotification = async (notificationData: NotificationData) => {
-    try {
-      const { data: { session } } = await supabase.auth.getSession();
-      if (!session) {
-        throw new Error('Utilisateur non authentifié');
-      }
-
-      const response = await fetch('/functions/v1/send-notification', {
-        method: 'POST',
-        headers: {
-          'Authorization': `Bearer ${session.access_token}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(notificationData),
-      });
-
-      if (!response.ok) {
-        throw new Error('Erreur lors de l\'envoi de la notification');
-      }
-
-      const result = await response.json();
-      console.log('Notification envoyée:', result);
-      return result;
-
-    } catch (error) {
-      console.error('Erreur notification:', error);
-      toast.error('Erreur lors de l\'envoi de la notification');
-      return null;
-    }
+    console.log('Notification simulée:', notificationData);
+    toast.info(`Notification: ${notificationData.type} pour ${notificationData.email}`);
+    return { success: true };
   };
 
   return {

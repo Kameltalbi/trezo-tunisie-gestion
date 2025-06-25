@@ -1,7 +1,6 @@
 
-import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+import { useLocalData } from "./useLocalData";
+import { useLocalAuth } from "@/contexts/LocalAuthContext";
 
 export interface Decaissement {
   id: string;
@@ -22,48 +21,18 @@ export interface Decaissement {
 }
 
 export const useDecaissements = () => {
-  const { user } = useAuth();
-  
-  return useQuery({
-    queryKey: ['decaissements', user?.id],
-    queryFn: async () => {
-      if (!user) return [];
-      
-      const { data, error } = await supabase
-        .from('decaissements')
-        .select('*')
-        .eq('user_id', user.id)
-        .order('date_transaction', { ascending: false });
-
-      if (error) throw error;
-      return data as Decaissement[];
-    },
-    enabled: !!user,
-  });
+  const { user } = useLocalAuth();
+  return useLocalData<Decaissement>('trezo_decaissements', user?.id);
 };
 
 export const useCreateDecaissement = () => {
-  const queryClient = useQueryClient();
-  const { user } = useAuth();
+  const { user } = useLocalAuth();
+  const { create } = useLocalData<Decaissement>('trezo_decaissements', user?.id);
   
-  return useMutation({
-    mutationFn: async (data: Omit<Decaissement, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
-      if (!user) throw new Error("User must be authenticated");
-
-      const { data: decaissement, error } = await supabase
-        .from('decaissements')
-        .insert({
-          ...data,
-          user_id: user.id
-        })
-        .select()
-        .single();
-
-      if (error) throw error;
-      return decaissement;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['decaissements'] });
-    },
-  });
+  return {
+    mutate: create,
+    mutateAsync: create,
+    isLoading: false,
+    error: null,
+  };
 };

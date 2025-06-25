@@ -1,6 +1,7 @@
+
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import { useAuth } from "../contexts/AuthContext";
+import { useLocalAuth } from "@/contexts/LocalAuthContext";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -8,7 +9,6 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Loader2, Eye, EyeOff, CheckCircle, Building2 } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
-import { supabase } from "@/integrations/supabase/client";
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -28,6 +28,7 @@ const Register = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
+  const { signUp } = useLocalAuth();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value } = e.target;
@@ -74,61 +75,16 @@ const Register = () => {
     setError(null);
 
     try {
-      // Créer le compte utilisateur
-      const { data: authData, error: authError } = await supabase.auth.signUp({
-        email: formData.email,
-        password: formData.password,
-        options: {
-          data: {
-            full_name: formData.nom,
-            company_name: formData.nomEntreprise
-          }
-        }
+      await signUp(formData.email, formData.password, {
+        full_name: formData.nom,
+        company_name: formData.nomEntreprise,
+        company_address: formData.adresseEntreprise,
+        company_phone: formData.telephoneEntreprise,
+        company_email: formData.emailEntreprise,
+        company_tva: formData.tva
       });
 
-      if (authError) throw authError;
-
-      // Si l'utilisateur est créé, créer l'entreprise et l'utilisateur avec rôle admin
-      if (authData.user) {
-        // Créer l'entreprise
-        const { error: entrepriseError } = await supabase
-          .from('entreprises')
-          .insert({
-            user_id: authData.user.id,
-            nom: formData.nomEntreprise,
-            adresse: formData.adresseEntreprise || null,
-            telephone: formData.telephoneEntreprise || null,
-            email: formData.emailEntreprise || null,
-            tva: formData.tva || null
-          });
-
-        if (entrepriseError) {
-          console.error("Erreur lors de la création de l'entreprise:", entrepriseError);
-        }
-
-        // Créer l'utilisateur avec le rôle admin dans la table users
-        const { error: userError } = await supabase
-          .from('users')
-          .insert({
-            id: authData.user.id,
-            email: formData.email,
-            full_name: formData.nom,
-            role: 'admin' // Rôle admin par défaut pour tous les nouveaux utilisateurs
-          });
-
-        if (userError) {
-          console.error("Erreur lors de la création de l'utilisateur:", userError);
-        } else {
-          console.log('Utilisateur créé avec le rôle admin lors de l\'inscription');
-        }
-
-        if (entrepriseError) {
-          toast.error("Compte créé mais erreur lors de l'enregistrement de l'entreprise");
-        } else {
-          toast.success("Compte et entreprise créés avec succès !");
-        }
-      }
-      
+      toast.success("Compte créé avec succès !");
       navigate("/login");
     } catch (error) {
       console.error("Erreur lors de l'inscription:", error);

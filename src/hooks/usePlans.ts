@@ -1,6 +1,5 @@
 
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useDisabledQuery } from "./useDisabledHooks";
 
 export interface Plan {
   id: string;
@@ -20,17 +19,5 @@ export interface Plan {
 }
 
 export const usePlans = () => {
-  return useQuery({
-    queryKey: ['plans'],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('plans')
-        .select('*')
-        .eq('is_active', true)
-        .order('price', { ascending: true });
-
-      if (error) throw error;
-      return data as Plan[];
-    },
-  });
+  return useDisabledQuery(['plans'], 'Plans functionality disabled - using local storage');
 };
