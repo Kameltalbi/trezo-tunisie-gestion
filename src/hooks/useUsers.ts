@@ -1,4 +1,5 @@
 
+
 import { useLocalData } from "./useLocalData";
 import { useLocalMutation } from "./useLocalMutation";
 import { toast } from "sonner";
@@ -68,3 +69,4 @@ export const useDeleteUser = () => {
     () => toast.success("Utilisateur supprimé avec succès")
   );
 };
+

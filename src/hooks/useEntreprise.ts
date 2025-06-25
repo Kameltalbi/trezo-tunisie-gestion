@@ -1,4 +1,5 @@
 
+
 import { useLocalData } from "./useLocalData";
 import { useLocalAuth } from "@/contexts/LocalAuthContext";
 import { useLocalMutation } from "./useLocalMutation";
@@ -33,7 +34,7 @@ export const useUpdateEntreprise = () => {
   const { user } = useLocalAuth();
   const { create, update, data } = useLocalData<Entreprise>('trezo_entreprises', user?.id);
 
-  const mutationFn = async (entreprise: Partial<Entreprise> & { nom: string }) => {
+  const mutationFn = async (entreprise: Omit<Entreprise, 'id' | 'user_id' | 'created_at' | 'updated_at'> & { nom: string }) => {
     if (!user) throw new Error('Non authentifié');
     
     if (!entreprise.nom) {
@@ -42,15 +43,7 @@ export const useUpdateEntreprise = () => {
 
     // Si aucune entreprise n'existe, en créer une nouvelle
     if (!data || data.length === 0) {
-      return await create({
-        nom: entreprise.nom,
-        adresse: entreprise.adresse || '',
-        telephone: entreprise.telephone || '',
-        email: entreprise.email || '',
-        tva: entreprise.tva || '',
-        logo_url: entreprise.logo_url || '',
-        devise_id: entreprise.devise_id || ''
-      });
+      return await create(entreprise);
     } else {
       // Mettre à jour l'entreprise existante
       return await update(data[0].id, entreprise);
@@ -66,3 +59,4 @@ export const useUpdateEntreprise = () => {
     }
   );
 };
+

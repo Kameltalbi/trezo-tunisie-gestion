@@ -1,6 +1,8 @@
 
+
 import { useLocalData } from "./useLocalData";
 import { useLocalAuth } from "@/contexts/LocalAuthContext";
+import { useLocalMutation } from "./useLocalMutation";
 
 export interface Projet {
   id: string;
@@ -25,34 +27,32 @@ export const useCreateProjet = () => {
   const { user } = useLocalAuth();
   const { create } = useLocalData<Projet>('trezo_projets', user?.id);
   
-  return {
-    mutate: create,
-    mutateAsync: create,
-    isLoading: false,
-    error: null,
+  const mutationFn = async (data: Omit<Projet, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+    return await create(data);
   };
+
+  return useLocalMutation(mutationFn);
 };
 
 export const useUpdateProjet = () => {
   const { user } = useLocalAuth();
   const { update } = useLocalData<Projet>('trezo_projets', user?.id);
   
-  return {
-    mutate: ({ id, ...data }: Partial<Projet> & { id: string }) => update(id, data),
-    mutateAsync: ({ id, ...data }: Partial<Projet> & { id: string }) => update(id, data),
-    isLoading: false,
-    error: null,
+  const mutationFn = async ({ id, ...data }: Partial<Projet> & { id: string }) => {
+    return await update(id, data);
   };
+
+  return useLocalMutation(mutationFn);
 };
 
 export const useDeleteProjet = () => {
   const { user } = useLocalAuth();
   const { delete: deleteItem } = useLocalData<Projet>('trezo_projets', user?.id);
   
-  return {
-    mutate: deleteItem,
-    mutateAsync: deleteItem,
-    isLoading: false,
-    error: null,
+  const mutationFn = async (id: string) => {
+    await deleteItem(id);
   };
+
+  return useLocalMutation(mutationFn);
 };
+

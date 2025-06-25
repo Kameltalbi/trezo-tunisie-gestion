@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { useLocalAuth } from "@/contexts/LocalAuthContext";
-import { useRouter } from 'next/navigation';
+import { useNavigate } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -14,7 +14,7 @@ const Register = () => {
   const [nom, setNom] = useState("");
   const [nomEntreprise, setNomEntreprise] = useState("");
   const [localError, setError] = useState("");
-  const router = useRouter();
+  const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();

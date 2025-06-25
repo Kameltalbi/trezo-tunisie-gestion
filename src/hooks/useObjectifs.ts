@@ -1,6 +1,8 @@
 
+
 import { useLocalData } from "./useLocalData";
 import { useLocalAuth } from "@/contexts/LocalAuthContext";
+import { useLocalMutation } from "./useLocalMutation";
 
 export interface Objectif {
   id: string;
@@ -26,34 +28,33 @@ export const useCreateObjectif = () => {
   const { user } = useLocalAuth();
   const { create } = useLocalData<Objectif>('trezo_objectifs', user?.id);
   
-  return {
-    mutate: create,
-    mutateAsync: create,
-    isLoading: false,
-    error: null,
+  const mutationFn = async (data: Omit<Objectif, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+    return await create(data);
   };
+
+  return useLocalMutation(mutationFn);
 };
 
 export const useUpdateObjectif = () => {
   const { user } = useLocalAuth();
   const { update } = useLocalData<Objectif>('trezo_objectifs', user?.id);
   
-  return {
-    mutate: ({ id, ...data }: Partial<Objectif> & { id: string }) => update(id, data),
-    mutateAsync: ({ id, ...data }: Partial<Objectif> & { id: string }) => update(id, data),
-    isLoading: false,
-    error: null,
+  const mutationFn = async (data: Partial<Objectif> & { id: string }) => {
+    const { id, ...updates } = data;
+    return await update(id, updates);
   };
+
+  return useLocalMutation(mutationFn);
 };
 
 export const useDeleteObjectif = () => {
   const { user } = useLocalAuth();
   const { delete: deleteItem } = useLocalData<Objectif>('trezo_objectifs', user?.id);
   
-  return {
-    mutate: deleteItem,
-    mutateAsync: deleteItem,
-    isLoading: false,
-    error: null,
+  const mutationFn = async (id: string) => {
+    await deleteItem(id);
   };
+
+  return useLocalMutation(mutationFn);
 };
+
