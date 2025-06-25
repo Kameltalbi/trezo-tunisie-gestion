@@ -52,10 +52,19 @@ const ImportReleve = () => {
   // Trouver le compte actuel
   const currentCompte = comptes.find(c => c.id === compteId);
 
-  // Exemple de données pour tester
+  // Exemple de données plus complet pour tester
   const exampleData = `08 01 REGLEMENT CHEQUE 0001910 07012025 300,000
 10 01 VIREMENT SALAIRE JANVIER 2025 2500,000
-12 01 RETRAIT DAB AVENUE HABIB 150,000`;
+12 01 RETRAIT DAB AVENUE HABIB 150,000
+15 01 PAIEMENT CARTE CARREFOUR 85,500
+18 01 VIREMENT LOYER APPARTEMENT 800,000
+20 01 DEPOT ESPECES AGENCE 500,000
+22 01 PRELEVEMENT EDF FACTURE 120,750
+25 01 RETRAIT DAB CENTRE VILLE 200,000
+28 01 VIREMENT RECU FREELANCE 1200,000
+30 01 FRAIS BANCAIRES MENSUELS 15,000
+02 02 REMBOURSEMENT ASSURANCE 250,000
+05 02 ACHAT PHARMACIE CARTE 28,900`;
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -70,7 +79,7 @@ const ImportReleve = () => {
   const copyExampleData = () => {
     navigator.clipboard.writeText(exampleData).then(() => {
       setPastedText(exampleData);
-      toast.success('Données d\'exemple copiées dans la zone de texte');
+      toast.success('12 lignes d\'exemple copiées dans la zone de texte');
     }).catch(() => {
       toast.error('Erreur lors de la copie');
     });
@@ -261,7 +270,7 @@ const ImportReleve = () => {
           
           <div className="p-4 bg-muted rounded-md">
             <div className="flex items-center justify-between mb-3">
-              <p className="text-sm font-medium">Exemple de format attendu :</p>
+              <p className="text-sm font-medium">Exemple de format attendu (12 lignes) :</p>
               <Button 
                 variant="outline" 
                 size="sm" 
@@ -272,7 +281,7 @@ const ImportReleve = () => {
                 Essayer avec ces données
               </Button>
             </div>
-            <code className="text-xs text-muted-foreground whitespace-pre-line">
+            <code className="text-xs text-muted-foreground whitespace-pre-line max-h-32 overflow-y-auto block">
               {exampleData}
             </code>
           </div>
