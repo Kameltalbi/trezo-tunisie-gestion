@@ -10,49 +10,49 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { format } from 'date-fns';
 import { formatCurrency } from '@/lib/utils';
-import { useDecaissements, useCreateDecaissement, type Decaissement } from '@/hooks/useDecaissements';
-import { useComptesBancaires } from '@/hooks/useComptesBancaires';
-import { useProjets } from '@/hooks/useProjets';
+import { useLocalDecaissements } from '@/hooks/useLocalDecaissements';
+import { useLocalComptes } from '@/hooks/useLocalComptes';
+import { useLocalProjets } from '@/hooks/useLocalProjets';
+import { Transaction } from '@/types/local';
 import { toast } from 'sonner';
 
 const DepensesPage: React.FC = () => {
-  const { data: decaissements = [], isLoading } = useDecaissements();
-  const { data: comptes = [] } = useComptesBancaires();
-  const { data: projets = [] } = useProjets();
-  const createDecaissement = useCreateDecaissement();
+  const { data: decaissements = [], isLoading, createDecaissement } = useLocalDecaissements();
+  const { data: comptes = [] } = useLocalComptes();
+  const { data: projets = [] } = useLocalProjets();
   const [open, setOpen] = useState(false);
-  const [nouvelleDepense, setNouvelleDepense] = useState<Partial<Decaissement>>({
-    recurrence: 'aucune',
+  const [isCreating, setIsCreating] = useState(false);
+  const [nouvelleDepense, setNouvelleDepense] = useState<Partial<Transaction>>({
     statut: 'confirme'
   });
 
   const ajouterDepense = async () => {
-    if (!nouvelleDepense.titre || !nouvelleDepense.montant || !nouvelleDepense.date_transaction || !nouvelleDepense.categorie) {
+    if (!nouvelleDepense.titre || !nouvelleDepense.montant || !nouvelleDepense.dateTransaction || !nouvelleDepense.categorie) {
       toast.error("Veuillez remplir tous les champs obligatoires");
       return;
     }
 
+    setIsCreating(true);
     try {
-      await createDecaissement.mutateAsync({
+      await createDecaissement({
         titre: nouvelleDepense.titre,
         montant: nouvelleDepense.montant,
-        date_transaction: nouvelleDepense.date_transaction,
+        dateTransaction: nouvelleDepense.dateTransaction,
         categorie: nouvelleDepense.categorie,
-        sous_categorie: nouvelleDepense.sous_categorie,
+        sousCategorie: nouvelleDepense.sousCategorie,
         description: nouvelleDepense.description,
-        compte_id: nouvelleDepense.compte_id,
-        projet_id: nouvelleDepense.projet_id,
-        reference: nouvelleDepense.reference,
-        recurrence: nouvelleDepense.recurrence || 'aucune',
+        compteId: nouvelleDepense.compteId,
         statut: nouvelleDepense.statut || 'confirme'
       });
       
-      setNouvelleDepense({ recurrence: 'aucune', statut: 'confirme' });
+      setNouvelleDepense({ statut: 'confirme' });
       setOpen(false);
       toast.success("Décaissement ajouté avec succès");
     } catch (error) {
       console.error("Erreur lors de l'ajout:", error);
       toast.error("Erreur lors de l'ajout du décaissement");
+    } finally {
+      setIsCreating(false);
     }
   };
 
@@ -93,8 +93,8 @@ const DepensesPage: React.FC = () => {
 
               <Label>Sous-catégorie</Label>
               <Input 
-                value={nouvelleDepense.sous_categorie || ''} 
-                onChange={e => setNouvelleDepense({ ...nouvelleDepense, sous_categorie: e.target.value })} 
+                value={nouvelleDepense.sousCategorie || ''} 
+                onChange={e => setNouvelleDepense({ ...nouvelleDepense, sousCategorie: e.target.value })} 
                 placeholder="Précision sur la catégorie"
               />
 
@@ -110,12 +110,12 @@ const DepensesPage: React.FC = () => {
               <Label>Date de transaction *</Label>
               <Input 
                 type="date" 
-                value={nouvelleDepense.date_transaction || ''} 
-                onChange={e => setNouvelleDepense({ ...nouvelleDepense, date_transaction: e.target.value })} 
+                value={nouvelleDepense.dateTransaction || ''} 
+                onChange={e => setNouvelleDepense({ ...nouvelleDepense, dateTransaction: e.target.value })} 
               />
 
               <Label>Compte bancaire</Label>
-              <Select onValueChange={val => setNouvelleDepense({ ...nouvelleDepense, compte_id: val })}>
+              <Select onValueChange={val => setNouvelleDepense({ ...nouvelleDepense, compteId: val })}>
                 <SelectTrigger>
                   <SelectValue placeholder="Sélectionner un compte" />
                 </SelectTrigger>
@@ -128,27 +128,6 @@ const DepensesPage: React.FC = () => {
                 </SelectContent>
               </Select>
 
-              <Label>Projet associé</Label>
-              <Select onValueChange={val => setNouvelleDepense({ ...nouvelleDepense, projet_id: val })}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Sélectionner un projet" />
-                </SelectTrigger>
-                <SelectContent>
-                  {projets.map(projet => (
-                    <SelectItem key={projet.id} value={projet.id}>
-                      {projet.nom}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
-
-              <Label>Référence</Label>
-              <Input 
-                value={nouvelleDepense.reference || ''} 
-                onChange={e => setNouvelleDepense({ ...nouvelleDepense, reference: e.target.value })} 
-                placeholder="Numéro de facture, référence..."
-              />
-
               <Label>Notes</Label>
               <Textarea 
                 value={nouvelleDepense.description || ''} 
@@ -158,9 +137,9 @@ const DepensesPage: React.FC = () => {
 
               <Button 
                 onClick={ajouterDepense}
-                disabled={createDecaissement.isPending}
+                disabled={isCreating}
               >
-                {createDecaissement.isPending ? "Ajout..." : "Ajouter"}
+                {isCreating ? "Ajout..." : "Ajouter"}
               </Button>
             </div>
           </DialogContent>
@@ -185,10 +164,10 @@ const DepensesPage: React.FC = () => {
                   <TableCell>{dep.titre}</TableCell>
                   <TableCell>
                     {dep.categorie}
-                    {dep.sous_categorie && ` - ${dep.sous_categorie}`}
+                    {dep.sousCategorie && ` - ${dep.sousCategorie}`}
                   </TableCell>
                   <TableCell>{formatCurrency(dep.montant)}</TableCell>
-                  <TableCell>{format(new Date(dep.date_transaction), 'dd/MM/yyyy')}</TableCell>
+                  <TableCell>{format(new Date(dep.dateTransaction), 'dd/MM/yyyy')}</TableCell>
                   <TableCell className={
                     dep.statut === 'annule' ? 'text-red-500' :
                     dep.statut === 'en_attente' ? 'text-orange-500' :
