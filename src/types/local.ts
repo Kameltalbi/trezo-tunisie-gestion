@@ -21,11 +21,11 @@ export interface CompteBancaire {
   nom: string;
   type: 'courant' | 'epargne' | 'credit';
   banque: string;
-  numeroCompte?: string;
-  soldeInitial: number;
-  soldeActuel: number;
-  isActive: boolean;
-  createdAt: string;
+  numero_compte?: string;
+  solde_initial: number;
+  solde_actuel: number;
+  devise_id?: string;
+  is_active: boolean;
   created_at: string;
   updated_at: string;
 }
@@ -33,16 +33,16 @@ export interface CompteBancaire {
 export interface Transaction {
   id: string;
   user_id: string;
-  compteId?: string;
+  compte_id?: string;
   titre: string;
   montant: number;
-  dateTransaction: string;
+  date_transaction: string;
   categorie: string;
-  sousCategorie?: string;
+  sous_categorie?: string;
   description?: string;
   type: 'encaissement' | 'decaissement';
   statut: 'confirme' | 'en_attente' | 'annule';
-  createdAt: string;
+  source?: string;
   created_at: string;
   updated_at: string;
 }

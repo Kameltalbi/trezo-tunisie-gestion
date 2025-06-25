@@ -25,12 +25,14 @@ export const useLocalComptes = () => {
     loadComptes();
   }, []);
 
-  const createCompte = async (compteData: Omit<CompteBancaire, 'id' | 'createdAt'>) => {
+  const createCompte = async (compteData: Omit<CompteBancaire, 'id' | 'created_at' | 'updated_at'>) => {
     try {
+      const now = new Date().toISOString();
       const newCompte: CompteBancaire = {
         ...compteData,
         id: uuidv4(),
-        createdAt: new Date().toISOString(),
+        created_at: now,
+        updated_at: now,
       };
 
       localStorageService.saveCompte(newCompte);
@@ -51,7 +53,11 @@ export const useLocalComptes = () => {
         throw new Error('Compte non trouvé');
       }
 
-      const updatedCompte = { ...existingCompte, ...updates };
+      const updatedCompte = { 
+        ...existingCompte, 
+        ...updates, 
+        updated_at: new Date().toISOString() 
+      };
       localStorageService.saveCompte(updatedCompte);
       setComptes(prev => prev.map(c => c.id === id ? updatedCompte : c));
       toast.success('Compte mis à jour');
