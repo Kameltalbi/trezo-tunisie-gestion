@@ -1,76 +1,92 @@
 
-import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
-import { useAuth } from "@/contexts/AuthContext";
+import { useState, useEffect } from 'react';
+import { localStorageService } from '@/services/localStorageService';
+import { useLocalAuth } from '@/contexts/LocalAuthContext';
+import type { 
+  DashboardEncaissement, 
+  DashboardDecaissement, 
+  DashboardFluxTresorerie, 
+  DashboardRevenu
+} from '@/types/dashboard';
 
 export const useDashboardData = () => {
-  const { user } = useAuth();
-  
-  // Récupérer les encaissements des 5 derniers mois
-  const encaissements = useQuery({
-    queryKey: ['dashboard-encaissements', user?.id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('encaissements')
-        .select('*')
-        .eq('user_id', user?.id)
-        .gte('date_transaction', new Date(new Date().setMonth(new Date().getMonth() - 5)).toISOString())
-        .order('date_transaction', { ascending: true });
+  const { user } = useLocalAuth();
+  const [encaissements, setEncaissements] = useState<{ data: DashboardEncaissement[] | undefined; isLoading: boolean }>({ data: undefined, isLoading: true });
+  const [soldes, setSoldes] = useState<{ data: DashboardFluxTresorerie[] | undefined; isLoading: boolean }>({ data: undefined, isLoading: true });
+  const [depenses, setDepenses] = useState<{ data: DashboardDecaissement[] | undefined; isLoading: boolean }>({ data: undefined, isLoading: true });
+  const [revenus, setRevenus] = useState<{ data: DashboardRevenu[] | undefined; isLoading: boolean }>({ data: undefined, isLoading: true });
 
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!user,
-  });
+  useEffect(() => {
+    if (!user) return;
 
-  // Soldes mensuels
-  const soldes = useQuery({
-    queryKey: ['dashboard-soldes', user?.id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('flux_tresorerie')
-        .select('*')
-        .eq('user_id', user?.id)
-        .gte('date_prevision', new Date(new Date().setMonth(new Date().getMonth() - 5)).toISOString())
-        .order('date_prevision', { ascending: true });
+    const loadData = async () => {
+      try {
+        // Récupérer les transactions (encaissements et décaissements)
+        const transactions = localStorageService.getTransactions();
+        const fiveMonthsAgo = new Date(new Date().setMonth(new Date().getMonth() - 5));
+        const oneMonthAgo = new Date(new Date().setMonth(new Date().getMonth() - 1));
 
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!user,
-  });
+        // Filtrer les encaissements des 5 derniers mois
+        const encaissementsData = transactions
+          .filter(t => t.type === 'encaissement' && new Date(t.dateTransaction) >= fiveMonthsAgo)
+          .map(t => ({
+            id: t.id,
+            montant: t.montant,
+            date_transaction: t.dateTransaction,
+            categorie: t.categorie || 'Autres',
+            user_id: user.id
+          } as DashboardEncaissement));
 
-  // Dépenses par catégorie
-  const depenses = useQuery({
-    queryKey: ['dashboard-depenses', user?.id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('decaissements')
-        .select('*')
-        .eq('user_id', user?.id)
-        .gte('date_transaction', new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString());
+        // Filtrer les décaissements du dernier mois
+        const depensesData = transactions
+          .filter(t => t.type === 'decaissement' && new Date(t.dateTransaction) >= oneMonthAgo)
+          .map(t => ({
+            id: t.id,
+            montant: t.montant,
+            date_transaction: t.dateTransaction,
+            categorie: t.categorie || 'Autres',
+            statut: t.statut || 'paye',
+            user_id: user.id
+          } as DashboardDecaissement));
 
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!user,
-  });
+        // Créer des données de flux de trésorerie simulées basées sur les comptes
+        const comptes = localStorageService.getComptes();
+        const soldesData = comptes.map((compte, index) => ({
+          id: `flux-${compte.id}`,
+          montant_prevu: compte.solde,
+          montant_realise: compte.solde,
+          date_prevision: new Date(new Date().setMonth(new Date().getMonth() - index)).toISOString(),
+          user_id: user.id
+        } as DashboardFluxTresorerie));
 
-  // Revenus par source
-  const revenus = useQuery({
-    queryKey: ['dashboard-revenus', user?.id],
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from('encaissements')
-        .select('*')
-        .eq('user_id', user?.id)
-        .gte('date_transaction', new Date(new Date().setMonth(new Date().getMonth() - 1)).toISOString());
+        // Les revenus sont les mêmes que les encaissements du dernier mois
+        const revenusData = transactions
+          .filter(t => t.type === 'encaissement' && new Date(t.dateTransaction) >= oneMonthAgo)
+          .map(t => ({
+            id: t.id,
+            montant: t.montant,
+            date_transaction: t.dateTransaction,
+            categorie: t.categorie || 'Autres',
+            user_id: user.id
+          } as DashboardRevenu));
 
-      if (error) throw error;
-      return data;
-    },
-    enabled: !!user,
-  });
+        // Mettre à jour les états
+        setEncaissements({ data: encaissementsData, isLoading: false });
+        setSoldes({ data: soldesData, isLoading: false });
+        setDepenses({ data: depensesData, isLoading: false });
+        setRevenus({ data: revenusData, isLoading: false });
+
+      } catch (error) {
+        console.error('Erreur lors du chargement des données du dashboard:', error);
+        setEncaissements({ data: [], isLoading: false });
+        setSoldes({ data: [], isLoading: false });
+        setDepenses({ data: [], isLoading: false });
+        setRevenus({ data: [], isLoading: false });
+      }
+    };
+
+    loadData();
+  }, [user]);
 
   return {
     encaissements,
