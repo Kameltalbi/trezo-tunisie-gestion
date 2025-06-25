@@ -1,6 +1,6 @@
 
 import { useState } from "react";
-import { useAuth } from "../contexts/AuthContext";
+import { useLocalAuth } from "../contexts/LocalAuthContext";
 import { useNavigate, Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,6 @@ import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
 import { useTranslation } from "react-i18next";
 import { Toaster } from "@/components/ui/sonner";
-import { supabase } from "@/integrations/supabase/client";
 
 const Login = () => {
   const { t } = useTranslation();
@@ -20,7 +19,7 @@ const Login = () => {
   const [showPassword, setShowPassword] = useState(false);
   const [showForgotPassword, setShowForgotPassword] = useState(false);
   const [isResettingPassword, setIsResettingPassword] = useState(false);
-  const { signIn, isLoading, error } = useAuth();
+  const { signIn, isLoading, error } = useLocalAuth();
   const navigate = useNavigate();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -44,13 +43,8 @@ const Login = () => {
 
     setIsResettingPassword(true);
     try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/reset-password`,
-      });
-
-      if (error) throw error;
-
-      toast.success("Un email de réinitialisation a été envoyé à votre adresse");
+      // Pour le mode local, on peut simplement afficher un message
+      toast.success("Fonctionnalité de réinitialisation non disponible en mode local");
       setShowForgotPassword(false);
     } catch (error) {
       console.error("Erreur lors de la réinitialisation:", error);
