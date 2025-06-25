@@ -1,8 +1,7 @@
-
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
-import { Check, FileText, Calendar } from "lucide-react";
+import { Check, CreditCard, Calendar } from "lucide-react";
 
 const PricingSection = () => {
   // Date de fin de l'offre de lancement (3 mois à partir d'aujourd'hui)
@@ -127,14 +126,13 @@ const PricingSection = () => {
               </div>
               
               <Button 
-                variant="outline" 
                 size="lg" 
-                className="w-full border-blue-500 text-blue-600 hover:bg-blue-50"
+                className="w-full bg-green-600 hover:bg-green-700"
                 asChild
               >
-                <Link to="/contact">
-                  <FileText className="mr-2 h-4 w-4" />
-                  Demander une facture
+                <Link to="/subscription">
+                  <CreditCard className="mr-2 h-4 w-4" />
+                  Souscrire pour une année
                 </Link>
               </Button>
             </div>
