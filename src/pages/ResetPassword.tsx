@@ -1,6 +1,6 @@
 
-import { useState, useEffect } from "react";
-import { useNavigate, useSearchParams } from "react-router-dom";
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,90 +9,77 @@ import { Loader2, Eye, EyeOff, Lock } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { toast } from "sonner";
 import { Toaster } from "@/components/ui/sonner";
-import { supabase } from "@/integrations/supabase/client";
 
 const ResetPassword = () => {
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
-  const [showPassword, setShowPassword] = useState(false);
-  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [email, setEmail] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState("");
-  const [searchParams] = useSearchParams();
+  const [success, setSuccess] = useState(false);
   const navigate = useNavigate();
-
-  useEffect(() => {
-    // Vérifier si nous avons les paramètres nécessaires pour la réinitialisation
-    const accessToken = searchParams.get('access_token');
-    const refreshToken = searchParams.get('refresh_token');
-    
-    if (!accessToken || !refreshToken) {
-      setError("Lien de réinitialisation invalide ou expiré");
-      return;
-    }
-
-    // Définir la session avec les tokens reçus
-    supabase.auth.setSession({
-      access_token: accessToken,
-      refresh_token: refreshToken,
-    });
-  }, [searchParams]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
 
-    if (password !== confirmPassword) {
-      setError("Les mots de passe ne correspondent pas");
-      return;
-    }
-
-    if (password.length < 6) {
-      setError("Le mot de passe doit contenir au moins 6 caractères");
+    if (!email) {
+      setError("L'email est requis");
       return;
     }
 
     setIsLoading(true);
 
     try {
-      const { error } = await supabase.auth.updateUser({
-        password: password
-      });
-
-      if (error) throw error;
-
-      toast.success("Mot de passe mis à jour avec succès !");
+      // Simulation d'envoi d'email de réinitialisation
+      await new Promise(resolve => setTimeout(resolve, 2000));
       
-      // Rediriger vers la page de connexion après un délai
+      setSuccess(true);
+      toast.success("Instructions envoyées par email !");
+      
       setTimeout(() => {
         navigate("/login");
-      }, 2000);
+      }, 3000);
 
     } catch (error: any) {
-      console.error("Erreur lors de la mise à jour du mot de passe:", error);
-      setError(error.message || "Erreur lors de la mise à jour du mot de passe");
+      console.error("Erreur lors de la réinitialisation:", error);
+      setError("Erreur lors de l'envoi de l'email de réinitialisation");
     } finally {
       setIsLoading(false);
     }
   };
+
+  if (success) {
+    return (
+      <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-emerald-50 to-blue-50 p-4">
+        <Card className="shadow-xl rounded-2xl border-0 bg-white/80 backdrop-blur">
+          <CardContent className="p-6 text-center">
+            <h2 className="text-2xl font-bold mb-4">Email envoyé !</h2>
+            <p className="text-gray-600">
+              Vérifiez votre boîte email pour les instructions de réinitialisation.
+            </p>
+          </CardContent>
+        </Card>
+        <Toaster />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-emerald-50 to-blue-50 p-4">
       <div className="w-full max-w-md">
         <div className="flex flex-col items-center mb-8">
           <img 
-            src="/lovable-uploads/71b93732-45ea-4330-96cf-7bff5ea4f99a.png" 
+            src="/lovable-uploads/c6044d18-b9a5-4f10-9c00-f04817874a0e.png" 
             alt="Trézo" 
             className="h-24 w-auto mb-4"
           />
-          <p className="text-gray-500 text-center">Créez votre nouveau mot de passe</p>
+          <p className="text-gray-500 text-center">Réinitialiser votre mot de passe</p>
         </div>
         
         <Card className="shadow-xl rounded-2xl border-0 bg-white/80 backdrop-blur">
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl">Nouveau mot de passe</CardTitle>
+            <CardTitle className="text-2xl">Mot de passe oublié</CardTitle>
             <CardDescription>
-              Saisissez votre nouveau mot de passe
+              Entrez votre email pour recevoir les instructions
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -104,64 +91,35 @@ const ResetPassword = () => {
               )}
               
               <div className="space-y-2">
-                <Label htmlFor="password">Nouveau mot de passe</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="password"
-                    type={showPassword ? "text" : "password"}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="pl-10 pr-10"
-                    required
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </Button>
-                </div>
-              </div>
-              
-              <div className="space-y-2">
-                <Label htmlFor="confirmPassword">Confirmer le mot de passe</Label>
-                <div className="relative">
-                  <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="confirmPassword"
-                    type={showConfirmPassword ? "text" : "password"}
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="••••••••"
-                    className="pl-10 pr-10"
-                    required
-                  />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  >
-                    {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
-                  </Button>
-                </div>
+                <Label htmlFor="email">Email</Label>
+                <Input
+                  id="email"
+                  type="email"
+                  value={email}
+                  onChange={(e) => setEmail(e.target.value)}
+                  placeholder="votre@email.com"
+                  required
+                />
               </div>
               
               <Button type="submit" className="w-full" disabled={isLoading}>
                 {isLoading ? (
                   <>
                     <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Mise à jour...
+                    Envoi en cours...
                   </>
                 ) : (
-                  "Mettre à jour le mot de passe"
+                  "Envoyer les instructions"
                 )}
+              </Button>
+              
+              <Button 
+                type="button" 
+                variant="outline" 
+                className="w-full"
+                onClick={() => navigate("/login")}
+              >
+                Retour à la connexion
               </Button>
             </form>
           </CardContent>

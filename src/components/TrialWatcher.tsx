@@ -1,14 +1,11 @@
 
-import { useTrialExpiration } from '@/hooks/useTrialExpiration';
-import { useAuth } from '@/contexts/AuthContext';
+import { useLocalAuth } from '@/contexts/LocalAuthContext';
 
 const TrialWatcher: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const { user } = useAuth();
+  const { user } = useLocalAuth();
   
-  // Le hook useTrialExpiration gère automatiquement les rappels et redirections
-  useTrialExpiration();
-
-  // Ce composant n'affiche rien visuellement, il surveille juste l'expiration
+  // Pour l'instant, pas de surveillance d'essai avec le système local
+  // Tous les utilisateurs ont accès complet
   return <>{children}</>;
 };
 

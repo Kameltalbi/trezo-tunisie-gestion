@@ -1,110 +1,76 @@
+
 import { Recette } from "../types";
-import { supabase } from "@/integrations/supabase/client";
 
 // Type pour la récurrence
 type RecurrenceType = "aucune" | "quotidienne" | "hebdomadaire" | "bimensuelle" | "mensuelle" | "trimestrielle" | "simestrielle" | "annuelle";
 
-// Récupère toutes les recettes d'un utilisateur depuis Supabase
+// Clé pour le localStorage
+const RECETTES_STORAGE_KEY = 'trezo_recettes';
+
+// Récupère toutes les recettes d'un utilisateur depuis le localStorage
 export const getRecettesForUser = async (userId: string): Promise<Recette[]> => {
-  const { data, error } = await supabase
-    .from('encaissements')
-    .select('*')
-    .eq('user_id', userId)
-    .order('date_transaction', { ascending: false });
-
-  if (error) {
-    throw new Error(`Erreur lors de la récupération des recettes: ${error.message}`);
+  try {
+    const stored = localStorage.getItem(RECETTES_STORAGE_KEY);
+    const allRecettes = stored ? JSON.parse(stored) : [];
+    
+    // Filtrer par utilisateur
+    return allRecettes.filter((recette: Recette) => recette.userId === userId);
+  } catch (error) {
+    console.error('Erreur lors de la récupération des recettes:', error);
+    return [];
   }
-
-  // Transformation des données pour correspondre au type Recette
-  return data.map(item => ({
-    id: item.id,
-    titre: item.titre,
-    montant: Number(item.montant),
-    date: item.date_transaction,
-    categorie: item.categorie,
-    sousCategorie: item.sous_categorie || '',
-    recurrence: (item.recurrence || 'aucune') as RecurrenceType,
-    userId: item.user_id
-  }));
 };
 
-// Ajoute une nouvelle recette dans Supabase
+// Ajoute une nouvelle recette dans le localStorage
 export const addRecette = async (recette: Omit<Recette, "id">): Promise<Recette> => {
-  const { data, error } = await supabase
-    .from('encaissements')
-    .insert({
-      titre: recette.titre,
-      montant: recette.montant,
-      date_transaction: recette.date,
-      categorie: recette.categorie,
-      sous_categorie: recette.sousCategorie,
-      recurrence: recette.recurrence,
-      user_id: recette.userId,
-      statut: 'confirme'
-    })
-    .select()
-    .single();
-
-  if (error) {
-    throw new Error(`Erreur lors de l'ajout de la recette: ${error.message}`);
+  try {
+    const stored = localStorage.getItem(RECETTES_STORAGE_KEY);
+    const allRecettes = stored ? JSON.parse(stored) : [];
+    
+    const newRecette: Recette = {
+      ...recette,
+      id: Date.now().toString() + Math.random().toString(36).substr(2, 9)
+    };
+    
+    allRecettes.push(newRecette);
+    localStorage.setItem(RECETTES_STORAGE_KEY, JSON.stringify(allRecettes));
+    
+    return newRecette;
+  } catch (error) {
+    throw new Error(`Erreur lors de l'ajout de la recette: ${error}`);
   }
-
-  return {
-    id: data.id,
-    titre: data.titre,
-    montant: Number(data.montant),
-    date: data.date_transaction,
-    categorie: data.categorie,
-    sousCategorie: data.sous_categorie || '',
-    recurrence: (data.recurrence || 'aucune') as RecurrenceType,
-    userId: data.user_id
-  };
 };
 
-// Met à jour une recette existante dans Supabase
+// Met à jour une recette existante dans le localStorage
 export const updateRecette = async (id: string, recetteData: Partial<Recette>): Promise<Recette> => {
-  const updateData: any = {};
-  
-  if (recetteData.titre) updateData.titre = recetteData.titre;
-  if (recetteData.montant) updateData.montant = recetteData.montant;
-  if (recetteData.date) updateData.date_transaction = recetteData.date;
-  if (recetteData.categorie) updateData.categorie = recetteData.categorie;
-  if (recetteData.sousCategorie) updateData.sous_categorie = recetteData.sousCategorie;
-  if (recetteData.recurrence) updateData.recurrence = recetteData.recurrence;
-
-  const { data, error } = await supabase
-    .from('encaissements')
-    .update(updateData)
-    .eq('id', id)
-    .select()
-    .single();
-
-  if (error) {
-    throw new Error(`Erreur lors de la mise à jour de la recette: ${error.message}`);
+  try {
+    const stored = localStorage.getItem(RECETTES_STORAGE_KEY);
+    const allRecettes = stored ? JSON.parse(stored) : [];
+    
+    const index = allRecettes.findIndex((r: Recette) => r.id === id);
+    if (index === -1) {
+      throw new Error('Recette non trouvée');
+    }
+    
+    allRecettes[index] = { ...allRecettes[index], ...recetteData };
+    localStorage.setItem(RECETTES_STORAGE_KEY, JSON.stringify(allRecettes));
+    
+    return allRecettes[index];
+  } catch (error) {
+    throw new Error(`Erreur lors de la mise à jour de la recette: ${error}`);
   }
-
-  return {
-    id: data.id,
-    titre: data.titre,
-    montant: Number(data.montant),
-    date: data.date_transaction,
-    categorie: data.categorie,
-    sousCategorie: data.sous_categorie || '',
-    recurrence: (data.recurrence || 'aucune') as RecurrenceType,
-    userId: data.user_id
-  };
 };
 
-// Supprime une recette de Supabase
+// Supprime une recette du localStorage
 export const deleteRecette = async (id: string): Promise<void> => {
-  const { error } = await supabase
-    .from('encaissements')
-    .delete()
-    .eq('id', id);
-
-  if (error) {
-    throw new Error(`Erreur lors de la suppression de la recette: ${error.message}`);
+  try {
+    const stored = localStorage.getItem(RECETTES_STORAGE_KEY);
+    const allRecettes = stored ? JSON.parse(stored) : [];
+    
+    const filteredRecettes = allRecettes.filter((r: Recette) => r.id !== id);
+    localStorage.setItem(RECETTES_STORAGE_KEY, JSON.stringify(filteredRecettes));
+  } catch (error) {
+    throw new Error(`Erreur lors de la suppression de la recette: ${error}`);
   }
 };
 
