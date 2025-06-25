@@ -2,14 +2,13 @@
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams, useNavigate } from 'react-router-dom';
-import { Check } from 'lucide-react';
+import { Check, FileText } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { toast } from 'sonner';
 import { useLocalComptes } from '@/hooks/useLocalComptes';
 import { useLocalTransactions } from '@/hooks/useLocalTransactions';
-import { PdfUploadZone } from '@/components/import/PdfUploadZone';
-import { AssistedInputSection } from '@/components/import/AssistedInputSection';
+import { ManualInputSection } from '@/components/import/ManualInputSection';
 
 interface ValidatedTransaction {
   id: string;
@@ -26,18 +25,11 @@ const ImportReleve = () => {
   const { data: comptes = [] } = useLocalComptes();
   const { createTransaction } = useLocalTransactions();
 
-  const [extractedText, setExtractedText] = useState<string>('');
   const [validatedTransactions, setValidatedTransactions] = useState<ValidatedTransaction[]>([]);
-  const [isProcessing, setIsProcessing] = useState(false);
   const [isImporting, setIsImporting] = useState(false);
 
   // Trouver le compte actuel
   const currentCompte = comptes.find(c => c.id === compteId);
-
-  const handlePdfProcessed = (text: string) => {
-    setExtractedText(text);
-    setIsProcessing(false);
-  };
 
   const handleTransactionsValidated = (transactions: ValidatedTransaction[]) => {
     setValidatedTransactions(transactions);
@@ -84,19 +76,38 @@ const ImportReleve = () => {
         </p>
       </div>
 
-      {/* Étape 1: Upload PDF */}
-      <PdfUploadZone 
-        onPdfProcessed={handlePdfProcessed}
-        isProcessing={isProcessing}
-      />
+      {/* Instructions */}
+      <Card className="mb-6">
+        <CardContent className="pt-6">
+          <div className="flex items-start gap-4">
+            <div className="p-3 bg-blue-100 rounded-full">
+              <FileText className="h-6 w-6 text-blue-600" />
+            </div>
+            <div>
+              <h3 className="font-semibold text-lg mb-2">Comment procéder ?</h3>
+              <ol className="list-decimal list-inside space-y-2 text-sm text-muted-foreground">
+                <li>Ouvrez votre relevé bancaire PDF sur un autre écran ou imprimez-le</li>
+                <li>Saisissez chaque transaction ligne par ligne dans le formulaire ci-dessous</li>
+                <li>Vérifiez vos données et validez l'import</li>
+              </ol>
+              
+              <div className="mt-4 p-3 bg-green-50 border border-green-200 rounded-lg">
+                <p className="text-sm text-green-700">
+                  <strong>✓ Compatible avec toutes les banques :</strong> BIAT, BNA, STB, Amen Bank, 
+                  Attijari Bank, UIB, ABC Bank, Banque Zitouna, et toutes les autres banques tunisiennes
+                </p>
+              </div>
+            </div>
+          </div>
+        </CardContent>
+      </Card>
 
-      {/* Étape 2: Saisie assistée */}
-      <AssistedInputSection
-        extractedText={extractedText}
+      {/* Saisie manuelle */}
+      <ManualInputSection
         onTransactionsReady={handleTransactionsValidated}
       />
 
-      {/* Étape 3: Import final */}
+      {/* Import final */}
       {validatedTransactions.length > 0 && (
         <Card>
           <CardContent className="pt-6">
@@ -129,7 +140,7 @@ const ImportReleve = () => {
       <Card className="mt-6">
         <CardContent className="pt-6">
           <div className="text-center text-sm text-muted-foreground">
-            <p className="mb-2">Besoin d'aide avec l'import de vos relevés PDF ?</p>
+            <p className="mb-2">Besoin d'aide avec l'import de vos relevés ?</p>
             <div className="flex justify-center gap-6">
               <a href="mailto:contact@trezo.pro" className="text-primary hover:underline">
                 📧 contact@trezo.pro
