@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { Navigate } from "react-router-dom";
 
 // Import des composants de la page d'accueil
+import HomeHeader from "@/components/home/HomeHeader";
 import HeroSection from "@/components/home/HeroSection";
 import CtaSection from "@/components/home/CtaSection";
 import FeaturesSection from "@/components/home/FeaturesSection";
@@ -22,12 +23,19 @@ const Home = () => {
 
   return (
     <div className="min-h-screen">
+      <HomeHeader />
       <HeroSection />
       <CtaSection />
-      <FeaturesSection />
-      <PricingSection />
+      <div id="fonctionnalites">
+        <FeaturesSection />
+      </div>
+      <div id="tarifs">
+        <PricingSection />
+      </div>
       <TestimonialsSection />
-      <Footer />
+      <div id="contact">
+        <Footer />
+      </div>
     </div>
   );
 };
