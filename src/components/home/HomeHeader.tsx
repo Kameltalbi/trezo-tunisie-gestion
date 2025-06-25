@@ -1,7 +1,6 @@
 
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
-import { Coins } from "lucide-react";
 
 const HomeHeader = () => {
   return (
@@ -10,10 +9,11 @@ const HomeHeader = () => {
         <div className="flex items-center justify-between">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <div className="bg-emerald-500 text-white p-1.5 rounded-lg shadow-md">
-              <Coins size={20} />
-            </div>
-            <span className="text-xl font-bold text-gray-900">Trézo</span>
+            <img 
+              src="/lovable-uploads/c6044d18-b9a5-4f10-9c00-f04817874a0e.png" 
+              alt="Trézo Logo" 
+              className="h-8 w-auto"
+            />
           </Link>
 
           {/* Navigation */}
