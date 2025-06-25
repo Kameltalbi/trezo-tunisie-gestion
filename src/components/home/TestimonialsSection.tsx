@@ -4,15 +4,15 @@ import { Star } from "lucide-react";
 const TestimonialsSection = () => {
   const testimonials = [
     {
-      name: "Sophie Martin",
-      role: "Directrice Financière",
+      name: "Mohamed Zouari",
+      role: "Directeur Financier",
       company: "TechStart",
       image: "/lovable-uploads/71b93732-45ea-4330-96cf-7bff5ea4f99a.png",
       quote: "Trézo a révolutionné notre gestion de trésorerie. Nous avons réduit nos délais de reporting de 80% et amélioré notre visibilité financière.",
       rating: 5
     },
     {
-      name: "Marc Dubois",
+      name: "Yacine Chiha",
       role: "CEO",
       company: "InnovCorp",
       image: "/lovable-uploads/71b93732-45ea-4330-96cf-7bff5ea4f99a.png",
@@ -20,7 +20,7 @@ const TestimonialsSection = () => {
       rating: 5
     },
     {
-      name: "Amélie Rousseau",
+      name: "Slim Hassine",
       role: "Contrôleur de Gestion",
       company: "GrowthSAS",
       image: "/lovable-uploads/71b93732-45ea-4330-96cf-7bff5ea4f99a.png",
