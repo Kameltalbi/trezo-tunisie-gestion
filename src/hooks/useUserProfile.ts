@@ -24,12 +24,11 @@ export const useUserProfile = () => {
     queryFn: async (): Promise<UserProfile | null> => {
       if (!user) return null;
       
-      // Retourner le profil basé sur les données locales
       return {
         id: user.id,
         email: user.email,
-        full_name: user.full_name || user.email,
-        company_name: 'Entreprise locale',
+        full_name: user.nom || user.email,
+        company_name: user.nomEntreprise || 'Entreprise locale',
         account_status: 'active',
         currency_code: 'TND',
         currency_symbol: 'TND',

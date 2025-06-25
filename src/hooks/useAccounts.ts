@@ -1,6 +1,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import { useLocalAuth } from "@/contexts/LocalAuthContext";
+import { useLocalMutation } from "./useLocalMutation";
 import { toast } from "sonner";
 
 export interface Account {
@@ -24,7 +25,6 @@ export const useAccounts = () => {
   return useQuery({
     queryKey: ['accounts'],
     queryFn: async () => {
-      // Retourner un compte par défaut pour le mode local
       return [{
         id: 'local-account-1',
         name: 'Compte Local',
@@ -72,10 +72,13 @@ export const useCurrentAccount = () => {
 };
 
 export const useUpdateAccount = () => {
-  return {
-    mutate: () => toast.success("Compte mis à jour avec succès (simulation)"),
-    mutateAsync: async () => console.log("Account update simulated"),
-    isLoading: false,
-    error: null,
+  const mutationFn = async (data: any) => {
+    console.log("Account update simulated:", data);
+    return data;
   };
+
+  return useLocalMutation(
+    mutationFn,
+    () => toast.success("Compte mis à jour avec succès (simulation)")
+  );
 };

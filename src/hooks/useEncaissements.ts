@@ -1,6 +1,7 @@
 
 import { useLocalData } from "./useLocalData";
 import { useLocalAuth } from "@/contexts/LocalAuthContext";
+import { useLocalMutation } from "./useLocalMutation";
 
 export interface Encaissement {
   id: string;
@@ -29,10 +30,9 @@ export const useCreateEncaissement = () => {
   const { user } = useLocalAuth();
   const { create } = useLocalData<Encaissement>('trezo_encaissements', user?.id);
   
-  return {
-    mutate: create,
-    mutateAsync: create,
-    isLoading: false,
-    error: null,
+  const mutationFn = async (data: Omit<Encaissement, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+    return await create(data);
   };
+
+  return useLocalMutation(mutationFn);
 };

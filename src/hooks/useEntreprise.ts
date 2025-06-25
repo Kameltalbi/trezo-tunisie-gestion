@@ -1,6 +1,7 @@
 
 import { useLocalData } from "./useLocalData";
 import { useLocalAuth } from "@/contexts/LocalAuthContext";
+import { useLocalMutation } from "./useLocalMutation";
 import { toast } from "sonner";
 
 export interface Entreprise {
@@ -43,12 +44,12 @@ export const useUpdateEntreprise = () => {
     if (!data || data.length === 0) {
       return await create({
         nom: entreprise.nom,
-        adresse: entreprise.adresse,
-        telephone: entreprise.telephone,
-        email: entreprise.email,
-        tva: entreprise.tva,
-        logo_url: entreprise.logo_url,
-        devise_id: entreprise.devise_id
+        adresse: entreprise.adresse || '',
+        telephone: entreprise.telephone || '',
+        email: entreprise.email || '',
+        tva: entreprise.tva || '',
+        logo_url: entreprise.logo_url || '',
+        devise_id: entreprise.devise_id || ''
       });
     } else {
       // Mettre à jour l'entreprise existante
@@ -56,17 +57,12 @@ export const useUpdateEntreprise = () => {
     }
   };
 
-  return {
-    mutate: (entreprise: Partial<Entreprise> & { nom: string }) => {
-      mutationFn(entreprise)
-        .then(() => toast.success("Entreprise mise à jour avec succès"))
-        .catch((error) => {
-          toast.error("Erreur lors de la mise à jour de l'entreprise");
-          console.error('Erreur mise à jour entreprise:', error);
-        });
-    },
-    mutateAsync: mutationFn,
-    isLoading: false,
-    error: null,
-  };
+  return useLocalMutation(
+    mutationFn,
+    () => toast.success("Entreprise mise à jour avec succès"),
+    (error) => {
+      toast.error("Erreur lors de la mise à jour de l'entreprise");
+      console.error('Erreur mise à jour entreprise:', error);
+    }
+  );
 };

@@ -1,6 +1,7 @@
 
 import { useLocalData } from "./useLocalData";
 import { useLocalAuth } from "@/contexts/LocalAuthContext";
+import { useLocalMutation } from "./useLocalMutation";
 
 export interface CompteBancaire {
   id: string;
@@ -26,10 +27,9 @@ export const useCreateCompteBancaire = () => {
   const { user } = useLocalAuth();
   const { create } = useLocalData<CompteBancaire>('trezo_comptes', user?.id);
   
-  return {
-    mutate: create,
-    mutateAsync: create,
-    isLoading: false,
-    error: null,
+  const mutationFn = async (data: Omit<CompteBancaire, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => {
+    return await create(data);
   };
+
+  return useLocalMutation(mutationFn);
 };

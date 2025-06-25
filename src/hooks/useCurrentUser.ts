@@ -22,9 +22,9 @@ export const useCurrentUser = () => {
       return {
         id: user.id,
         account_id: 'local-account-1',
-        full_name: user.full_name,
+        full_name: user.nom || user.email,
         email: user.email,
-        role: 'admin' as const, // Par défaut admin en mode local
+        role: 'admin' as const,
         is_active: true
       };
     },
@@ -38,7 +38,6 @@ export const useHasPermission = (route: string) => {
   return useQuery({
     queryKey: ['has-permission', user?.id, route],
     queryFn: async () => {
-      // En mode local, tous les utilisateurs ont toutes les permissions
       return true;
     },
     enabled: !!user,
@@ -51,7 +50,6 @@ export const useCanDelete = () => {
   return useQuery({
     queryKey: ['can-delete', user?.id],
     queryFn: async () => {
-      // En mode local, tous les utilisateurs peuvent supprimer
       return true;
     },
     enabled: !!user,

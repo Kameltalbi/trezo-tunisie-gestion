@@ -1,5 +1,6 @@
 
 import { useLocalData } from "./useLocalData";
+import { useLocalMutation } from "./useLocalMutation";
 import { toast } from "sonner";
 
 export interface User {
@@ -20,77 +21,50 @@ export const useUsers = () => {
 export const useCreateUser = () => {
   const { create } = useLocalData<User>('trezo_users');
   
-  return {
-    mutate: async (userData: { 
-      email: string; 
-      password: string; 
-      full_name: string; 
-      role: string;
-      account_id: string;
-    }) => {
-      const newUser = await create({
-        account_id: userData.account_id,
-        full_name: userData.full_name,
-        email: userData.email,
-        role: userData.role as any,
-        is_active: true
-      });
-      toast.success("Utilisateur créé avec succès");
-      return newUser;
-    },
-    mutateAsync: async (userData: { 
-      email: string; 
-      password: string; 
-      full_name: string; 
-      role: string;
-      account_id: string;
-    }) => {
-      const newUser = await create({
-        account_id: userData.account_id,
-        full_name: userData.full_name,
-        email: userData.email,
-        role: userData.role as any,
-        is_active: true
-      });
-      toast.success("Utilisateur créé avec succès");
-      return newUser;
-    },
-    isLoading: false,
-    error: null,
+  const mutationFn = async (userData: { 
+    email: string; 
+    password: string; 
+    full_name: string; 
+    role: string;
+    account_id: string;
+  }) => {
+    return await create({
+      account_id: userData.account_id,
+      full_name: userData.full_name,
+      email: userData.email,
+      role: userData.role as any,
+      is_active: true
+    });
   };
+
+  return useLocalMutation(
+    mutationFn,
+    () => toast.success("Utilisateur créé avec succès")
+  );
 };
 
 export const useUpdateUser = () => {
   const { update } = useLocalData<User>('trezo_users');
   
-  return {
-    mutate: ({ userId, updates }: { userId: string; updates: Partial<User> }) => {
-      update(userId, updates);
-      toast.success("Utilisateur mis à jour avec succès");
-    },
-    mutateAsync: async ({ userId, updates }: { userId: string; updates: Partial<User> }) => {
-      const result = await update(userId, updates);
-      toast.success("Utilisateur mis à jour avec succès");
-      return result;
-    },
-    isLoading: false,
-    error: null,
+  const mutationFn = async ({ userId, updates }: { userId: string; updates: Partial<User> }) => {
+    return await update(userId, updates);
   };
+
+  return useLocalMutation(
+    mutationFn,
+    () => toast.success("Utilisateur mis à jour avec succès")
+  );
 };
 
 export const useDeleteUser = () => {
   const { delete: deleteItem } = useLocalData<User>('trezo_users');
   
-  return {
-    mutate: (userId: string) => {
-      deleteItem(userId);
-      toast.success("Utilisateur supprimé avec succès");
-    },
-    mutateAsync: async (userId: string) => {
-      await deleteItem(userId);
-      toast.success("Utilisateur supprimé avec succès");
-    },
-    isLoading: false,
-    error: null,
+  const mutationFn = async (userId: string) => {
+    await deleteItem(userId);
   };
+
+  return useLocalMutation(
+    mutationFn,
+    () => toast.success("Utilisateur supprimé avec succès")
+  );
 };
