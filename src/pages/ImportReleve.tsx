@@ -188,7 +188,6 @@ const ImportReleve = () => {
     try {
       for (const transaction of validTransactions) {
         await createTransaction.mutateAsync({
-          user_id: 'local-user', // À adapter selon votre logique
           compte_id: transaction.compte_id,
           type: transaction.type,
           titre: transaction.libelle,
