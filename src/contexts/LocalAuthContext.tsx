@@ -3,6 +3,7 @@ import { LocalUser, LocalSession } from "@/types/local";
 import { localStorageService } from "@/services/localStorageService";
 import { toast } from "sonner";
 import { v4 as uuidv4 } from 'uuid';
+import { useNavigate } from "react-router-dom";
 
 interface LocalAuthContextType {
   user: LocalUser | null;
@@ -127,6 +128,9 @@ export const LocalAuthProvider = ({ children }: { children: ReactNode }) => {
       setSession(null);
       setUser(null);
       toast.success("Déconnexion réussie");
+      
+      // Rediriger vers la page d'accueil
+      window.location.href = "/";
     } catch (error) {
       const errorMessage = error instanceof Error ? error.message : "Erreur de déconnexion";
       setError(errorMessage);
