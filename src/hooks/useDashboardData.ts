@@ -53,8 +53,8 @@ export const useDashboardData = () => {
         const comptes = localStorageService.getComptes();
         const soldesData = comptes.map((compte, index) => ({
           id: `flux-${compte.id}`,
-          montant_prevu: compte.solde,
-          montant_realise: compte.solde,
+          montant_prevu: compte.soldeActuel,
+          montant_realise: compte.soldeActuel,
           date_prevision: new Date(new Date().setMonth(new Date().getMonth() - index)).toISOString(),
           user_id: user.id
         } as DashboardFluxTresorerie));
