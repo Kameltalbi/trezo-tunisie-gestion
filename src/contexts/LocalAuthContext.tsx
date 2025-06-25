@@ -66,7 +66,7 @@ export const LocalAuthProvider = ({ children }: { children: ReactNode }) => {
       };
 
       // Sauvegarder la session
-      localStorageService.setSession(newSession);
+      localStorageService.saveSession(newSession);
       setSession(newSession);
       setUser(newUser);
 
@@ -103,7 +103,7 @@ export const LocalAuthProvider = ({ children }: { children: ReactNode }) => {
       };
 
       // Sauvegarder la session
-      localStorageService.setSession(newSession);
+      localStorageService.saveSession(newSession);
       setSession(newSession);
       setUser(existingUser);
 
@@ -145,7 +145,7 @@ export const LocalAuthProvider = ({ children }: { children: ReactNode }) => {
     
     if (session) {
       const updatedSession = { ...session, user: updatedUser };
-      localStorageService.setSession(updatedSession);
+      localStorageService.saveSession(updatedSession);
       setSession(updatedSession);
     }
     

@@ -1,4 +1,3 @@
-
 import { LocalUser, LocalSession, CompteBancaire, Transaction, Entreprise, Projet } from '@/types/local';
 
 const STORAGE_KEYS = {
@@ -8,6 +7,7 @@ const STORAGE_KEYS = {
   TRANSACTIONS: 'trezo_transactions',
   ENTREPRISE: 'trezo_entreprise',
   PROJETS: 'trezo_projets',
+  USERS: 'trezo_users', // Added for multiple users support
 } as const;
 
 class LocalStorageService {
@@ -35,12 +35,35 @@ class LocalStorageService {
   }
 
   saveUser(user: LocalUser): void {
+    // Save to individual user storage
     localStorage.setItem(STORAGE_KEYS.USER, JSON.stringify(user));
+    
+    // Also save to users list for email lookup
+    const users = this.getUsers();
+    const existingIndex = users.findIndex(u => u.id === user.id);
+    
+    if (existingIndex >= 0) {
+      users[existingIndex] = user;
+    } else {
+      users.push(user);
+    }
+    
+    localStorage.setItem(STORAGE_KEYS.USERS, JSON.stringify(users));
   }
 
   getUser(): LocalUser | null {
     const user = localStorage.getItem(STORAGE_KEYS.USER);
     return user ? JSON.parse(user) : null;
+  }
+
+  getUsers(): LocalUser[] {
+    const users = localStorage.getItem(STORAGE_KEYS.USERS);
+    return users ? JSON.parse(users) : [];
+  }
+
+  getUserByEmail(email: string): LocalUser | null {
+    const users = this.getUsers();
+    return users.find(user => user.email === email) || null;
   }
 
   // Comptes bancaires
