@@ -22,7 +22,6 @@ import ProjetDetail from "./pages/ProjetDetail";
 import Objectifs from "./pages/Objectifs";
 import Rapports from "./pages/Rapports";
 import Transactions from "./pages/Transactions";
-import Subscription from "./pages/Subscription";
 import SubscriptionForm from "./pages/SubscriptionForm";
 import SuperAdmin from "./pages/SuperAdmin";
 import Settings from "./pages/Settings";
@@ -43,7 +42,6 @@ const App = () => (
             <Route path="/register" element={<Register />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/subscription" element={<SubscriptionForm />} />
-            <Route path="/my-subscription" element={<LocalLayout requireAuth={true}><Subscription /></LocalLayout>} />
             <Route path="/superadmin" element={<LocalLayout requireAuth={true}><SuperAdmin /></LocalLayout>} />
             <Route path="/settings" element={<LocalLayout requireAuth={true}><Settings /></LocalLayout>} />
             <Route path="/cash-flow" element={<LocalLayout requireAuth={true}><CashFlow /></LocalLayout>} />
