@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { LocalUser, LocalSession } from "@/types/local";
 import { localStorageService } from "@/services/localStorageService";
@@ -50,6 +49,7 @@ export const LocalAuthProvider = ({ children }: { children: ReactNode }) => {
         id: uuidv4(),
         email,
         nom: userData.nom,
+        full_name: userData.nom, // Added for compatibility
         nomEntreprise: userData.nomEntreprise,
         role: 'admin', // Premier utilisateur = admin
         createdAt: new Date().toISOString(),
