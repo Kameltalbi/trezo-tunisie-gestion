@@ -14,7 +14,7 @@ const TestimonialsSection = () => {
     {
       name: "Yacine Chiha",
       role: "CEO",
-      company: "InnovCorp",
+      company: "BigDeep",
       image: "/lovable-uploads/71b93732-45ea-4330-96cf-7bff5ea4f99a.png",
       quote: "L'interface intuitive et les prévisions intelligentes nous permettent d'anticiper nos besoins de financement avec une précision remarquable.",
       rating: 5
