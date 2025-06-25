@@ -18,6 +18,9 @@ const HomeHeader = () => {
 
           {/* Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
+            <a href="#engagement" className="text-gray-700 hover:text-emerald-600 transition-colors">
+              Essai gratuit
+            </a>
             <a href="#fonctionnalites" className="text-gray-700 hover:text-emerald-600 transition-colors">
               Fonctionnalités
             </a>
@@ -29,12 +32,19 @@ const HomeHeader = () => {
             </a>
           </nav>
 
-          {/* Bouton de connexion */}
-          <Button asChild variant="outline" className="border-emerald-600 text-emerald-600 hover:bg-emerald-50">
-            <Link to="/login">
-              Se connecter
-            </Link>
-          </Button>
+          {/* Boutons de connexion */}
+          <div className="flex items-center gap-4">
+            <Button asChild variant="ghost" className="text-gray-700 hover:text-emerald-600">
+              <Link to="/login">
+                Se connecter
+              </Link>
+            </Button>
+            <Button asChild className="bg-emerald-600 hover:bg-emerald-700 text-white">
+              <Link to="/register">
+                Essai gratuit
+              </Link>
+            </Button>
+          </div>
         </div>
       </div>
     </header>

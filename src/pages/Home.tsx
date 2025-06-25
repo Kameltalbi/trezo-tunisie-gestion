@@ -11,6 +11,7 @@ import FeaturesSection from "@/components/home/FeaturesSection";
 import PricingSection from "@/components/home/PricingSection";
 import TestimonialsSection from "@/components/home/TestimonialsSection";
 import Footer from "@/components/home/Footer";
+import EngagementSection from "@/components/home/EngagementSection";
 
 const Home = () => {
   const { user } = useLocalAuth();
@@ -25,6 +26,9 @@ const Home = () => {
     <div className="min-h-screen">
       <HomeHeader />
       <HeroSection />
+      <div id="engagement">
+        <EngagementSection />
+      </div>
       <CtaSection />
       <div id="fonctionnalites">
         <FeaturesSection />
