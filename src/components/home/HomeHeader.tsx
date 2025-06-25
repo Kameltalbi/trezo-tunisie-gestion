@@ -12,7 +12,7 @@ const HomeHeader = () => {
             <img 
               src="/lovable-uploads/c6044d18-b9a5-4f10-9c00-f04817874a0e.png" 
               alt="Trézo Logo" 
-              className="h-8 w-auto"
+              className="h-14 w-auto"
             />
           </Link>
 
