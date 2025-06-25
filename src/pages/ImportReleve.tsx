@@ -23,9 +23,9 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { toast } from '@/hooks/use-toast';
-import { useComptesBancaires } from '@/hooks/useComptesBancaires';
-import { useCreateTransaction } from '@/hooks/useTransactions';
+import { toast } from 'sonner';
+import { useLocalComptes } from '@/hooks/useLocalComptes';
+import { useLocalTransactions } from '@/hooks/useLocalTransactions';
 
 interface ParsedTransaction {
   id: string;
@@ -41,8 +41,8 @@ const ImportReleve = () => {
   const { t } = useTranslation();
   const { compteId } = useParams();
   const navigate = useNavigate();
-  const { data: comptes = [] } = useComptesBancaires();
-  const createTransaction = useCreateTransaction();
+  const { data: comptes = [] } = useLocalComptes();
+  const { createTransaction } = useLocalTransactions();
 
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
   const [pastedText, setPastedText] = useState('');
@@ -57,16 +57,9 @@ const ImportReleve = () => {
     const file = event.target.files?.[0];
     if (file && file.type === 'application/pdf') {
       setSelectedFile(file);
-      toast({
-        title: "Fichier sélectionné",
-        description: `${file.name} a été sélectionné pour archivage`,
-      });
+      toast.success(`${file.name} a été sélectionné pour archivage`);
     } else {
-      toast({
-        title: "Erreur",
-        description: "Veuillez sélectionner un fichier PDF valide",
-        variant: "destructive",
-      });
+      toast.error('Veuillez sélectionner un fichier PDF valide');
     }
   };
 
@@ -137,11 +130,7 @@ const ImportReleve = () => {
 
   const handleAnalyze = () => {
     if (!pastedText.trim()) {
-      toast({
-        title: "Erreur",
-        description: "Veuillez coller des lignes de relevé bancaire",
-        variant: "destructive",
-      });
+      toast.error('Veuillez coller des lignes de relevé bancaire');
       return;
     }
 
@@ -154,10 +143,7 @@ const ImportReleve = () => {
       setParsedTransactions(parsed);
       setIsAnalyzing(false);
       
-      toast({
-        title: "Analyse terminée",
-        description: `${parsed.length} lignes analysées`,
-      });
+      toast.success(`${parsed.length} lignes analysées`);
     }, 1000);
   };
 
@@ -175,11 +161,7 @@ const ImportReleve = () => {
     const validTransactions = parsedTransactions.filter(t => t.isValid && t.montant !== '0');
     
     if (validTransactions.length === 0) {
-      toast({
-        title: "Erreur",
-        description: "Aucune transaction valide à importer",
-        variant: "destructive",
-      });
+      toast.error('Aucune transaction valide à importer');
       return;
     }
 
@@ -187,7 +169,7 @@ const ImportReleve = () => {
 
     try {
       for (const transaction of validTransactions) {
-        await createTransaction.mutateAsync({
+        await createTransaction({
           compte_id: transaction.compte_id,
           type: transaction.type,
           titre: transaction.libelle,
@@ -199,18 +181,11 @@ const ImportReleve = () => {
         });
       }
 
-      toast({
-        title: "Import réussi",
-        description: `${validTransactions.length} transactions importées`,
-      });
-
+      toast.success(`${validTransactions.length} transactions importées`);
       navigate('/comptes');
     } catch (error) {
-      toast({
-        title: "Erreur d'import",
-        description: "Une erreur est survenue lors de l'import",
-        variant: "destructive",
-      });
+      console.error('Erreur import:', error);
+      toast.error('Une erreur est survenue lors de l\'import');
     } finally {
       setIsImporting(false);
     }
