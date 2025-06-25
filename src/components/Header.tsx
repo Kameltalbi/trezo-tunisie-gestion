@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { Sun, Moon, Monitor, LogOut, User } from 'lucide-react';
 import { useTheme } from '../contexts/ThemeContext';
-import { useAuth } from '../contexts/AuthContext';
+import { useLocalAuth } from '@/contexts/LocalAuthContext';
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -14,7 +14,7 @@ import { Button } from './ui/button';
 
 const Header = () => {
   const { theme, setTheme } = useTheme();
-  const { user, signOut } = useAuth();
+  const { user, logout } = useLocalAuth();
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
@@ -44,7 +44,7 @@ const Header = () => {
 
   const handleSignOut = async () => {
     try {
-      await signOut();
+      await logout();
     } catch (error) {
       console.error('Erreur lors de la déconnexion:', error);
     }
@@ -52,8 +52,8 @@ const Header = () => {
 
   // Get user display name
   const getUserDisplayName = () => {
-    if (user?.user_metadata?.full_name) {
-      return user.user_metadata.full_name;
+    if (user?.full_name) {
+      return user.full_name;
     }
     if (user?.email) {
       return user.email.split('@')[0];
