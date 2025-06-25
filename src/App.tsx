@@ -17,6 +17,7 @@ import Depenses from "./pages/Depenses";
 import Encaissements from "./pages/Encaissements";
 import Dashboard from "./pages/Dashboard";
 import Comptes from "./pages/Comptes";
+import ImportReleve from "./pages/ImportReleve";
 import Projets from "./pages/Projets";
 import ProjetDetail from "./pages/ProjetDetail";
 import Objectifs from "./pages/Objectifs";
@@ -51,6 +52,7 @@ const App = () => (
             <Route path="/transactions" element={<LocalLayout requireAuth={true}><Transactions /></LocalLayout>} />
             <Route path="/dashboard" element={<LocalLayout requireAuth={true}><Dashboard /></LocalLayout>} />
             <Route path="/comptes" element={<LocalLayout requireAuth={true}><Comptes /></LocalLayout>} />
+            <Route path="/comptes/:compteId/import-releve" element={<LocalLayout requireAuth={true}><ImportReleve /></LocalLayout>} />
             <Route path="/projets" element={<LocalLayout requireAuth={true}><Projets /></LocalLayout>} />
             <Route path="/projets/:id" element={<LocalLayout requireAuth={true}><ProjetDetail /></LocalLayout>} />
             <Route path="/objectifs" element={<LocalLayout requireAuth={true}><Objectifs /></LocalLayout>} />

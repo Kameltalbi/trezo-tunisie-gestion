@@ -1,6 +1,8 @@
+
 import React, { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Plus, Wallet, ArrowUp, ArrowDown, Edit, MoreHorizontal, Trash2 } from 'lucide-react';
+import { Plus, Wallet, ArrowUp, ArrowDown, Edit, MoreHorizontal, Trash2, FileText } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card';
 import {
@@ -311,38 +313,51 @@ const Comptes = () => {
                       {formatAccountCurrency(account.solde_actuel)}
                     </TableCell>
                     <TableCell className="text-right">
-                      <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                          <Button variant="outline" size="sm">
-                            <MoreHorizontal size={16} />
-                          </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-48">
-                          <DropdownMenuItem onClick={() => openActionDialog('deposit', account)}>
-                            <ArrowDown size={16} className="mr-2 text-emerald-600" />
-                            {t('comptes.deposit')}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => openActionDialog('withdraw', account)}>
-                            <ArrowUp size={16} className="mr-2 text-red-600" />
-                            {t('comptes.withdraw')}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => openActionDialog('fees', account)}>
-                            <Edit size={16} className="mr-2" />
-                            {t('comptes.fees')}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem onClick={() => openActionDialog('edit', account)}>
-                            <Edit size={16} className="mr-2" />
-                            {t('comptes.modify')}
-                          </DropdownMenuItem>
-                          <DropdownMenuItem 
-                            onClick={() => openActionDialog('delete', account)}
-                            className="text-red-600"
-                          >
-                            <Trash2 size={16} className="mr-2" />
-                            {t('comptes.delete')}
-                          </DropdownMenuItem>
-                        </DropdownMenuContent>
-                      </DropdownMenu>
+                      <div className="flex items-center justify-end gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          asChild
+                        >
+                          <Link to={`/comptes/${account.id}/import-releve`}>
+                            <FileText size={16} className="mr-2" />
+                            Importer relevé
+                          </Link>
+                        </Button>
+                        
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button variant="outline" size="sm">
+                              <MoreHorizontal size={16} />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent align="end" className="w-48">
+                            <DropdownMenuItem onClick={() => openActionDialog('deposit', account)}>
+                              <ArrowDown size={16} className="mr-2 text-emerald-600" />
+                              {t('comptes.deposit')}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => openActionDialog('withdraw', account)}>
+                              <ArrowUp size={16} className="mr-2 text-red-600" />
+                              {t('comptes.withdraw')}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => openActionDialog('fees', account)}>
+                              <Edit size={16} className="mr-2" />
+                              {t('comptes.fees')}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => openActionDialog('edit', account)}>
+                              <Edit size={16} className="mr-2" />
+                              {t('comptes.modify')}
+                            </DropdownMenuItem>
+                            <DropdownMenuItem 
+                              onClick={() => openActionDialog('delete', account)}
+                              className="text-red-600"
+                            >
+                              <Trash2 size={16} className="mr-2" />
+                              {t('comptes.delete')}
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))
