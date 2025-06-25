@@ -26,13 +26,16 @@ export const useLocalDecaissements = () => {
     loadDecaissements();
   }, []);
 
-  const createDecaissement = async (decaissementData: Omit<Transaction, 'id' | 'createdAt' | 'type'>) => {
+  const createDecaissement = async (decaissementData: Omit<Transaction, 'id' | 'createdAt' | 'type' | 'user_id' | 'created_at' | 'updated_at'>) => {
     try {
       const newDecaissement: Transaction = {
         ...decaissementData,
         id: uuidv4(),
         type: 'decaissement',
+        user_id: 'local-user',
         createdAt: new Date().toISOString(),
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
       };
 
       localStorageService.saveTransaction(newDecaissement);

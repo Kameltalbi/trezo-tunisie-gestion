@@ -6,7 +6,7 @@ export interface LocalDataHook<T> {
   data: T[] | null;
   isLoading: boolean;
   error: Error | null;
-  create: (item: Omit<T, 'id'>) => Promise<T>;
+  create: (item: Omit<T, 'id' | 'user_id' | 'created_at' | 'updated_at'>) => Promise<T>;
   update: (id: string, updates: Partial<T>) => Promise<T>;
   delete: (id: string) => Promise<void>;
   refetch: () => void;
@@ -40,7 +40,7 @@ export const useLocalData = <T extends { id: string; user_id?: string }>(
     }
   };
 
-  const create = async (item: Omit<T, 'id'>): Promise<T> => {
+  const create = async (item: Omit<T, 'id' | 'user_id' | 'created_at' | 'updated_at'>): Promise<T> => {
     try {
       const stored = localStorage.getItem(storageKey);
       const allData = stored ? JSON.parse(stored) : [];

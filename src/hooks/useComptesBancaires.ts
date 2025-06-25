@@ -1,5 +1,4 @@
 
-
 import { useLocalData } from "./useLocalData";
 import { useLocalAuth } from "@/contexts/LocalAuthContext";
 import { useLocalMutation } from "./useLocalMutation";
@@ -34,4 +33,3 @@ export const useCreateCompteBancaire = () => {
 
   return useLocalMutation(mutationFn);
 };
-
