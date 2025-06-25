@@ -2,8 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
-import { useAuth } from '@/contexts/AuthContext';
-import { useCurrentUser } from '@/hooks/useCurrentUser';
+import { useLocalAuth } from '@/contexts/LocalAuthContext';
 import { 
   LayoutDashboard, 
   Banknote, 
@@ -68,8 +67,7 @@ const SidebarSection = ({ label, children }: SidebarSectionProps) => {
 
 const Sidebar = ({ onExpandedChange }: SidebarProps) => {
   const { t } = useTranslation();
-  const { user } = useAuth();
-  const { data: currentUser } = useCurrentUser();
+  const { user } = useLocalAuth();
   const location = useLocation();
   const navigate = useNavigate();
   const [isExpanded, setIsExpanded] = useState(true);
@@ -90,9 +88,8 @@ const Sidebar = ({ onExpandedChange }: SidebarProps) => {
     navigate(path);
   };
 
-  // Vérifier les permissions
-  const isSuperAdmin = user?.email === 'kamel.talbi@yahoo.fr' || currentUser?.role === 'superadmin';
-  const isAdmin = isSuperAdmin || currentUser?.role === 'admin';
+  // Vérifier les permissions - pour local, on considère que tous les utilisateurs sont admins
+  const isAdmin = user?.role === 'admin';
 
   // Dashboard item (no section)
   const dashboardItem: SidebarItemProps = {
@@ -102,15 +99,7 @@ const Sidebar = ({ onExpandedChange }: SidebarProps) => {
     isActive: isActive('/dashboard')
   };
 
-  // Superadmin item (only for kamel.talbi@yahoo.fr)
-  const superadminItem: SidebarItemProps = {
-    icon: <Shield size={20} />,
-    label: 'Superadmin',
-    path: '/superadmin',
-    isActive: isActive('/superadmin')
-  };
-
-  // Settings item (for admin and superadmin)
+  // Settings item (pour admin)
   const settingsItem: SidebarItemProps = {
     icon: <Settings size={20} />,
     label: 'Paramètres',
@@ -246,16 +235,6 @@ const Sidebar = ({ onExpandedChange }: SidebarProps) => {
         {/* Dashboard (no section) */}
         {renderSidebarItem(dashboardItem)}
         
-        {/* Superadmin section (only for kamel) */}
-        {isSuperAdmin && (
-          <>
-            <div className="my-4 mx-4">
-              <div className="h-px bg-slate-200"></div>
-            </div>
-            {renderSidebarItem(superadminItem)}
-          </>
-        )}
-        
         <div className="my-4 mx-4">
           <div className="h-px bg-slate-200"></div>
         </div>
@@ -300,7 +279,7 @@ const Sidebar = ({ onExpandedChange }: SidebarProps) => {
           </>
         )}
         
-        {/* Settings section (for admin and superadmin) */}
+        {/* Settings section (pour admin) */}
         {isAdmin && (
           <>
             <div className="my-4 mx-4">
