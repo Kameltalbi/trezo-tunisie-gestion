@@ -14,7 +14,7 @@ import { Button } from './ui/button';
 
 const Header = () => {
   const { theme, setTheme } = useTheme();
-  const { user, logout } = useLocalAuth();
+  const { user, signOut } = useLocalAuth();
   const [currentTime, setCurrentTime] = useState(new Date());
 
   useEffect(() => {
@@ -44,7 +44,7 @@ const Header = () => {
 
   const handleSignOut = async () => {
     try {
-      await logout();
+      await signOut();
     } catch (error) {
       console.error('Erreur lors de la déconnexion:', error);
     }
