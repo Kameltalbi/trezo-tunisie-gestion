@@ -1,12 +1,11 @@
-
 import { Star } from "lucide-react";
 
 const TestimonialsSection = () => {
   const testimonials = [
     {
       name: "Mohamed Zouari",
-      role: "Directeur Financier",
-      company: "TechStart",
+      role: "CFO",
+      company: "STS Networks",
       image: "/lovable-uploads/71b93732-45ea-4330-96cf-7bff5ea4f99a.png",
       quote: "Trézo a révolutionné notre gestion de trésorerie. Nous avons réduit nos délais de reporting de 80% et amélioré notre visibilité financière.",
       rating: 5
